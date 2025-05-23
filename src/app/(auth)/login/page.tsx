@@ -13,7 +13,7 @@ interface LoginForm {
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>();
-  const { login, error: loginError } = useLogin('restaurant');
+  const { login, error: loginError } = useLogin('client');
 
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);

@@ -1,12 +1,12 @@
 'use client';
 
-import { useHome } from './hooks/useHome';
+import { useRestaurant } from '../../hooks/useRestaurant';
 import { useQuery } from '@tanstack/react-query';
 import RestaurantList from '@/app/components/RestaurantList';
 
 
 export default function HomePage() {
-  const { getRestaurants } = useHome();
+  const { getRestaurants } = useRestaurant();
 
   const { data, isLoading } = useQuery({
     queryKey: ['restaurants'],

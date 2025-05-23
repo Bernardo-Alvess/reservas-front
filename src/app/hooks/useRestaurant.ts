@@ -4,7 +4,7 @@ import { API_URL } from "@/app/configs/constants"
 // import { useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 
-export const useHome = () => {
+export const useRestaurant = () => {
     const methods = useForm()
     // const queryClient = useQueryClient()
 

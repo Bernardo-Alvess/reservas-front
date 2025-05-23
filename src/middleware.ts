@@ -13,8 +13,7 @@ export const verifyToken = async (token: string) : Promise<{ id: string; email: 
 };
 
 export async function middleware(req: NextRequest) {
-  console.log('Middleware');
-  const token = req.cookies.get('sessionToken')?.value || req.cookies.get('sessionTokenR')?.value || '';
+  const token = req.cookies.get('sessionToken')?.value || ''
 
   const {pathname, origin} = req.nextUrl;
 
@@ -38,16 +37,16 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     '/dashboard/:path*',
-    '/dashboard'
+    '/dashboard',
+    '/my-reserves'
   ]
 }
 
 function authorizeUser(userInfo: any, requestedPath: string): boolean {
-  // Define roles required for specific paths
-  console.log('Pathname: ', requestedPath);
-  console.log('UserInfo: ', userInfo);
+
   const roleRequiredForPath: { [key: string]: string[] } = {
     "/dashboard": ["admin", "worker", "company"],
+    "/my-reserves": ["user"],
     // Add more paths and roles as needed
   };
 
@@ -66,14 +65,14 @@ function authorizeUser(userInfo: any, requestedPath: string): boolean {
   return false;
 }
 
-async function getUserInfoFromToken(token: string) {
+export async function getUserInfoFromToken(token: string) {
   const tokenData = await jwtVerify(token, JWT_SECRET)
 
   const {payload} = await tokenData;
 
   return {
     email: payload?.email,
-    id: payload?.id,
+    id: payload?.sub,
     type: payload?.type,
   };
 }

@@ -16,7 +16,7 @@ export default function Header() {
           <Link href="/restaurants" className="hover:text-blue-600 transition-colors">
             Restaurantes
           </Link>
-          <Link href="/reservations" className="hover:text-blue-600 transition-colors">
+          <Link href="/my-reserves" className="hover:text-blue-600 transition-colors">
             Minhas Reservas
           </Link>
           <Link href="/dashboard" className="hover:text-blue-600 transition-colors">
