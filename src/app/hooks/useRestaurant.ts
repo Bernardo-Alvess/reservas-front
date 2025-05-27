@@ -6,11 +6,8 @@ import { useForm } from "react-hook-form"
 
 export const useRestaurant = () => {
     const methods = useForm()
-    // const queryClient = useQueryClient()
-
 
     const getRestaurants = async () => {
-        console.log('tentando buscar restaurantes')
         try {
             const response = await fetch(`${API_URL}restaurant`, {
                 method: 'GET',
@@ -27,8 +24,26 @@ export const useRestaurant = () => {
         }
     }
 
+
+    const getRestaurantById = async (id: string) => {
+        try {
+            const response = await fetch(`${API_URL}restaurant/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            const data = await response.json()
+            return data
+        } catch (error) {
+            console.error('Erro ao buscar restaurante por ID:', error)
+            throw error
+        }
+    }
+
     return {
         methods,
-        getRestaurants
+        getRestaurants,
+        getRestaurantById
     }
 }
