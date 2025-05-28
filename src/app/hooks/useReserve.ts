@@ -29,6 +29,7 @@ export const useReserve = () => {
 				credentials: 'include',
 			});
 			const data = await response.json();
+			console.log(data)
 			return data;
 		} catch (error) {
 			console.error('Erro ao buscar reservas:', error);
@@ -57,9 +58,30 @@ export const useReserve = () => {
 		}	
 	}
 
+	const confirmOrCancelReserve = async (reserveId: string, type: 'restaurant' | 'client', mode: 'confirm' | 'cancel') => {
+		try {
+			const response = await fetch(`${API_URL}reserve/${mode}/${type}/${reserveId}`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
+			});
+			if(!response.ok) {
+				throw new Error('Erro ao confirmar reserva');
+			}
+			console.log('reserva confirmada com sucesso')
+			return 'Reserva confirmada com sucesso';
+		} catch (error) {
+			console.error('Erro ao confirmar reserva:', error);
+			return 'Erro ao confirmar reserva';
+		}
+	}
+
 	return {
 		methods,
 		getReservesForUser,
 		createReserve,
+		confirmOrCancelReserve,
 	};
 };

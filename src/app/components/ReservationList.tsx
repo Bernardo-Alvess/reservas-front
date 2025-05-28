@@ -1,22 +1,25 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useReserve } from '../hooks/useReserve';
 import { useQuery } from '@tanstack/react-query';
-
+import { Restaurant } from './RestaurantList';
 
 interface Reservation {
-  id: string | number;
+  _id: string;
   name: string;
-  date: string;
+  startTime: string;
   time: string;
-  people: number;
+  amountOfPeople: number;
   status: 'Confirmada' | 'Pendente' | 'Cancelada';
+  restaurantId: Restaurant
+  restaurantConfirmed: boolean
+  clientConfirmed: boolean
+  canceledBy: string
 }
 
 const ReservationList = () => {
-  const { getReservesForUser } = useReserve();
-
+  const { getReservesForUser, confirmOrCancelReserve } = useReserve();
 
   const { data: reserves, isLoading, error } = useQuery<Reservation[]>({
     queryKey: ['reserves'],
@@ -51,55 +54,72 @@ const ReservationList = () => {
   }
 
   return (
-    <div className="p-4 max-w-3xl mx-auto">
+    <div className="p-4 max-w-3xl mx-auto space-y-4">
       <h2 className="text-2xl font-bold mb-4">Lista de Reservas</h2>
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="min-w-full table-auto">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-4 py-2 text-left">Cliente</th>
-              <th className="px-4 py-2 text-left">Data</th>
-              <th className="px-4 py-2 text-left">Horário</th>
-              <th className="px-4 py-2 text-left">Pessoas</th>
-              <th className="px-4 py-2 text-left">Status</th>
-              <th className="px-4 py-2 text-left">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reserves.map((reserva) => (
-              <tr key={reserva.id} className="border-t hover:bg-gray-50">
-                <td className="px-4 py-2">{reserva.name}</td>
-                <td className="px-4 py-2">
-                  {new Date(reserva.date).toLocaleDateString('pt-BR')}
-                </td>
-                <td className="px-4 py-2">{reserva.time}</td>
-                <td className="px-4 py-2">{reserva.people}</td>
-                <td className="px-4 py-2">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      reserva.status === 'Confirmada'
-                        ? 'bg-green-100 text-green-800'
-                        : reserva.status === 'Pendente'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}
-                  >
-                    {reserva.status}
+
+      {reserves.map((reserva) => (
+        <div
+          key={reserva._id}
+          className="bg-white shadow-md rounded-xl p-6 border border-gray-200 hover:shadow-lg transition"
+        >
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-lg font-semibold text-gray-800">{reserva.restaurantId.name}</h3>
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                reserva.status === 'Confirmada'
+                  ? 'bg-green-100 text-green-800'
+                  : reserva.status === 'Pendente'
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : 'bg-red-100 text-red-800'
+              }`}
+            >
+              {reserva.status}
+            </span>
+          </div>
+
+          <div className='flex justify-between items-center text-black'>
+            <div className='flex gap-4'>
+              <div>
+                <p>
+                  <span className="font-medium">Data:</span>{' '}
+                  {new Date(reserva.startTime).toLocaleDateString('pt-BR')}
+                </p>
+                <p>
+                  <span className="font-medium">Horário:</span> {new Date(reserva.startTime).toLocaleTimeString('pt-BR')}
+                </p>
+                <p>
+                  <span className="font-medium">Pessoas:</span> {reserva.amountOfPeople}
+                </p>
+              </div>
+              <div>
+                <p>
+                  <span className="font-medium">Status do Restaurante</span> <br/> 
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    reserva.restaurantConfirmed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {reserva.restaurantConfirmed ? 'Confirmado' : 'Cancelada'}
                   </span>
-                </td>
-                <td className="px-4 py-2">
-                  <button
-                    className="text-blue-600 hover:text-blue-800 mr-2"
-                    onClick={() => {/* TODO: Implementar visualização */}}
-                  >
-                    Ver detalhes
+                </p>
+              </div>
+            </div>
+
+            <div className='flex gap-2'>
+              {reserva.status === 'Cancelada' ? (
+                <p>{reserva.canceledBy === 'user' ? 'Reserva cancelada' : 'Reserva cancelada pelo restaurante'}</p>
+              ) : (
+                <>
+                  <button className='bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer' onClick={() => confirmOrCancelReserve(reserva._id, 'client', 'confirm')}>
+                    Confirmar
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  <button className='bg-red-500 text-white px-4 py-2 rounded-md cursor-pointer' onClick={() => confirmOrCancelReserve(reserva._id, 'client', 'cancel')}>
+                    Cancelar reserva
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

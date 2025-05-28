@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-interface Restaurant {
+export interface Restaurant {
   _id: string;
   name: string;
   address: Address;
@@ -10,7 +10,7 @@ interface Restaurant {
   capacity: number;
 }
 
-interface Address {
+export interface Address {
   street: string;
   number: string;
   district: string;
