@@ -6,9 +6,34 @@ import { API_URL } from '@/app/configs/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { useUser } from './useUser';
 import { useUserContext } from '../context/user/useUserContext';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const loginSchema = z.object({
+  email: z.string().email('Email inválido'),
+  password: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres'),
+});
+
+type LoginForm = z.infer<typeof loginSchema>;
+
+export interface LoginFormProps {
+  email: string;
+  password: string;
+}
+
 
 export const useLogin = (type: 'client' | 'restaurant') => {
   const router = useRouter();
+  
+  const methods = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
   const { getUserLogged } = useUser();
   const { user: userContext, setUser: setUserContext } = useUserContext();
   const [error, setError] = useState('');
@@ -70,5 +95,6 @@ export const useLogin = (type: 'client' | 'restaurant') => {
     login,
     error,
     logout,
+    methods
   };
 }; 

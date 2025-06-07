@@ -46,7 +46,8 @@ function authorizeUser(userInfo: any, requestedPath: string): boolean {
 
   const roleRequiredForPath: { [key: string]: string[] } = {
     "/dashboard": ["admin", "worker", "company"],
-    "/my-reserves": ["user"],
+    "/my-reserves": ["user", "admin", "worker", "company"],
+    "(restauraunt)": ["admin"]
     // Add more paths and roles as needed
   };
 
