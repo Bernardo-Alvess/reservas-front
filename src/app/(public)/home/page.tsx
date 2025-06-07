@@ -3,49 +3,49 @@
 import { useRestaurant } from '../../hooks/useRestaurant';
 import { useQuery } from '@tanstack/react-query';
 import RestaurantList from '@/app/components/RestaurantList';
-
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function HomePage() {
   const { getRestaurants } = useRestaurant();
 
   const { data, isLoading } = useQuery({
     queryKey: ['restaurants'],
-    queryFn: getRestaurants
+    queryFn: getRestaurants,
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-muted">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Cabeçalho */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-foreground mb-4">
             Descubra Restaurantes Incríveis
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Encontre os melhores lugares para sua próxima experiência gastronômica e faça sua reserva online.
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Encontre os melhores lugares para sua próxima experiência gastronômica e faça sua reserva online com praticidade.
           </p>
         </div>
 
-        {/* Filtros - A ser implementado */}
-        <div className="mb-8">
-          <div className="flex flex-wrap gap-4 justify-center">
-            <input
-              type="text"
-              placeholder="Buscar restaurantes..."
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full max-w-md placeholder:text-gray-400 text-black"
-            />
-          </div>
+        {/* Filtros (placeholder para futura implementação) */}
+        <div className="flex justify-center mb-10">
+          <Input
+            placeholder="Buscar restaurantes por nome, tipo ou localização..."
+            className="w-full max-w-md bg-white"
+          />
         </div>
 
-        {/* Lista de Restaurantes */}
-
+        {/* Lista ou carregando */}
         {!isLoading ? (
           <RestaurantList restaurants={data || []} />
         ) : (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-40 rounded-xl" />
+            ))}
           </div>
         )}
       </div>
     </div>
   );
-} 
+}

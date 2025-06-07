@@ -190,7 +190,7 @@ export default function ReservationList() {
 
       {reserves.map((reserva) => (
         <Card key={reserva._id} className="border rounded-2xl shadow-sm">
-          <CardContent className="p-2 space-y-4">
+          <CardContent className="p-3 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <h3 className="text-lg font-semibold text-foreground">
                 {reserva.restaurantId.name}
@@ -209,8 +209,7 @@ export default function ReservationList() {
               </Badge>
             </div>
 
-            {/* Informações da reserva */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-muted-foreground">
+            <div className="flex justify-between items-center">
               <div className="space-y-1">
                 <p>
                   <span className="font-medium text-foreground">Data:</span>{' '}
@@ -228,7 +227,7 @@ export default function ReservationList() {
                   {reserva.amountOfPeople}
                 </p>
               </div>
-              <div className="space-y-1">
+              <div className="flex gap-2 flex-col items-end">
                 <p className="font-medium text-foreground">
                   Status do Restaurante:
                 </p>
@@ -236,7 +235,6 @@ export default function ReservationList() {
                   variant={
                     reserva.restaurantConfirmed ? 'default' : 'destructive'
                   }
-                  className="mt-1 w-fit"
                 >
                   {reserva.restaurantConfirmed ? 'Confirmado' : 'Cancelado'}
                 </Badge>
