@@ -1,7 +1,6 @@
 import { API_URL } from "../configs/constants"
 
 export const useUser = () => {
-    
     const getUserLogged = async () => {
         try {
             const response = await fetch(`${API_URL}users/me`,
@@ -20,7 +19,6 @@ export const useUser = () => {
             throw error
         }
     }
-
     return {
         getUserLogged
     }
