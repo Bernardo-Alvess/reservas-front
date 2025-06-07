@@ -3,6 +3,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CookiesProvider } from 'react-cookie';
 import { ReactNode } from 'react';
+import { UserProvider } from './context/user/userContext';
+import { useUserContext } from './context/user/useUserContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,9 +18,11 @@ const queryClient = new QueryClient({
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <CookiesProvider>
+      <UserProvider>
       <QueryClientProvider client={queryClient}>
-        {children}
+          {children}
       </QueryClientProvider>
+      </UserProvider>
     </CookiesProvider>
   );
 } 

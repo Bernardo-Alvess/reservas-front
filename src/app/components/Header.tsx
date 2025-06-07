@@ -43,9 +43,6 @@ export default function Header() {
               <Link href="/login" className="hover:text-blue-600 transition-colors">
                 Entrar
               </Link>
-              <Link href="/login-restaurant" className="hover:text-blue-600 transition-colors">
-              Entrar como Restaurante
-            </Link>
             </>
           ) : (
             <button className="hover:text-blue-600 transition-colors" onClick={logout}>

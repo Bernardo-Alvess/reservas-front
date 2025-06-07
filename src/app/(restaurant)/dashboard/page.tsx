@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useUser } from "@/app/hooks/useUser";
 import { useRestaurant } from "@/app/hooks/useRestaurant";
 import { Sidemenu } from "@/app/components/Sidemenu";
+import { useUserContext } from "@/app/context/user/useUserContext";
 
 interface Stats {
   reservasHoje: number;
@@ -36,6 +37,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     queryFn: getUserLogged
   });
 
+  const { user: userContext, setUser: setUserContext } = useUserContext();
+
+  useEffect(() => {
+    if(userContext) {
+      setUserContext(user);
+    }
+  }, [user]);
+
   useEffect(() => {
     if (!user) return;
 
@@ -55,6 +64,23 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     init();
   }, [user]);
 
+
+  useEffect(() => {
+    const id = localStorage.getItem('restauranteSelecionado');
+    if (user.type === 'company' && id) {
+      setRestauranteSelecionado(id);
+    }
+  }, [user]);
+  
+  // useEffect(() => {
+  //   console.log(restauranteSelecionado)
+  //   if (user && user.type === 'company' && !restauranteSelecionado) {
+  //     router.push('/restaurants');
+  //   }
+
+  // }, [user])
+
+  
   const stats: Stats = {
     reservasHoje: 0,
     ocupacao: 0,

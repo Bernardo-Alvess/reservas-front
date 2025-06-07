@@ -1,12 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { API_URL } from '@/app/configs/constants';
 import { useQueryClient } from '@tanstack/react-query';
+import { useUser } from './useUser';
+import { useUserContext } from '../context/user/useUserContext';
 
 export const useLogin = (type: 'client' | 'restaurant') => {
   const router = useRouter();
+  const { getUserLogged } = useUser();
+  const { user: userContext, setUser: setUserContext } = useUserContext();
   const [error, setError] = useState('');
   const queryClient = useQueryClient();
 
@@ -26,6 +30,11 @@ export const useLogin = (type: 'client' | 'restaurant') => {
         throw new Error('Credenciais inválidas');
       }
       
+      const user = await getUserLogged();
+      console.log(user)
+      setUserContext(user);
+      console.log(userContext)
+
       await queryClient.invalidateQueries({ queryKey: ['user'] });
       
       if (type === 'client') {
