@@ -137,144 +137,144 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Reservation {
-    _id: string;
-    name: string;
-    startTime: string;
-    time: string;
-    amountOfPeople: number;
-    status: 'Confirmada' | 'Pendente' | 'Cancelada';
-    restaurantId: Restaurant;
-    restaurantConfirmed: boolean;
-    clientConfirmed: boolean;
-    canceledBy: string;
+  _id: string;
+  name: string;
+  startTime: string;
+  time: string;
+  amountOfPeople: number;
+  status: 'Confirmada' | 'Pendente' | 'Cancelada';
+  restaurantId: Restaurant;
+  restaurantConfirmed: boolean;
+  clientConfirmed: boolean;
+  canceledBy: string;
 }
 
 export default function ReservationList() {
-    const { getReservesForUser, confirmOrCancelReserve } = useReserve();
-    const {
-        data: reserves,
-        isLoading,
-        error,
-    } = useQuery<Reservation[]>({
-        queryKey: ['reserves'],
-        queryFn: getReservesForUser,
-    });
+  const { getReservesForUser, confirmOrCancelReserve } = useReserve();
+  const {
+    data: reserves,
+    isLoading,
+    error,
+  } = useQuery<Reservation[]>({
+    queryKey: ['reserves'],
+    queryFn: getReservesForUser,
+  });
 
-    if (isLoading) {
-        return (
-            <div className="flex justify-center items-center min-h-[300px]">
-                <div className="animate-spin h-8 w-8 rounded-full border-4 border-muted border-t-primary" />
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <Alert variant="destructive">
-                <AlertDescription>Erro ao carregar reservas. Tente novamente.</AlertDescription>
-            </Alert>
-        );
-    }
-
-    if (!reserves?.length) {
-        return (
-            <div className="text-center text-muted-foreground mt-6">
-                Nenhuma reserva encontrada.
-            </div>
-        );
-    }
-
+  if (isLoading) {
     return (
-        <div className="max-w-3xl mx-auto px-4 space-y-6">
-            <h2 className="text-2xl font-bold text-center">Minhas Reservas</h2>
-
-            {reserves.map((reserva) => (
-                <Card key={reserva._id} className="border rounded-2xl shadow-sm">
-                    <CardContent className="p-2 space-y-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                            <h3 className="text-lg font-semibold text-foreground">
-                                {reserva.restaurantId.name}
-                            </h3>
-                            <Badge
-                                variant={
-                                    reserva.status === 'Confirmada'
-                                        ? 'default'
-                                        : reserva.status === 'Pendente'
-                                        ? 'secondary'
-                                        : 'destructive'
-                                }
-                                className="w-fit"
-                            >
-                                {reserva.status}
-                            </Badge>
-                        </div>
-
-                        {/* Informações da reserva */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-muted-foreground">
-                            <div className="space-y-1">
-                                <p>
-                                    <span className="font-medium text-foreground">Data:</span>{' '}
-                                    {new Date(reserva.startTime).toLocaleDateString('pt-BR')}
-                                </p>
-                                <p>
-                                    <span className="font-medium text-foreground">Horário:</span>{' '}
-                                    {new Date(reserva.startTime).toLocaleTimeString('pt-BR', {
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                    })}
-                                </p>
-                                <p>
-                                    <span className="font-medium text-foreground">Pessoas:</span>{' '}
-                                    {reserva.amountOfPeople}
-                                </p>
-                            </div>
-                            <div className="space-y-1">
-                                <p className="font-medium text-foreground">
-                                    Status do Restaurante:
-                                </p>
-                                <Badge
-                                    variant={
-                                        reserva.restaurantConfirmed ? 'default' : 'destructive'
-                                    }
-                                    className="mt-1 w-fit"
-                                >
-                                    {reserva.restaurantConfirmed ? 'Confirmado' : 'Cancelado'}
-                                </Badge>
-                            </div>
-                        </div>
-
-                        {/* Ações */}
-                        {reserva.status === 'Cancelada' ? (
-                            <p className="text-sm text-muted-foreground italic">
-                                {reserva.canceledBy === 'user'
-                                    ? 'Você cancelou esta reserva.'
-                                    : 'O restaurante cancelou esta reserva.'}
-                            </p>
-                        ) : (
-                            <div className="flex gap-2 pt-2">
-                                <Button
-                                    variant="default"
-                                    size="sm"
-                                    onClick={() =>
-                                        confirmOrCancelReserve(reserva._id, 'client', 'confirm')
-                                    }
-                                >
-                                    Confirmar
-                                </Button>
-                                <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={() =>
-                                        confirmOrCancelReserve(reserva._id, 'client', 'cancel')
-                                    }
-                                >
-                                    Cancelar
-                                </Button>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            ))}
-        </div>
+      <div className="flex justify-center items-center min-h-[300px]">
+        <div className="animate-spin h-8 w-8 rounded-full border-4 border-muted border-t-primary" />
+      </div>
     );
+  }
+
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>Erro ao carregar reservas. Tente novamente.</AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (!reserves?.length) {
+    return (
+      <div className="text-center text-muted-foreground mt-6">
+        Nenhuma reserva encontrada.
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto px-4 space-y-6">
+      <h2 className="text-2xl font-bold text-center">Minhas Reservas</h2>
+
+      {reserves.map((reserva) => (
+        <Card key={reserva._id} className="border rounded-2xl shadow-sm">
+          <CardContent className="p-2 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <h3 className="text-lg font-semibold text-foreground">
+                {reserva.restaurantId.name}
+              </h3>
+              <Badge
+                variant={
+                  reserva.status === 'Confirmada'
+                    ? 'default'
+                    : reserva.status === 'Pendente'
+                      ? 'secondary'
+                      : 'destructive'
+                }
+                className="w-fit"
+              >
+                {reserva.status}
+              </Badge>
+            </div>
+
+            {/* Informações da reserva */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-muted-foreground">
+              <div className="space-y-1">
+                <p>
+                  <span className="font-medium text-foreground">Data:</span>{' '}
+                  {new Date(reserva.startTime).toLocaleDateString('pt-BR')}
+                </p>
+                <p>
+                  <span className="font-medium text-foreground">Horário:</span>{' '}
+                  {new Date(reserva.startTime).toLocaleTimeString('pt-BR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </p>
+                <p>
+                  <span className="font-medium text-foreground">Pessoas:</span>{' '}
+                  {reserva.amountOfPeople}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="font-medium text-foreground">
+                  Status do Restaurante:
+                </p>
+                <Badge
+                  variant={
+                    reserva.restaurantConfirmed ? 'default' : 'destructive'
+                  }
+                  className="mt-1 w-fit"
+                >
+                  {reserva.restaurantConfirmed ? 'Confirmado' : 'Cancelado'}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Ações */}
+            {reserva.status === 'Cancelada' ? (
+              <p className="text-sm text-muted-foreground italic">
+                {reserva.canceledBy === 'user'
+                  ? 'Você cancelou esta reserva.'
+                  : 'O restaurante cancelou esta reserva.'}
+              </p>
+            ) : (
+              <div className="flex gap-2 pt-2">
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() =>
+                    confirmOrCancelReserve(reserva._id, 'client', 'confirm')
+                  }
+                >
+                  Confirmar
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() =>
+                    confirmOrCancelReserve(reserva._id, 'client', 'cancel')
+                  }
+                >
+                  Cancelar
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
 }
