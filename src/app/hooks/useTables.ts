@@ -45,6 +45,13 @@ export const useTables = () => {
     }
   }
 
+  const parseToFormData = (table: Table) => {
+    return {
+      tableNumber: table.tableNumber.toString(),
+      numberOfSeats: table.numberOfSeats.toString(),
+    }
+  }
+
   // const getTablesByStatus = (status: Table["status"]) => {
   //   return tables.filter(table => table.status === status);
   // };
@@ -85,8 +92,9 @@ export const useTables = () => {
   const addEditTable = async (data: TableData, id?: string) => {
     const method = id ? 'PATCH' : 'POST'
     const body = id ? parseEditBody(data) : parsePostBody(data)
+    const url = id ? `${API_URL}tables/${id}` : `${API_URL}tables`
     try {
-      const response = await fetch(`${API_URL}tables`, {
+      const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',

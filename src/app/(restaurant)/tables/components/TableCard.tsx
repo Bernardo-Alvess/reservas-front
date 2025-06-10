@@ -5,15 +5,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Edit, Users, MapPin } from "lucide-react";
-import { Table } from "@/app/hooks/useTables";
+import { Table, useTables } from "@/app/hooks/useTables";
 import { TableData } from "../table.schema";
+import { NewTableDialog } from "./NewTableDialog";
 
 interface TableCardProps {
-  table: TableData;
+  table: any;
   onStatusChange: (id: number, status: Table["status"]) => void;
 }
 
 export const TableCard = ({ table, onStatusChange }: TableCardProps) => {
+  const { addEditTable } = useTables();
+
   const getStatusVariant = (status: string) => {
     switch (status) {
       case "disponível":
@@ -86,9 +89,10 @@ export const TableCard = ({ table, onStatusChange }: TableCardProps) => {
               {table.numberOfSeats} lugares
             </CardDescription>
           </div>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+          {/* <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
             <Edit className="h-4 w-4" />
-          </Button>
+          </Button> */}
+          <NewTableDialog onAddTable={() => {}} onEditTable={() => addEditTable(table, table._id)} editingTable={table} buttonType="icon" />
         </div>
       </CardHeader>
       

@@ -1,100 +1,131 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Edit, Plus } from "lucide-react";
 import { TableData } from "../table.schema";
+import { useTables } from "@/app/hooks/useTables";
+import { FormProvider, Controller } from "react-hook-form";
 
 interface NewTableDialogProps {
+  editingTable?: any;
   onAddTable: (table: Omit<TableData, "id">) => void;
+  onEditTable?: (table: TableData, _id: string) => void;
+  buttonType?: 'button' | 'icon'
 }
 
-export const NewTableDialog = ({ onAddTable }: NewTableDialogProps) => {
+export const NewTableDialog = ({ editingTable, onAddTable, onEditTable, buttonType = 'button' }: NewTableDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [tableNumber, setTableNumber] = useState("");
   const [seats, setSeats] = useState("");
   const [location, setLocation] = useState("");
 
-  const handleSubmit = () => {
-    if (tableNumber && seats && location) {
-      onAddTable({
-        tableNumber: tableNumber,
-        numberOfSeats: seats,
-        isReserved: false,
+  const { methods, addEditTable, getTableById } = useTables();
+
+  const { 
+    register, 
+    handleSubmit, 
+    control, 
+    reset, 
+    formState: { errors, isSubmitting } 
+  } = methods;
+
+  const isEditing = !!editingTable;
+
+  useEffect(() => {
+    if (editingTable && isOpen) {
+      reset(editingTable);
+    } else if (!isEditing && isOpen) {
+      reset({
+        tableNumber: "",
+        numberOfSeats: "",
       });
+    }
+  }, [editingTable, isOpen, isEditing])
+
+
+  const onSubmit = async (data: TableData) => {
+    try {
+      if (isEditing && editingTable) {
+        await addEditTable(data, editingTable._id);
+      } else {
+        await addEditTable(data);
+      }
       
-      // Reset form
-      setTableNumber("");
-      setSeats("");
-      setLocation("");
+      reset();
       setIsOpen(false);
+    } catch (error) {
+      console.error('Erro no formulário:', error);
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="lg" className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nova Mesa
-        </Button>
+        {buttonType === 'icon' ? (
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+            <Edit className="h-4 w-4" />
+          </Button>
+        ) : (
+          <Button size="lg" className="gap-2">
+            <span>Nova Mesa</span>
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Adicionar Nova Mesa</DialogTitle>
+          <DialogTitle>
+            {isEditing ? 'Editar Mesa' : 'Adicionar Nova Mesa'}
+          </DialogTitle>
           <DialogDescription>
-            Configure uma nova mesa no seu restaurante
+            {isEditing ? 'Edite as informações da mesa' : 'Configure uma nova mesa no seu restaurante'}
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-6 py-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="tableNumber">Número da Mesa</Label>
-              <Input 
-                id="tableNumber" 
-                placeholder="Ex: 7"
-                value={tableNumber}
-                onChange={(e) => setTableNumber(e.target.value)}
-              />
+
+        <FormProvider {...methods}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="tableNumber">Número da Mesa</Label>
+                <Input 
+                  id="tableNumber" 
+                  placeholder="Ex: 7"
+                  {...register("tableNumber")}
+                />
+                {errors.tableNumber && (
+                  <p className="text-sm text-red-500">{errors.tableNumber.message}</p>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="numberOfSeats">Número de Lugares</Label>
+                <Input 
+                  id="numberOfSeats" 
+                  placeholder="Ex: 2"
+                  {...register("numberOfSeats")}
+                />
+                {errors.numberOfSeats && (
+                  <p className="text-sm text-red-500">{errors.numberOfSeats.message}</p>
+                )}
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="seats">Número de Lugares</Label>
-              <Select value={seats} onValueChange={setSeats}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2">2 lugares</SelectItem>
-                  <SelectItem value="4">4 lugares</SelectItem>
-                  <SelectItem value="6">6 lugares</SelectItem>
-                  <SelectItem value="8">8 lugares</SelectItem>
-                  <SelectItem value="10">10+ lugares</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="location">Localização</Label>
-            <Select value={location} onValueChange={setLocation}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione a localização" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Centro">Centro</SelectItem>
-                <SelectItem value="Janela">Próximo à Janela</SelectItem>
-                <SelectItem value="Varanda">Varanda</SelectItem>
-                <SelectItem value="Sala VIP">Sala VIP</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <Button className="w-full" onClick={handleSubmit}>
-            Adicionar Mesa
-          </Button>
-        </div>
+            
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isSubmitting}
+            >
+              {isSubmitting 
+                ? (isEditing ? "Atualizando..." : "Adicionando...") 
+                : (isEditing ? "Atualizar Mesa" : "Adicionar Mesa")
+              }
+            </Button>
+          </form>
+        </FormProvider>
       </DialogContent>
     </Dialog>
   );
