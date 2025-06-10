@@ -51,7 +51,7 @@ export default function RestauranteInfoPage() {
 
   return (
     <div className="flex h-screen">
-      <Sidemenu type="admin" />
+      <Sidemenu/>
 
       <div className="flex-1 overflow-auto p-6 space-y-6">
         <Card>

@@ -38,7 +38,7 @@ export default function MesasPage() {
 
   return (
     <div className="flex h-screen">
-      <Sidemenu type={'admin'} />
+      <Sidemenu/>
 
       <main className="flex-1 p-6 overflow-y-auto bg-gray-100">
         <div className="flex justify-between items-center mb-6">

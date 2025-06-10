@@ -9,6 +9,7 @@ import { useUserContext } from '../context/user/useUserContext';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'react-toastify';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -56,9 +57,7 @@ export const useLogin = (type: 'client' | 'restaurant') => {
       }
       
       const user = await getUserLogged();
-      console.log(user)
       setUserContext(user);
-      console.log(userContext)
 
       await queryClient.invalidateQueries({ queryKey: ['user'] });
       
@@ -80,11 +79,9 @@ export const useLogin = (type: 'client' | 'restaurant') => {
         credentials: 'include',
       });
 
-      // Limpa o cache do usuário e força uma nova busca
       await queryClient.resetQueries({ queryKey: ['user'] });
       await queryClient.invalidateQueries({ queryKey: ['user'] });
       
-      // Força um redirecionamento completo para garantir que o estado seja limpo
       window.location.href = '/home';
     } catch (error) {
       console.error('Erro ao fazer logout:', error);

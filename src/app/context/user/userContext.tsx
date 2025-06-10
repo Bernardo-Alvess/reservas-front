@@ -26,8 +26,8 @@ export function UserProvider({ children }: UserProviderProps) {
   
   useEffect(() => {
     const fetchUser = async () => {
-      const user = await getUserLogged();
-      setUser(user);
+      const data = await getUserLogged();
+      setUser(data);
     };
     fetchUser();
   }, []);

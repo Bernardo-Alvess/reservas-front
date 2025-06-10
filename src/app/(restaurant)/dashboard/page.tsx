@@ -27,59 +27,53 @@ interface Stats {
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [restauranteSelecionado, setRestauranteSelecionado] = useState<string | null>(null);
+  const [restauranteSelecionado, setRestauranteSelecionado] = useState<string>();
 
   const { getUserLogged } = useUser()
   const { getRestaurantById } = useRestaurant()
 
-  const { data: user, isLoading } = useQuery({
-    queryKey: ['user'],
-    queryFn: getUserLogged
-  });
+  const { user, setUser: setUserContext } = useUserContext();
 
-  const { user: userContext, setUser: setUserContext } = useUserContext();
 
-  useEffect(() => {
-    if(userContext) {
-      setUserContext(user);
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   const id = localStorage.getItem('restauranteSelecionado');
+  //   if (user && user.type === 'company' && id) {
+  //     console.log('id vindo do localstorage')
+  //     console.log(id)
+  //     setRestauranteSelecionado(id);
+  //   }
+  // }, []);
 
   useEffect(() => {
     if (!user) return;
-
+    console.log('rodando o useEffect')
     const init = async () => {
+      const id = localStorage.getItem('restauranteSelecionado');
+      console.log('id vindo do localstorage')
+      console.log(id)
       if (user.type === 'company') {
-        const restaurantes = user.restaurantes || [];
+        console.log('user.type === company')
+        const restaurantes = user.restaurant || [];
+        console.log(restaurantes)
+        if(id && restaurantes.some(r => r._id === id)) {
+          console.log('id e restaurantes.some(r => r.id === id)')
+          setRestauranteSelecionado(id);
+          return
+        }
+
         if (restaurantes.length === 1) {
-          setRestauranteSelecionado(restaurantes[0].id);
+          setRestauranteSelecionado(restaurantes[0]._id);
         } else if (restaurantes.length > 1 && !restauranteSelecionado) {
-          router.push('/dashboard/restaurantes');
+          router.push('/restaurants');
         }
       } else {
-        setRestauranteSelecionado(user.restauranteId);
+        setRestauranteSelecionado(user.restaurant[0].id);
       }
     };
 
     init();
   }, [user]);
-
-
-  useEffect(() => {
-    const id = localStorage.getItem('restauranteSelecionado');
-    if (user.type === 'company' && id) {
-      setRestauranteSelecionado(id);
-    }
-  }, [user]);
   
-  // useEffect(() => {
-  //   console.log(restauranteSelecionado)
-  //   if (user && user.type === 'company' && !restauranteSelecionado) {
-  //     router.push('/restaurants');
-  //   }
-
-  // }, [user])
-
   
   const stats: Stats = {
     reservasHoje: 0,
@@ -88,23 +82,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     proximasReservas: []
   };
 
-  if (isLoading || !user || (user.type === 'company' && !restauranteSelecionado)) {
-    return (
-      <div className="flex justify-center items-center h-screen text-zinc-700">
-        Carregando informações do usuário...
-      </div>
-    );
-  }
+  if(!user) return null
+
 
   return (
     <div className="flex h-screen">
-      <Sidemenu type={user.type} />
+      <Sidemenu/>
       <main className="flex-1 bg-zinc-100 p-6 overflow-auto">
-        {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-          </div>
-        ) : (
           <div className="space-y-6">
             <h1 className="text-2xl font-bold">Dashboard</h1>
 
@@ -157,7 +141,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               </div>
             </div>
           </div>
-        )}
       </main>
     </div>
   );

@@ -5,6 +5,7 @@ import { CookiesProvider } from 'react-cookie';
 import { ReactNode } from 'react';
 import { UserProvider } from './context/user/userContext';
 import { useUserContext } from './context/user/useUserContext';
+import { RestaurantProvider } from './context/selectedRestaurant/selectedRestaurantContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,9 +20,11 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <CookiesProvider>
       <UserProvider>
-      <QueryClientProvider client={queryClient}>
-          {children}
-      </QueryClientProvider>
+        <RestaurantProvider>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        </RestaurantProvider>
       </UserProvider>
     </CookiesProvider>
   );

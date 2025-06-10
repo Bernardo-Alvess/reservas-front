@@ -47,7 +47,7 @@ export default function UsuariosPage() {
 
   return (
     <div className="flex h-screen">
-      <Sidemenu type={'admin'} />
+      <Sidemenu/>
       <main className="flex-1 p-6 space-y-6 overflow-auto bg-zinc-100">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Usuários</h1>

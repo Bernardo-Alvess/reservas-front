@@ -4,14 +4,14 @@ import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useUserContext } from "../context/user/useUserContext";
-interface SidemenuProps {
-  type: string;
-}
+import { useEffect, useState } from "react";
+import { useRestaurantContext } from "../context/selectedRestaurant/selectedRestaurantContext";
 
-export function Sidemenu({ type }: SidemenuProps) {
+export function Sidemenu() {
   const pathname = usePathname();
   const { user, setUser } = useUserContext();
-
+  const { selectedRestaurant } = useRestaurantContext();
+  
   if(!user) {
     console.log(user)
     console.log("Não tem usuário")
@@ -41,7 +41,6 @@ export function Sidemenu({ type }: SidemenuProps) {
     ],
   };
 
-  const selectedRestaurant = localStorage.getItem('restauranteSelecionado');
 
   return (
     <aside className="w-64 bg-zinc-800 text-white px-4 py-6">

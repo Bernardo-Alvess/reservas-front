@@ -1,7 +1,7 @@
 import Header from './components/Header'
 import './globals.css'
 import { Providers } from './providers'
-
+import { Bounce, ToastContainer} from 'react-toastify';
 export const metadata = {
   title: 'Sistema de Reservas',
   description: 'Encontre e reserve os melhores restaurantes',
@@ -20,6 +20,19 @@ export default function RootLayout({
       <body>
         <Providers>
           <Header />
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover={false}
+            theme="colored"
+            transition={Bounce}
+            />
           {children}
         </Providers>
       </body>
