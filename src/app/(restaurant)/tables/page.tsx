@@ -1,91 +1,86 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil } from 'lucide-react';
-import TableModal from './tableModal';
-import Sidemenu from '@/app/components/Sidemenu';
+import { useTables } from "@/app/hooks/useTables";
+import { Separator } from "@radix-ui/react-select";
+import { NewTableDialog } from "./components/NewTableDialog";
+import { TableCard } from "./components/TableCard";
+import { TableStats } from "./components/TableStats";
+import { useQuery } from "@tanstack/react-query";
+import Sidemenu from "@/app/components/Sidemenu";
+import { TableData } from "./table.schema";
 
-interface Mesa {
-  id: string;
-  nome: string;
-  capacidade: number;
-}
+const TablesPage = () => {
+  const { getTables, addEditTable } = useTables();
 
-export default function MesasPage() {
-  const [mesas, setMesas] = useState<Mesa[]>([
-    { id: '1', nome: 'Mesa 01', capacidade: 4 },
-    { id: '2', nome: 'Mesa 02', capacidade: 2 },
-  ]);
+  const { data: tables = [], isLoading, isError } = useQuery({
+    queryKey: ['tables'],
+    queryFn: getTables,
+  });
 
-  const [mesaSelecionada, setMesaSelecionada] = useState<Mesa | null>(null);
-  const [modalAberto, setModalAberto] = useState(false);
-
-  const handleSalvar = (mesa: Mesa) => {
-    setMesas(prev => {
-      const existe = prev.find(m => m.id === mesa.id);
-      if (existe) {
-        return prev.map(m => m.id === mesa.id ? mesa : m);
-      } else {
-        return [...prev, { ...mesa, id: Date.now().toString() }];
-      }
-    });
-    setModalAberto(false);
-    setMesaSelecionada(null);
+  const handleStatusChange = (id: string, status: string) => {
+    console.log('Status mudou:', id, status);
   };
 
   return (
-    <div className="flex h-screen">
-      <Sidemenu/>
+    <div className="flex min-h-screen">
+      <Sidemenu />
 
-      <main className="flex-1 p-6 overflow-y-auto bg-gray-100">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Mesas</h1>
-          <Button onClick={() => { setModalAberto(true); setMesaSelecionada(null); }}>
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Mesa
-          </Button>
+      <main className="flex-1 p-6 overflow-auto">
+        {/* Header */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold tracking-tight">Gerenciar Mesas</h1>
+            <p className="text-muted-foreground">
+              Configure e monitore as mesas do seu restaurante
+            </p>
+          </div>
+
+          <NewTableDialog onAddTable={addEditTable} />
         </div>
 
-        <Card>
-          <CardContent className="p-4">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Capacidade</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mesas.map((mesa) => (
-                  <TableRow key={mesa.id}>
-                    <TableCell>{mesa.nome}</TableCell>
-                    <TableCell>{mesa.capacidade} pessoas</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="outline" size="sm" onClick={() => {
-                        setMesaSelecionada(mesa);
-                        setModalAberto(true);
-                      }}>
-                        <Pencil className="w-4 h-4 mr-1" /> Editar
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        {/* Loading */}
+        {isLoading && (
+          <div className="flex justify-center items-center h-40">
+            <p className="text-lg text-muted-foreground">Carregando mesas...</p>
+          </div>
+        )}
 
-        <TableModal
-          aberta={modalAberto}
-          aoFechar={() => { setModalAberto(false); setMesaSelecionada(null); }}
-          aoSalvar={() => {}}
-          mesaInicial={mesaSelecionada}
-        />
+        {/* Error */}
+        {isError && (
+          <div className="text-red-600 font-semibold mb-4">
+            Erro ao carregar as mesas. Tente novamente mais tarde.
+          </div>
+        )}
+
+        {/* Estatísticas */}
+        {!isLoading && !isError && (
+          <>
+            <TableStats tables={tables} />
+
+            <Separator className="my-6" />
+
+            {/* Grid de Mesas */}
+            <section>
+              <h2 className="text-xl font-semibold mb-4">Layout das Mesas</h2>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {tables.length === 0 ? (
+                  <p className="text-muted-foreground">Nenhuma mesa cadastrada.</p>
+                ) : (
+                  tables.map((table: any) => (
+                    <TableCard
+                      key={table._id}
+                      table={table}
+                      onStatusChange={() => {}}
+                    />
+                  ))
+                )}
+              </div>
+            </section>
+          </>
+        )}
       </main>
     </div>
   );
-}
+};
+
+export default TablesPage;

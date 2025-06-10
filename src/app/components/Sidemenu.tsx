@@ -11,12 +11,12 @@ export function Sidemenu() {
   const pathname = usePathname();
   const { user, setUser } = useUserContext();
   const { selectedRestaurant } = useRestaurantContext();
-  
-  if(!user) {
-    console.log(user)
-    console.log("Não tem usuário")
-    return null;
-  }
+
+  // if(!user) {
+  //   console.log(user)
+  //   console.log("Não tem usuário")
+  //   return null;
+  // }
 
   const menuItems = {
     company: [
@@ -41,6 +41,14 @@ export function Sidemenu() {
     ],
   };
 
+  useEffect(() => {
+    if(!user) {
+      console.log("Não tem usuário")
+      return
+    }
+  }, [user])
+
+  if(!user) return null
 
   return (
     <aside className="w-64 bg-zinc-800 text-white px-4 py-6">
