@@ -1,51 +1,192 @@
 'use client';
 
-import { useRestaurant } from '../../hooks/useRestaurant';
-import { useQuery } from '@tanstack/react-query';
-import RestaurantList from '@/app/components/RestaurantList';
-import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Search, MapPin, Star, Clock, Users } from "lucide-react";
+import { LoginModal } from "@/components/LoginModal";
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { useRestaurant } from "@/app/hooks/useRestaurant";
 
-export default function HomePage() {
-  const { getRestaurants } = useRestaurant();
+const RestaurantSearch = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
-  const { data, isLoading } = useQuery({
+  const {getRestaurants} = useRestaurant();
+
+  const {data, isLoading} = useQuery({
     queryKey: ['restaurants'],
-    queryFn: getRestaurants,
-  });
+    queryFn: () => getRestaurants()
+  })
+
+  // const restaurants = [
+  //   {
+  //     id: 1,
+  //     name: "Bella Vista",
+  //     cuisine: "Italiana",
+  //     rating: 4.8,
+  //     image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+  //     location: "Centro, São Paulo",
+  //     price: "$$",
+  //     time: "30-45 min",
+  //     availability: "Disponível hoje",
+  //     description: "Autêntica cozinha italiana em ambiente aconchegante"
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Sushi Zen",
+  //     cuisine: "Japonesa",
+  //     rating: 4.9,
+  //     image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+  //     location: "Jardins, São Paulo",
+  //     price: "$$$",
+  //     time: "45-60 min",
+  //     availability: "Lotado - próximo horário 20h",
+  //     description: "Experiência gastronômica japonesa premium"
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Grill House",
+  //     cuisine: "Steakhouse",
+  //     rating: 4.7,
+  //     image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+  //     location: "Vila Madalena, São Paulo",
+  //     price: "$$",
+  //     time: "25-40 min",
+  //     availability: "Disponível hoje",
+  //     description: "Os melhores cortes de carne da cidade"
+  //   }
+  // ];
+
+  // const filteredRestaurants = restaurants.filter(restaurant =>
+  //   restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //   restaurant.cuisine.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
   return (
-    <div className="min-h-screen bg-muted">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Cabeçalho */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
-            Descubra Restaurantes Incríveis
+    <div className="space-y-6 p-4">
+      <div className="bg-gradient-to-r from-orange-500 to-black text-white py-16 px-4 rounded-xl">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
+            Encontre o Restaurante Perfeito
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Encontre os melhores lugares para sua próxima experiência gastronômica e faça sua reserva online com praticidade.
+          <p className="text-xl mb-8 opacity-90 animate-slide-up">
+            Reserve uma mesa em segundos nos melhores restaurantes da cidade
           </p>
-        </div>
-
-        {/* Filtros (placeholder para futura implementação) */}
-        <div className="flex justify-center mb-10">
-          <Input
-            placeholder="Buscar restaurantes por nome, tipo ou localização..."
-            className="w-full max-w-md bg-white"
-          />
-        </div>
-
-        {/* Lista ou carregando */}
-        {!isLoading ? (
-          <RestaurantList restaurants={data || []} />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-40 rounded-xl" />
-            ))}
+          
+          {/* Search Bar */}
+          <div className="max-w-2xl mx-auto relative animate-slide-up">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                <Input
+                  placeholder="Busque por restaurante ou tipo de culinária..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 h-12 text-lg bg-white/95 border-0"
+                />
+              </div>
+              <Button size="lg" className="h-12 px-8 bg-white text-primary hover:bg-white/90">
+                Buscar
+              </Button>
+            </div>
           </div>
-        )}
+        </div>
       </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3 justify-center">
+        {["Todos", "Italiana", "Japonesa", "Brasileira", "Francesa", "Steakhouse"].map((filter) => (
+          <Badge
+            key={filter}
+            variant={filter === "Todos" ? "default" : "secondary"}
+            className="px-4 py-2 cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+          >
+            {filter}
+          </Badge>
+        ))}
+      </div>
+
+      {/* Restaurant Results */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {data?.map((restaurant: any) => (
+          <Card key={restaurant.id} className="overflow-hidden hover-lift cursor-pointer group">
+            <Link href={`/restaurant/${restaurant.id}`}>
+              <div className="relative h-48 overflow-hidden">
+                <img
+                  src={"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
+                  alt={restaurant.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 pb-2"
+                />
+                {/* <div className="absolute top-4 right-4">
+                  <Badge className="bg-white/90 text-primary">
+                    {restaurant.availability}
+                  </Badge>
+                </div> */}
+              </div>
+              
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                      {restaurant.name}
+                    </CardTitle>
+                    <CardDescription className="flex items-center gap-1 mt-1">
+                      <MapPin className="w-4 h-4" />
+                      {restaurant.address.city}, {restaurant.address.street}, {restaurant.address.number}
+                    </CardDescription>
+                  </div>
+                  {/* <div className="flex items-center gap-1 text-sm">
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    {restaurant.rating}
+                  </div> */}
+                </div>
+              </CardHeader>
+              
+              <CardContent className="pt-0">
+                <p className="text-sm text-muted-foreground mb-4">
+                  {restaurant.description}
+                </p>
+                
+                <div className="flex items-center justify-between text-sm mb-4">
+                  <div className="flex items-center gap-4">
+                    {/* <span className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {restaurant.time}
+                    </span> */}
+                    <Badge variant="outline">{restaurant.type}</Badge>
+                    {/* <span className="font-semibold">{restaurant.price}</span> */}
+                  </div>
+                </div>
+              </CardContent>
+            </Link>
+            
+            <CardContent className="pt-0">
+              <Button 
+                className="w-full" 
+                size="lg"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setLoginModalOpen(true);
+                }}
+              >
+                <Users className="w-4 h-4 mr-2" />
+                Reservar Mesa
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <LoginModal 
+        open={loginModalOpen} 
+        onOpenChange={setLoginModalOpen} 
+      />
     </div>
   );
-}
+};
+
+export default RestaurantSearch;
