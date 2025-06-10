@@ -20,10 +20,10 @@ export const useTables = () => {
   const [tables, setTables] = useState<Table[]>();
 
   const methods = useForm({
-    resolver: zodResolver(TableSchema),
+    // resolver: zodResolver(TableSchema),
     defaultValues: {
       tableNumber: "",
-      numberOfSeats: "",
+      numberOfSeats: 0,
       isReserved: false,
     }
   })
@@ -31,25 +31,19 @@ export const useTables = () => {
   const parsePostBody = (table: TableData) => {
     return {
       tableNumber: parseInt(table.tableNumber),
-      numberOfSeats: parseInt(table.numberOfSeats),
-      isReserved: table.isReserved,
+      numberOfSeats: table.numberOfSeats,
+      isReserved: false,
       restaurantId: localStorage.getItem('restauranteSelecionado')
     }
   }
 
   const parseEditBody = (table: TableData) => {
-    return {
-      tableNumber: parseInt(table.tableNumber),
-      numberOfSeats: parseInt(table.numberOfSeats),
-      isReserved: table.isReserved,
-    }
-  }
+    const body: any = {}
+    if(table.tableNumber) body.tableNumber = parseInt(table.tableNumber)
+    if(table.numberOfSeats) body.numberOfSeats = table.numberOfSeats
+    if(table.isReserved) body.isReserved = table.isReserved
 
-  const parseToFormData = (table: Table) => {
-    return {
-      tableNumber: table.tableNumber.toString(),
-      numberOfSeats: table.numberOfSeats.toString(),
-    }
+    return body
   }
 
   // const getTablesByStatus = (status: Table["status"]) => {

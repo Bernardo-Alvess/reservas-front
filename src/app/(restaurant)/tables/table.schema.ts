@@ -2,7 +2,7 @@ import z from "zod";
 
 export const TableSchema = z.object({
   tableNumber: z.string(),
-  numberOfSeats: z.string(),
+  numberOfSeats: z.coerce.number(),
   isReserved: z.boolean(),
 })
 

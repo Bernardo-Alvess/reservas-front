@@ -13,16 +13,13 @@ import { FormProvider, Controller } from "react-hook-form";
 
 interface NewTableDialogProps {
   editingTable?: any;
-  onAddTable: (table: Omit<TableData, "id">) => void;
-  onEditTable?: (table: TableData, _id: string) => void;
+  onAddTable?: (table: Omit<TableData, "id">) => void;
+  // onEditTable?: (table: TableData, _id: string) => void;
   buttonType?: 'button' | 'icon'
 }
 
-export const NewTableDialog = ({ editingTable, onAddTable, onEditTable, buttonType = 'button' }: NewTableDialogProps) => {
+export const NewTableDialog = ({ editingTable, buttonType = 'button' }: NewTableDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [tableNumber, setTableNumber] = useState("");
-  const [seats, setSeats] = useState("");
-  const [location, setLocation] = useState("");
 
   const { methods, addEditTable, getTableById } = useTables();
 
@@ -31,24 +28,28 @@ export const NewTableDialog = ({ editingTable, onAddTable, onEditTable, buttonTy
     handleSubmit, 
     control, 
     reset, 
-    formState: { errors, isSubmitting } 
+    setValue,
+    formState: { errors } 
   } = methods;
 
   const isEditing = !!editingTable;
 
   useEffect(() => {
     if (editingTable && isOpen) {
+      setValue("tableNumber", editingTable.tableNumber?.toString() || "");
+      setValue("numberOfSeats", editingTable.numberOfSeats?.toString() || "");
       reset(editingTable);
     } else if (!isEditing && isOpen) {
       reset({
         tableNumber: "",
-        numberOfSeats: "",
+        numberOfSeats: 0,
       });
     }
   }, [editingTable, isOpen, isEditing])
 
 
   const onSubmit = async (data: TableData) => {
+    console.log(data)
     try {
       if (isEditing && editingTable) {
         await addEditTable(data, editingTable._id);
@@ -106,7 +107,8 @@ export const NewTableDialog = ({ editingTable, onAddTable, onEditTable, buttonTy
                 <Input 
                   id="numberOfSeats" 
                   placeholder="Ex: 2"
-                  {...register("numberOfSeats")}
+                  type="number"
+                  {...register("numberOfSeats", { valueAsNumber: true })}
                 />
                 {errors.numberOfSeats && (
                   <p className="text-sm text-red-500">{errors.numberOfSeats.message}</p>
@@ -117,12 +119,8 @@ export const NewTableDialog = ({ editingTable, onAddTable, onEditTable, buttonTy
             <Button 
               type="submit" 
               className="w-full" 
-              disabled={isSubmitting}
             >
-              {isSubmitting 
-                ? (isEditing ? "Atualizando..." : "Adicionando...") 
-                : (isEditing ? "Atualizar Mesa" : "Adicionar Mesa")
-              }
+              {isEditing ? "Atualizar Mesa" : "Adicionar Mesa"}
             </Button>
           </form>
         </FormProvider>

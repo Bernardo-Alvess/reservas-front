@@ -4,9 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Edit, Users, MapPin } from "lucide-react";
+import { Users } from "lucide-react";
 import { Table, useTables } from "@/app/hooks/useTables";
-import { TableData } from "../table.schema";
 import { NewTableDialog } from "./NewTableDialog";
 
 interface TableCardProps {
@@ -17,66 +16,35 @@ interface TableCardProps {
 export const TableCard = ({ table, onStatusChange }: TableCardProps) => {
   const { addEditTable } = useTables();
 
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case "disponível":
-        return "default";
-      case "ocupada":
-        return "destructive";
-      case "reservada":
-        return "secondary";
-      case "manutenção":
-        return "outline";
-      default:
-        return "outline";
+  const handleStatusAction = () => {
+    if(table.isReserved) {
+      addEditTable({
+        ...table,
+        isReserved: false
+      }, table._id)
+    } else {
+      addEditTable({
+        ...table,
+        isReserved: true
+      }, table._id)
+    }
+  }
+
+  const getActionButtonText = () => {
+    if(table.isReserved) {
+      return "Desbloquear Mesa"
+    } else {
+      return "Bloquear Mesa"
     }
   };
 
-  // const handleStatusAction = () => {
-  //   switch (table.status) {
-  //     case "disponível":
-  //       onStatusChange(table.id, "ocupada");
-  //       break;
-  //     case "ocupada":
-  //       onStatusChange(table.id, "disponível");
-  //       break;
-  //     case "manutenção":
-  //       onStatusChange(table.id, "disponível");
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // };
-
-  // const getActionButtonText = () => {
-  //   switch (table.status) {
-  //     case "disponível":
-  //       return "Marcar como Ocupada";
-  //     case "ocupada":
-  //       return "Liberar Mesa";
-  //     case "reservada":
-  //       return "Ver Reserva";
-  //     case "manutenção":
-  //       return "Finalizar Manutenção";
-  //     default:
-  //       return "Ação";
-  //   }
-  // };
-
-  // const getActionButtonVariant = () => {
-  //   switch (table.status) {
-  //     case "disponível":
-  //       return "default";
-  //     case "ocupada":
-  //       return "outline";
-  //     case "reservada":
-  //       return "secondary";
-  //     case "manutenção":
-  //       return "outline";
-  //     default:
-  //       return "outline";
-  //   }
-  // };
+  const getActionButtonVariant = () => {
+    if(table.isReserved) {
+      return "secondary";
+    } else {
+      return "default";
+    }
+  };
 
   return (
     <Card className="relative overflow-hidden transition-all hover:shadow-md">
@@ -89,10 +57,7 @@ export const TableCard = ({ table, onStatusChange }: TableCardProps) => {
               {table.numberOfSeats} lugares
             </CardDescription>
           </div>
-          {/* <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-            <Edit className="h-4 w-4" />
-          </Button> */}
-          <NewTableDialog onAddTable={() => {}} onEditTable={() => addEditTable(table, table._id)} editingTable={table} buttonType="icon" />
+          <NewTableDialog editingTable={table} buttonType="icon" />
         </div>
       </CardHeader>
       
@@ -116,12 +81,12 @@ export const TableCard = ({ table, onStatusChange }: TableCardProps) => {
         
         <div className="space-y-2">
           <Button 
-            variant="outline" 
+            variant={getActionButtonVariant()} 
             size="sm" 
             className="w-full"
-            onClick={() => {}}
+            onClick={handleStatusAction}
           >
-            {'em desenvolvimento'}
+            {getActionButtonText()}
           </Button>
         </div>
       </CardContent>
