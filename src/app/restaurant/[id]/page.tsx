@@ -11,10 +11,12 @@ import { useParams } from "next/navigation";
 import { useRestaurant } from "@/app/hooks/useRestaurant";
 import { useQuery } from "@tanstack/react-query";
 import { ReservationModal } from "@/components/ReservationModal";
+import { useUserContext } from "@/app/context/user/useUserContext";
 
 const RestaurantPage = () => {
   const { id } = useParams();
   const [reservationModalOpen, setReservationModalOpen] = useState(false);
+  const { user } = useUserContext();
 
   const { getRestaurantById } = useRestaurant();
 
@@ -191,9 +193,10 @@ const RestaurantPage = () => {
                 className="w-full" 
                 size="lg"
                 onClick={() => setReservationModalOpen(true)}
+                disabled={!user}
               >
                 <Users className="w-4 h-4 mr-2" />
-                Reservar Mesa
+                {user ? 'Reservar Mesa' : 'Faça login para reservar'}
               </Button>
             </CardContent>
           </Card>

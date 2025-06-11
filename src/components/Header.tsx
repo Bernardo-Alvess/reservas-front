@@ -3,14 +3,18 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { User, Settings, Calendar } from "lucide-react";
-import { useUserContext } from "../context/user/useUserContext";
-import { useLogin } from "../hooks/useLogin";
+import { useUserContext } from "../app/context/user/useUserContext";
+import { useLogin } from "../app/hooks/useLogin";
+import { useState } from "react";
+import { LoginModal } from "./LoginModal";
 
 const Header = () => {
   const { user } = useUserContext();
   const { logout } = useLogin('client');
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   return (
+    <>
     <nav className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border sticky top-0 z-50">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
@@ -46,12 +50,11 @@ const Header = () => {
                 Sair
               </Button>
             ) : (
-              <Link href="/login">
-                <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => {setLoginModalOpen(true)
+              }}>
                 <User className="w-4 h-4 mr-2" />
                 Entrar
               </Button>
-            </Link>
             )}
             {/* {!location.pathname.startsWith('/admin') ? (
               <>
@@ -78,6 +81,12 @@ const Header = () => {
         </div>
       </div>
     </nav>
+
+<LoginModal 
+open={loginModalOpen} 
+onOpenChange={setLoginModalOpen} 
+/>
+</>
   );
 };
 

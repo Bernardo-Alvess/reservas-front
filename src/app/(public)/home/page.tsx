@@ -138,10 +138,10 @@ const RestaurantSearch = () => {
         ))}
       </div>
 
-      <LoginModal 
+      {/* <LoginModal 
         open={loginModalOpen} 
         onOpenChange={setLoginModalOpen} 
-      />
+      /> */}
     </div>
   );
 };

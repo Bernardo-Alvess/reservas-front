@@ -23,7 +23,6 @@ export interface LoginFormProps {
   password: string;
 }
 
-
 export const useLogin = (type: 'client' | 'restaurant') => {
   const router = useRouter();
   

@@ -1,4 +1,4 @@
-import Header from './components/Header'
+import Header from '../components/Header'
 import './globals.css'
 import { Providers } from './providers'
 import { Bounce, ToastContainer} from 'react-toastify';

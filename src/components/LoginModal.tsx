@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import Link from "next/link";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "react-toastify";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
-
+import Link from "next/link";
+import { useUser } from "@/app/hooks/useUser";
+import { useLogin } from "@/app/hooks/useLogin";
 interface LoginModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -19,18 +20,20 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
   const [clientLoginStep, setClientLoginStep] = useState<"email" | "otp">("email");
   const [clientEmail, setClientEmail] = useState("");
   const [otpCode, setOtpCode] = useState("");
-  
+  const [loginType, setLoginType] = useState<'client' | 'restaurant'>('client')
   const [restaurantData, setRestaurantData] = useState({
     email: "",
     password: ""
   });
+  
+  const { createOrUpdateOtp } = useUser();
+  const { login } = useLogin(loginType)
 
   const handleClientEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!clientEmail) return;
-    
+    createOrUpdateOtp(clientEmail);
     // Simular envio do código OTP
-    toast.success("Código enviado para seu email!");
     setClientLoginStep("otp");
   };
 
@@ -40,7 +43,7 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
       toast.error("Digite o código de 6 dígitos");
       return;
     }
-    
+    login(clientEmail, otpCode)
     // Simular verificação do OTP
     toast.success("Login realizado com sucesso!");
     onOpenChange(false);
@@ -51,6 +54,8 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
 
   const handleRestaurantLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginType('restaurant')
+    login(restaurantData.email, restaurantData.password)
     // Simular login do restaurante
     toast.success("Login do restaurante realizado com sucesso!");
     onOpenChange(false);

@@ -14,6 +14,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover
 import { useReserve } from "@/app/hooks/useReserve";
 import { Calendar } from "./ui/calendar";
 import { Controller } from "react-hook-form";
+import { useUserContext } from "@/app/context/user/useUserContext";
 
 interface ReservationModalProps {
   open: boolean;
@@ -29,6 +30,7 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
   const { methods, createReserve } = useReserve();
   const { handleSubmit, control, formState: { errors }, reset } = methods;
   const [date, setDate] = useState<Date>();
+  const {user} = useUserContext();
 
   const timeSlots = [
     "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"
@@ -46,21 +48,14 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
     }
 
     try {
-      // Criar as datas ISO para startTime e endTime
       const [hours, minutes] = data.startTime.split(':');
       const startDateTime = new Date(date);
       startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-      
-      const endDateTime = new Date(startDateTime);
-      endDateTime.setHours(startDateTime.getHours() + 2); // Assumindo 2 horas de duração
 
-      const reserveData = {
+      let reserveData = {
         restaurantId: restaurant.id,
         startTime: startDateTime.toISOString(),
-        // endTime: endDateTime.toISOString(),
         amountOfPeople: data.amountOfPeople,
-        cpf: data.cpf,
-        birthDate: data.birthDate,
         email: data.email,
       };
 
@@ -173,46 +168,6 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="cpf">CPF</Label>
-            <Controller
-              name="cpf"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  id="cpf"
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="000.000.000-00"
-                  required
-                />
-              )}
-            />
-            {errors.cpf && (
-              <span className="text-sm text-red-500">{errors.cpf.message as string}</span>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="birthDate">Data de Nascimento</Label>
-            <Controller
-              name="birthDate"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  id="birthDate"
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="DD/MM/AAAA"
-                  required
-                />
-              )}
-            />
-            {errors.birthDate && (
-              <span className="text-sm text-red-500">{errors.birthDate.message as string}</span>
-            )}
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Controller
               name="email"
@@ -221,9 +176,10 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
                 <Input
                   id="email"
                   type="email"
-                  value={field.value}
+                  value={ user ? user.email : field.value}
                   onChange={field.onChange}
                   placeholder="seu@email.com"
+                  disabled={!!user}
                   required
                 />
               )}
