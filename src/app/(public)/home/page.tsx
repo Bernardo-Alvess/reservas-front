@@ -10,11 +10,12 @@ import { LoginModal } from "@/components/LoginModal";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { useRestaurant } from "@/app/hooks/useRestaurant";
+import { useRouter } from "next/navigation";
 
 const RestaurantSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loginModalOpen, setLoginModalOpen] = useState(false);
-
+  const router = useRouter();
   const {getRestaurants} = useRestaurant();
 
   const {data, isLoading} = useQuery({
@@ -22,49 +23,6 @@ const RestaurantSearch = () => {
     queryFn: () => getRestaurants()
   })
 
-  // const restaurants = [
-  //   {
-  //     id: 1,
-  //     name: "Bella Vista",
-  //     cuisine: "Italiana",
-  //     rating: 4.8,
-  //     image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-  //     location: "Centro, São Paulo",
-  //     price: "$$",
-  //     time: "30-45 min",
-  //     availability: "Disponível hoje",
-  //     description: "Autêntica cozinha italiana em ambiente aconchegante"
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Sushi Zen",
-  //     cuisine: "Japonesa",
-  //     rating: 4.9,
-  //     image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-  //     location: "Jardins, São Paulo",
-  //     price: "$$$",
-  //     time: "45-60 min",
-  //     availability: "Lotado - próximo horário 20h",
-  //     description: "Experiência gastronômica japonesa premium"
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Grill House",
-  //     cuisine: "Steakhouse",
-  //     rating: 4.7,
-  //     image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-  //     location: "Vila Madalena, São Paulo",
-  //     price: "$$",
-  //     time: "25-40 min",
-  //     availability: "Disponível hoje",
-  //     description: "Os melhores cortes de carne da cidade"
-  //   }
-  // ];
-
-  // const filteredRestaurants = restaurants.filter(restaurant =>
-  //   restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //   restaurant.cuisine.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
 
   return (
     <div className="space-y-6 p-4">
@@ -113,8 +71,7 @@ const RestaurantSearch = () => {
       {/* Restaurant Results */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {data?.map((restaurant: any) => (
-          <Card key={restaurant.id} className="overflow-hidden hover-lift cursor-pointer group">
-            <Link href={`/restaurant/${restaurant.id}`}>
+          <Card key={restaurant._id} className="overflow-hidden hover-lift cursor-pointer group">
               <div className="relative h-48 overflow-hidden">
                 <img
                   src={"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
@@ -162,15 +119,15 @@ const RestaurantSearch = () => {
                   </div>
                 </div>
               </CardContent>
-            </Link>
-            
+
             <CardContent className="pt-0">
               <Button 
                 className="w-full" 
                 size="lg"
                 onClick={(e) => {
                   e.preventDefault();
-                  setLoginModalOpen(true);
+                  console.log(restaurant._id)
+                  router.push(`/restaurant/${restaurant._id}`);
                 }}
               >
                 <Users className="w-4 h-4 mr-2" />
