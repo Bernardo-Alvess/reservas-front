@@ -1,5 +1,5 @@
 import { useUser } from '@/app/hooks/useUser';
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useState, ReactNode, useEffect } from 'react';
 
 interface User {
   id: string;
@@ -30,7 +30,7 @@ export function UserProvider({ children }: UserProviderProps) {
       setUser(data);
     };
     fetchUser();
-  }, []);
+  }, [getUserLogged]);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>

@@ -15,7 +15,7 @@ export const verifyToken = async (token: string) : Promise<{ id: string; email: 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get('sessionToken')?.value || ''
 
-  const {pathname, origin} = req.nextUrl;
+  const {pathname} = req.nextUrl;
 
   const decodedToken = await verifyToken(token);
 

@@ -5,11 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Edit, Plus } from "lucide-react";
+import { Edit } from "lucide-react";
 import { TableData } from "../table.schema";
 import { useTables } from "@/app/hooks/useTables";
-import { FormProvider, Controller } from "react-hook-form";
+import { FormProvider } from "react-hook-form";
 
 interface NewTableDialogProps {
   editingTable?: any;
@@ -21,12 +20,11 @@ interface NewTableDialogProps {
 export const NewTableDialog = ({ editingTable, buttonType = 'button' }: NewTableDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const { methods, addEditTable, getTableById } = useTables();
+  const { methods, addEditTable } = useTables();
 
   const { 
     register, 
     handleSubmit, 
-    control, 
     reset, 
     setValue,
     formState: { errors } 
@@ -45,7 +43,7 @@ export const NewTableDialog = ({ editingTable, buttonType = 'button' }: NewTable
         numberOfSeats: 0,
       });
     }
-  }, [editingTable, isOpen, isEditing])
+  }, [editingTable, isOpen, isEditing, reset, setValue])
 
 
   const onSubmit = async (data: TableData) => {

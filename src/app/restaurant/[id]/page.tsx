@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Star, Clock, Phone, Globe, Users, ArrowLeft, ChefHat, BookOpenText } from "lucide-react";
+import { MapPin, Phone, Globe, Users, ArrowLeft, ChefHat, BookOpenText } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useRestaurant } from "@/app/hooks/useRestaurant";

@@ -5,24 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Star, Clock, Users } from "lucide-react";
-import { LoginModal } from "@/components/LoginModal";
-import Link from "next/link";
+import { Search, MapPin, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useRestaurant } from "@/app/hooks/useRestaurant";
 import { useRouter } from "next/navigation";
 
 const RestaurantSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [loginModalOpen, setLoginModalOpen] = useState(false);
   const router = useRouter();
   const {getRestaurants} = useRestaurant();
 
-  const {data, isLoading} = useQuery({
+  const {data} = useQuery({
     queryKey: ['restaurants'],
     queryFn: () => getRestaurants()
   })
-
 
   return (
     <div className="space-y-6 p-4">
@@ -137,11 +133,6 @@ const RestaurantSearch = () => {
           </Card>
         ))}
       </div>
-
-      {/* <LoginModal 
-        open={loginModalOpen} 
-        onOpenChange={setLoginModalOpen} 
-      /> */}
     </div>
   );
 };

@@ -1,7 +1,6 @@
 'use client'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Users } from "lucide-react";
@@ -13,7 +12,7 @@ interface TableCardProps {
   onStatusChange: (id: number, status: Table["status"]) => void;
 }
 
-export const TableCard = ({ table, onStatusChange }: TableCardProps) => {
+export const TableCard = ({ table }: TableCardProps) => {
   const { addEditTable } = useTables();
 
   const handleStatusAction = () => {

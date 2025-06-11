@@ -4,12 +4,12 @@ import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useUserContext } from "../context/user/useUserContext";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRestaurantContext } from "../context/selectedRestaurant/selectedRestaurantContext";
 
 export function Sidemenu() {
   const pathname = usePathname();
-  const { user, setUser } = useUserContext();
+  const { user } = useUserContext();
   const { selectedRestaurant } = useRestaurantContext();
 
   // if(!user) {

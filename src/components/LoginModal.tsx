@@ -11,52 +11,82 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import { useUser } from "@/app/hooks/useUser";
 import { useLogin } from "@/app/hooks/useLogin";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
 interface LoginModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+// Schemas de validação
+const clientEmailSchema = z.object({
+  email: z.string().email("Email inválido")
+});
+
+const clientOTPSchema = z.object({
+  otpCode: z.string().length(6, "Código deve ter 6 dígitos")
+});
+
+const restaurantLoginSchema = z.object({
+  email: z.string().email("Email inválido"),
+  password: z.string().min(1, "Senha é obrigatória")
+});
+
+type ClientEmailForm = z.infer<typeof clientEmailSchema>;
+type ClientOTPForm = z.infer<typeof clientOTPSchema>;
+type RestaurantLoginForm = z.infer<typeof restaurantLoginSchema>;
+
 export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
   const [clientLoginStep, setClientLoginStep] = useState<"email" | "otp">("email");
   const [clientEmail, setClientEmail] = useState("");
-  const [otpCode, setOtpCode] = useState("");
-  const [loginType, setLoginType] = useState<'client' | 'restaurant'>('client')
-  const [restaurantData, setRestaurantData] = useState({
-    email: "",
-    password: ""
-  });
+  const [loginType, setLoginType] = useState<'client' | 'restaurant'>('client');
   
   const { createOrUpdateOtp } = useUser();
-  const { login } = useLogin(loginType)
+  const { login } = useLogin(loginType);
 
-  const handleClientEmailSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!clientEmail) return;
-    createOrUpdateOtp(clientEmail);
-    // Simular envio do código OTP
+  // Formulário para email do cliente
+  const clientEmailForm = useForm<ClientEmailForm>({
+    resolver: zodResolver(clientEmailSchema),
+    defaultValues: {
+      email: ""
+    }
+  });
+
+  // Formulário para OTP do cliente
+  const clientOTPForm = useForm<ClientOTPForm>({
+    resolver: zodResolver(clientOTPSchema),
+    defaultValues: {
+      otpCode: ""
+    }
+  });
+
+  // Formulário para login do restaurante
+  const restaurantForm = useForm<RestaurantLoginForm>({
+    resolver: zodResolver(restaurantLoginSchema),
+    defaultValues: {
+      email: "",
+      password: ""
+    }
+  });
+
+  const handleClientEmailSubmit = (data: ClientEmailForm) => {
+    setClientEmail(data.email);
+    createOrUpdateOtp(data.email);
     setClientLoginStep("otp");
   };
 
-  const handleClientOTPSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otpCode.length !== 6) {
-      toast.error("Digite o código de 6 dígitos");
-      return;
-    }
-    login(clientEmail, otpCode)
-    // Simular verificação do OTP
+  const handleClientOTPSubmit = (data: ClientOTPForm) => {
+    login(clientEmail, data.otpCode);
     toast.success("Login realizado com sucesso!");
     onOpenChange(false);
-    setClientLoginStep("email");
-    setClientEmail("");
-    setOtpCode("");
+    resetClientLogin();
   };
 
-  const handleRestaurantLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginType('restaurant')
-    login(restaurantData.email, restaurantData.password)
-    // Simular login do restaurante
+  const handleRestaurantLogin = (data: RestaurantLoginForm) => {
+    setLoginType('restaurant');
+    login(data.email, data.password);
     toast.success("Login do restaurante realizado com sucesso!");
     onOpenChange(false);
   };
@@ -64,13 +94,21 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
   const resetClientLogin = () => {
     setClientLoginStep("email");
     setClientEmail("");
-    setOtpCode("");
+    clientEmailForm.reset();
+    clientOTPForm.reset();
+  };
+
+  const resetRestaurantLogin = () => {
+    restaurantForm.reset();
   };
 
   return (
     <Dialog open={open} onOpenChange={(open) => {
       onOpenChange(open);
-      if (!open) resetClientLogin();
+      if (!open) {
+        resetClientLogin();
+        resetRestaurantLogin();
+      }
     }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -88,17 +126,27 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
 
           <TabsContent value="cliente" className="space-y-4">
             {clientLoginStep === "email" ? (
-              <form onSubmit={handleClientEmailSubmit} className="space-y-4">
+              <form onSubmit={clientEmailForm.handleSubmit(handleClientEmailSubmit)} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="client-email">Email</Label>
-                  <Input
-                    id="client-email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    value={clientEmail}
-                    onChange={(e) => setClientEmail(e.target.value)}
-                    required
+                  <Controller
+                    name="email"
+                    control={clientEmailForm.control}
+                    render={({ field }) => (
+                      <Input
+                        id="client-email"
+                        type="email"
+                        placeholder="seu@email.com"
+                        {...field}
+                        required
+                      />
+                    )}
                   />
+                  {clientEmailForm.formState.errors.email && (
+                    <span className="text-sm text-red-500">
+                      {clientEmailForm.formState.errors.email.message}
+                    </span>
+                  )}
                 </div>
                 <Button type="submit" className="w-full">
                   Enviar código
@@ -114,24 +162,35 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
                 </div>
               </form>
             ) : (
-              <form onSubmit={handleClientOTPSubmit} className="space-y-4">
+              <form onSubmit={clientOTPForm.handleSubmit(handleClientOTPSubmit)} className="space-y-4">
                 <div className="space-y-2">
                   <Label>Código de verificação</Label>
                   <p className="text-sm text-muted-foreground">
                     Digite o código de 6 dígitos enviado para {clientEmail}
                   </p>
                   <div className="flex justify-center">
-                    <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                        <InputOTPSlot index={3} />
-                        <InputOTPSlot index={4} />
-                        <InputOTPSlot index={5} />
-                      </InputOTPGroup>
-                    </InputOTP>
+                    <Controller
+                      name="otpCode"
+                      control={clientOTPForm.control}
+                      render={({ field }) => (
+                        <InputOTP maxLength={6} value={field.value} onChange={field.onChange}>
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
+                      )}
+                    />
                   </div>
+                  {clientOTPForm.formState.errors.otpCode && (
+                    <span className="text-sm text-red-500 text-center block">
+                      {clientOTPForm.formState.errors.otpCode.message}
+                    </span>
+                  )}
                 </div>
                 <Button type="submit" className="w-full">
                   Entrar
@@ -149,28 +208,48 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
           </TabsContent>
 
           <TabsContent value="restaurante" className="space-y-4">
-            <form onSubmit={handleRestaurantLogin} className="space-y-4">
+            <form onSubmit={restaurantForm.handleSubmit(handleRestaurantLogin)} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="restaurant-email">Email</Label>
-                <Input
-                  id="restaurant-email"
-                  type="email"
-                  placeholder="restaurante@email.com"
-                  value={restaurantData.email}
-                  onChange={(e) => setRestaurantData({...restaurantData, email: e.target.value})}
-                  required
+                <Controller
+                  name="email"
+                  control={restaurantForm.control}
+                  render={({ field }) => (
+                    <Input
+                      id="restaurant-email"
+                      type="email"
+                      placeholder="restaurante@email.com"
+                      {...field}
+                      required
+                    />
+                  )}
                 />
+                {restaurantForm.formState.errors.email && (
+                  <span className="text-sm text-red-500">
+                    {restaurantForm.formState.errors.email.message}
+                  </span>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="restaurant-password">Senha</Label>
-                <Input
-                  id="restaurant-password"
-                  type="password"
-                  placeholder="Sua senha"
-                  value={restaurantData.password}
-                  onChange={(e) => setRestaurantData({...restaurantData, password: e.target.value})}
-                  required
+                <Controller
+                  name="password"
+                  control={restaurantForm.control}
+                  render={({ field }) => (
+                    <Input
+                      id="restaurant-password"
+                      type="password"
+                      placeholder="Sua senha"
+                      {...field}
+                      required
+                    />
+                  )}
                 />
+                {restaurantForm.formState.errors.password && (
+                  <span className="text-sm text-red-500">
+                    {restaurantForm.formState.errors.password.message}
+                  </span>
+                )}
               </div>
               <Button type="submit" className="w-full">
                 Entrar

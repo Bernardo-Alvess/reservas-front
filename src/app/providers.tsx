@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CookiesProvider } from 'react-cookie';
 import { ReactNode } from 'react';
 import { UserProvider } from './context/user/userContext';
-import { useUserContext } from './context/user/useUserContext';
 import { RestaurantProvider } from './context/selectedRestaurant/selectedRestaurantContext';
 
 const queryClient = new QueryClient({

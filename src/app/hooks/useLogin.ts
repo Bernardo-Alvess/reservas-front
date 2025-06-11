@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { API_URL } from '@/app/configs/constants';
 import { useQueryClient } from '@tanstack/react-query';
@@ -9,7 +9,6 @@ import { useUserContext } from '../context/user/useUserContext';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'react-toastify';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -35,7 +34,7 @@ export const useLogin = (type: 'client' | 'restaurant') => {
   });
 
   const { getUserLogged } = useUser();
-  const { user: userContext, setUser: setUserContext } = useUserContext();
+  const { setUser: setUserContext } = useUserContext();
   const [error, setError] = useState('');
   const queryClient = useQueryClient();
 

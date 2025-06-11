@@ -2,10 +2,8 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { API_URL } from "../configs/constants";
-import { useRestaurantContext } from "../context/selectedRestaurant/selectedRestaurantContext";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { TableData, TableSchema } from "../(restaurant)/tables/table.schema";
+import { TableData } from "../(restaurant)/tables/table.schema";
 
 export interface Table {
   _id: string;
@@ -16,8 +14,7 @@ export interface Table {
 }
 
 export const useTables = () => {
-  const {selectedRestaurant} = useRestaurantContext()
-  const [tables, setTables] = useState<Table[]>();
+  const [tables] = useState<Table[]>();
 
   const methods = useForm({
     // resolver: zodResolver(TableSchema),
@@ -46,29 +43,6 @@ export const useTables = () => {
     return body
   }
 
-  // const getTablesByStatus = (status: Table["status"]) => {
-  //   return tables.filter(table => table.status === status);
-  // };
-
-  // const addTable = (newTable: Omit<Table, "id">) => {
-  //   const newId = Math.max(...tables.map(t => t.id)) + 1;
-  //   setTables([...tables, { ...newTable, id: newId }]);
-  // };
-
-  // const updateTableStatus = (id: number, status: Table["status"]) => {
-  //   setTables(tables.map(table => 
-  //     table.id === id ? { ...table, status } : table
-  //   ));
-  // };
-
-  // const getTablesByStatus = async (status: Table["status"]) => {
-  //   const response = await fetch(`${API_URL}/tables/list/${selectedRestaurant}?status=${status}`, {
-  //     credentials: 'include'
-  //   })
-  //   const data = await response.json()
-  //   setTables(data)
-  // }
-
   const getTables = async () => {
     try {
       const id = localStorage.getItem('restauranteSelecionado')
@@ -79,6 +53,7 @@ export const useTables = () => {
       const data = await response.json()
       return data
     }catch(err) {
+      console.error(err)
       toast.error('Erro ao buscar mesas')
     }
   }
@@ -105,8 +80,8 @@ export const useTables = () => {
       toast.success('Mesa adicionada com sucesso!')
       return result
     } catch(err) {
+      console.error(err)
       toast.error('Erro ao adicionar mesa')
-      throw err
     }
   }
 
@@ -118,6 +93,7 @@ export const useTables = () => {
       const data = await response.json()
       return data
     } catch(err) {
+      console.error(err)
       toast.error('Erro ao buscar mesa')
     }
   }

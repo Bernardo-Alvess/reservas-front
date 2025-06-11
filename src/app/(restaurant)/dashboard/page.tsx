@@ -1,12 +1,7 @@
 'use client';
 
-import { ReactNode, useEffect, useState } from "react";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { usePathname, useRouter } from "next/navigation";
-import { useQuery } from '@tanstack/react-query';
-import { useUser } from "@/app/hooks/useUser";
-import { useRestaurant } from "@/app/hooks/useRestaurant";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Sidemenu } from "@/app/components/Sidemenu";
 import { useUserContext } from "@/app/context/user/useUserContext";
 
@@ -24,15 +19,11 @@ interface Stats {
   }>;
 }
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
+export default function DashboardLayout() {
   const router = useRouter();
   const [restauranteSelecionado, setRestauranteSelecionado] = useState<string>();
 
-  const { getUserLogged } = useUser()
-  const { getRestaurantById } = useRestaurant()
-
-  const { user, setUser: setUserContext } = useUserContext();
+  const { user } = useUserContext();
 
 
   // useEffect(() => {
@@ -72,7 +63,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     };
 
     init();
-  }, [user]);
+  }, [user, restauranteSelecionado, router]);
   
   
   const stats: Stats = {

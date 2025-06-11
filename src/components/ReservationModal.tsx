@@ -52,7 +52,7 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
       const startDateTime = new Date(date);
       startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
-      let reserveData = {
+      const reserveData = {
         restaurantId: restaurant.id,
         startTime: startDateTime.toISOString(),
         amountOfPeople: data.amountOfPeople,
