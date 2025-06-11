@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover";
 import { useReserve } from "@/app/hooks/useReserve";
 import { Calendar } from "./ui/calendar";
+import { Controller } from "react-hook-form";
 
 interface ReservationModalProps {
   open: boolean;
@@ -25,22 +26,58 @@ interface ReservationModalProps {
 }
 
 export const ReservationModal = ({ open, onOpenChange, restaurant }: ReservationModalProps) => {
-  const { createReserve } = useReserve();
+  const { methods, createReserve } = useReserve();
+  const { handleSubmit, control, formState: { errors }, reset } = methods;
   const [date, setDate] = useState<Date>();
-  const [formData, setFormData] = useState({
-    time: "",
-    guests: "2",
-    name: "",
-    email: "",
-    phone: ""
-  });
 
   const timeSlots = [
     "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
-    console.log(formData);
+  const onSubmit = async (data: any) => {
+    if (!date) {
+      toast.error("Por favor, selecione uma data");
+      return;
+    }
+
+    if (!data.startTime) {
+      toast.error("Por favor, selecione um horário");
+      return;
+    }
+
+    try {
+      // Criar as datas ISO para startTime e endTime
+      const [hours, minutes] = data.startTime.split(':');
+      const startDateTime = new Date(date);
+      startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      
+      const endDateTime = new Date(startDateTime);
+      endDateTime.setHours(startDateTime.getHours() + 2); // Assumindo 2 horas de duração
+
+      const reserveData = {
+        restaurantId: restaurant.id,
+        startTime: startDateTime.toISOString(),
+        // endTime: endDateTime.toISOString(),
+        amountOfPeople: data.amountOfPeople,
+        cpf: data.cpf,
+        birthDate: data.birthDate,
+        email: data.email,
+      };
+
+      const result = await createReserve(reserveData);
+      
+      if (result === 'Reserva criada com sucesso') {
+        toast.success(result);
+        reset();
+        setDate(undefined);
+        onOpenChange(false);
+      } else {
+        toast.error(result);
+      }
+    } catch (error) {
+      toast.error("Erro ao criar reserva");
+      console.error(error);
+    }
   };
 
   return (
@@ -53,7 +90,7 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Data</Label>
@@ -85,68 +122,115 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
 
             <div className="space-y-2">
               <Label>Horário</Label>
-              <Select value={formData.time} onValueChange={(value) => setFormData({...formData, time: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecionar" />
-                </SelectTrigger>
-                <SelectContent>
-                  {timeSlots.map((time) => (
-                    <SelectItem key={time} value={time}>
-                      {time}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="startTime"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecionar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timeSlots.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.startTime && (
+                <span className="text-sm text-red-500">{errors.startTime.message as string}</span>
+              )}
             </div>
           </div>
 
           <div className="space-y-2">
             <Label>Número de pessoas</Label>
-            <Select value={formData.guests} onValueChange={(value) => setFormData({...formData, guests: value})}>
-              <SelectTrigger>
-                <Users className="mr-2 h-4 w-4" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {[1,2,3,4,5,6,7,8].map((num) => (
-                  <SelectItem key={num} value={num.toString()}>
-                    {num} {num === 1 ? 'pessoa' : 'pessoas'}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="amountOfPeople"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value?.toString()} onValueChange={(value) => field.onChange(parseInt(value))}>
+                  <SelectTrigger>
+                    <Users className="mr-2 h-4 w-4" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1,2,3,4,5,6,7,8].map((num) => (
+                      <SelectItem key={num} value={num.toString()}>
+                        {num} {num === 1 ? 'pessoa' : 'pessoas'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.amountOfPeople && (
+              <span className="text-sm text-red-500">{errors.amountOfPeople.message as string}</span>
+            )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="name">Nome completo</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              required
+            <Label htmlFor="cpf">CPF</Label>
+            <Controller
+              name="cpf"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  id="cpf"
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="000.000.000-00"
+                  required
+                />
+              )}
             />
+            {errors.cpf && (
+              <span className="text-sm text-red-500">{errors.cpf.message as string}</span>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="birthDate">Data de Nascimento</Label>
+            <Controller
+              name="birthDate"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  id="birthDate"
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="DD/MM/AAAA"
+                  required
+                />
+              )}
+            />
+            {errors.birthDate && (
+              <span className="text-sm text-red-500">{errors.birthDate.message as string}</span>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
-              required
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  id="email"
+                  type="email"
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="seu@email.com"
+                  required
+                />
+              )}
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phone">Telefone</Label>
-            <Input
-              id="phone"
-              value={formData.phone}
-              onChange={(e) => setFormData({...formData, phone: e.target.value})}
-              placeholder="(11) 99999-9999"
-              required
-            />
+            {errors.email && (
+              <span className="text-sm text-red-500">{errors.email.message as string}</span>
+            )}
           </div>
 
           <Button type="submit" className="w-full">

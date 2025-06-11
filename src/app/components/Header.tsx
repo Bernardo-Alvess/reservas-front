@@ -6,7 +6,7 @@ import { User, Settings, Calendar } from "lucide-react";
 import { useUserContext } from "../context/user/useUserContext";
 import { useLogin } from "../hooks/useLogin";
 
-const Navigation = () => {
+const Header = () => {
   const { user } = useUserContext();
   const { logout } = useLogin('client');
 
@@ -23,7 +23,7 @@ const Navigation = () => {
           <div className="flex items-center space-x-4">
             {user && (
               <>
-              <Link href="/my-reservations">
+              <Link href="/my-reserves">
               <Button variant="ghost" size="sm">
                 <Calendar className="w-4 h-4 mr-2" />
                 Minhas Reservas
@@ -81,4 +81,4 @@ const Navigation = () => {
   );
 };
 
-export default Navigation;
+export default Header;

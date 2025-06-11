@@ -11,10 +11,11 @@ export const useReserve = () => {
 			resolver: zodResolver(reserveSchema),
 			defaultValues: {
 				startTime: '',
-				endTime: '',
+				// endTime: '',
 				amountOfPeople: 1,
 				cpf: '',
 				birthDate: '',
+				email: '',
 			}
 		}
 	)
