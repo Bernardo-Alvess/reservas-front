@@ -16,9 +16,6 @@ const TablesPage = () => {
     queryFn: getTables,
   });
 
-  // const handleStatusChange = (id: string, status: string) => {
-  //   console.log('Status mudou:', id, status);
-  // };
 
   return (
     <div className="flex min-h-screen">

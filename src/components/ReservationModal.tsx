@@ -30,15 +30,12 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
   const { methods, createReserve } = useReserve();
   const { handleSubmit, control, formState: { errors }, reset } = methods;
   const [date, setDate] = useState<Date>();
-  const {user} = useUserContext();
 
   const timeSlots = [
     "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"
   ];
 
-
   const onSubmit = async (data: any) => {
-    console.log(data)
     if (!date) {
       toast.error("Por favor, selecione uma data");
       return;
@@ -59,6 +56,8 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
         startTime: startDateTime.toISOString(),
         amountOfPeople: data.amountOfPeople,
         email: data.email,
+        name: data.name,
+        notes: data.notes || undefined,
       };
 
       const result = await createReserve(reserveData);
@@ -87,6 +86,7 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
             <Label>Data</Label>
@@ -140,7 +140,26 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
               )}
             </div>
           </div>
-
+          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Nome completo</Label>
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  id="name"
+                  type="text"
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Nome completo"
+                />
+              )}
+            />
+            {errors.name && (
+              <span className="text-sm text-red-500">{errors.name.message as string}</span>
+            )}
+          </div>
           <div className="space-y-2">
             <Label>Número de pessoas</Label>
             <Controller
@@ -166,9 +185,10 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
               <span className="text-sm text-red-500">{errors.amountOfPeople.message as string}</span>
             )}
           </div>
+          </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Email para contato:</Label>
             <Controller
               name="email"
               control={control}
@@ -179,7 +199,6 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
                   value={field.value}
                   onChange={field.onChange}
                   placeholder="seu@email.com"
-                  // disabled={!!user}
                   required
                 />
               )}
@@ -189,9 +208,27 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
             )}
           </div>
 
-          <Button type="submit" className="w-full" onClick={() => {
-            console.log(methods.getValues())
-          }}>
+          <div className="space-y-2">
+            <Label>Alguma observação?</Label>
+            <Controller
+              name="notes"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  id="notes"
+                  type="text"
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Aniversário, etc."
+                />
+              )}
+            />
+            {errors.notes && (
+              <span className="text-sm text-red-500">{errors.notes.message as string}</span>
+            )}
+          </div>
+
+          <Button type="submit" className="w-full">
             Confirmar Reserva
           </Button>
         </form>

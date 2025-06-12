@@ -1,28 +1,67 @@
 import { Calendar, Clock, Users, Mail } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Reserva } from "@/app/(restaurant)/reserves/page";
+import { Reserva, useReserve } from "@/app/hooks/useReserve";
 import { Badge } from "./ui/badge";
+import { useQueryClient } from "@tanstack/react-query";
+import { formatDate, formatTime } from "@/lib/formatDate";
+
+interface ReserveCardProps {
+  reservation: Reserva;
+  className?: string;
+}
 
 const ReserveCard = ({ 
   reservation, 
-  onStatusChange, 
-  getStatusColor, 
-  getStatusLabel, 
-  formatDate, 
-  formatTime,
   className = ""
-}: {
-  reservation: Reserva;
-  onStatusChange: (id: string, mode: 'confirm' | 'cancel') => void;
-  getStatusColor: (status: string) => string;
-  getStatusLabel: (status: string) => string;
-  formatDate: (date: string) => string;
-  formatTime: (time: string) => string;
-  className?: string;
-}) => {
+}: ReserveCardProps) => {
+
   const clientName = reservation.name;
   const clientEmail = reservation.email || reservation.clientId?.email || '';
+
+  const { confirmOrCancelReserve } = useReserve();
+  const queryClient = useQueryClient();
+
+  const handleStatusChange = async (reserveId: string, mode: 'confirm' | 'cancel') => {
+    await confirmOrCancelReserve(reserveId, 'restaurant', mode);
+    queryClient.invalidateQueries({ queryKey: ['reserves'] });
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "confirmed":
+      case "confirmada":
+        return "bg-green-100 text-green-800";
+      case "pending":
+      case "pendente":
+        return "bg-yellow-100 text-yellow-800";
+      case "cancelled":
+      case "canceled":
+      case "cancelada":
+        return "bg-red-100 text-red-800";
+      case "finished":
+      case "finalizada":
+        return "bg-blue-100 text-blue-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "confirmed":
+        return "Confirmada";
+      case "pending":
+        return "Pendente";
+      case "cancelled":
+      case "canceled":
+        return "Cancelada";
+      case "finished":
+        return "Finalizada";
+      default:
+        return status;
+    }
+  };
 
   return (
     <Card className={`hover-lift ${className}`}>
@@ -54,6 +93,7 @@ const ReserveCard = ({
         </div>
       </CardHeader>
       
+      <div>
       <CardContent className="pt-0">
         <div className="flex justify-between items-start">
           <div className="space-y-2">
@@ -64,37 +104,40 @@ const ReserveCard = ({
               </div>
             )}
           </div>
-          
+
           <div className="flex gap-2">
-            {reservation.status.toLowerCase() === "pending" && (
+            {(reservation.status.toLowerCase() === "pendente" || reservation.status.toLowerCase() === "confirmada") && (
               <>
                 <Button 
                   size="sm" 
                   variant="outline"
-                  onClick={() => onStatusChange(reservation._id, 'cancel')}
+                  onClick={() => handleStatusChange(reservation._id, 'cancel')}
                 >
                   Recusar
                 </Button>
-                <Button 
-                  size="sm"
-                  onClick={() => onStatusChange(reservation._id, 'confirm')}
-                >
-                  Confirmar
-                </Button>
               </>
             )}
-            {reservation.status.toLowerCase() === "confirmed" && (
+            {(reservation.status.toLowerCase() === "cancelada" && reservation.canceledBy !== "user") && (
               <Button 
                 size="sm" 
                 variant="outline"
-                onClick={() => onStatusChange(reservation._id, 'cancel')}
+                onClick={() => handleStatusChange(reservation._id, 'confirm')}
               >
-                Cancelar
+                Confirmar
               </Button>
             )}
           </div>
         </div>
       </CardContent>
+      {reservation.canceledBy && (
+        <CardContent>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>Cancelado pelo {reservation.canceledBy === "restaurant" ? "restaurante" : "cliente"}</span>
+        </div>
+        </CardContent>
+      )}
+      </div>
+
     </Card>
   );
 };

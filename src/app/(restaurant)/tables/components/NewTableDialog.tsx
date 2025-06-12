@@ -47,7 +47,6 @@ export const NewTableDialog = ({ editingTable, buttonType = 'button' }: NewTable
 
 
   const onSubmit = async (data: TableData) => {
-    console.log(data)
     try {
       if (isEditing && editingTable) {
         await addEditTable(data, editingTable._id);

@@ -22,7 +22,6 @@ export const useUser = () => {
     }
 
     const createOrUpdateOtp = async (email: string) => {
-        console.log('email', email)
         try {
             const response = await fetch(`${API_URL}users/create-user`, {
                 method: 'POST',

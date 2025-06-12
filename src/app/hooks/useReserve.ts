@@ -6,6 +6,25 @@ import { Reserve } from '../schemas/reserve/reserve';
 import { toast } from 'react-toastify';
 import { PageOptionsDto } from '@/lib/PageOptionsDto';
 
+export interface Reserva {
+  _id: string;
+  email: string;
+  name: string;
+  startTime: string;
+  amountOfPeople: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+	canceledBy: string
+  clientId: {
+    email: string;
+  };
+  table: {
+    _id: string;
+    number: number;
+  };
+}
+
 export const useReserve = () => {
 
 	const methods = useForm(
@@ -15,6 +34,8 @@ export const useReserve = () => {
 				startTime: '',
 				amountOfPeople: 1,
 				email: '',
+				name: '',
+				notes: '',
 			}
 		}
 	)
@@ -49,7 +70,8 @@ export const useReserve = () => {
 			});
 
 			if(!response.ok) {
-				toast.error('Ocorreu um erro ao criar a reserva');
+				const errorData = await response.json();
+				toast.error(errorData.message);
 				throw new Error('Erro ao criar reserva');
 			}
 
@@ -87,17 +109,22 @@ export const useReserve = () => {
 			const id = localStorage.getItem('restauranteSelecionado');
 			let url = `${API_URL}reserve/restaurant/${id}`;
 			const queryParams = new URLSearchParams();
+			
 			if(options) {
 				if(options.orderDirection) queryParams.append('orderDirection', options.orderDirection);
 				if(options.orderColumn) queryParams.append('orderColumn', options.orderColumn);
 				if(options.page) queryParams.append('page', options.page.toString());
-				if(options.limit) queryParams.append('limit', options.limit.toString());
+				if(options.limit) queryParams.append('limit', options.limit <= 50 ? options.limit.toString() : '50');
 				if(options.search) queryParams.append('search', options.search);
-				url = `${url}?${queryParams.toString()}`;
+				if(options.today !== undefined) queryParams.append('today', options.today.toString());
+				if(options.status) queryParams.append('status', options.status);
+				
+				const queryString = queryParams.toString();
+				if (queryString) {
+					url = `${url}?${queryString}`;
+				}
 			}
-			console.log(id)
 			console.log(url)
-			
 			const response = await fetch(url, {
 				method: 'GET',
 				headers: {
@@ -113,11 +140,29 @@ export const useReserve = () => {
 
 			const data = await response.json();
 
-
-			console.log(data)
 			return data;
 		} catch (error) {
 			console.error('Erro ao buscar reservas:', error);
+			throw error;
+		}
+	}
+
+	const getReserveStatsForRestaurant = async () => {
+		try {
+			const id = localStorage.getItem('restauranteSelecionado');
+			const response = await fetch(`${API_URL}reserve/restaurant/${id}/stats`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
+			});
+			const data = await response.json();
+			console.log(data)
+			return data;
+		} catch (error) {
+			toast.error('Ocorreu um erro ao buscar as estatísticas de reservas');
+			console.error('Erro ao buscar estatísticas de reservas:', error);
 			throw error;
 		}
 	}
@@ -128,5 +173,6 @@ export const useReserve = () => {
 		createReserve,
 		confirmOrCancelReserve,
 		getReservesForRestaurant,
+		getReserveStatsForRestaurant,
 	};
 };

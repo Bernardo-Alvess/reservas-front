@@ -46,7 +46,6 @@ export const useTables = () => {
   const getTables = async () => {
     try {
       const id = localStorage.getItem('restauranteSelecionado')
-      console.log(id)
       const response = await fetch(`${API_URL}tables/list/${id}`, {
         credentials: 'include'
       })

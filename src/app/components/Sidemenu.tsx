@@ -12,11 +12,6 @@ export function Sidemenu() {
   const { user } = useUserContext();
   const { selectedRestaurant } = useRestaurantContext();
 
-  // if(!user) {
-  //   console.log(user)
-  //   console.log("Não tem usuário")
-  //   return null;
-  // }
 
   const menuItems = {
     company: [

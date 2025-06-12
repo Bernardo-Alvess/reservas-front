@@ -4,4 +4,6 @@ export interface PageOptionsDto {
   page?: number;
   limit?: number;
   readonly search?: string;
+  readonly today?: boolean;
+  readonly status?: 'Pendente' | 'Cancelada' | 'Confirmada';
 }

@@ -124,7 +124,6 @@ const RestaurantSearch = () => {
                 size="lg"
                 onClick={(e) => {
                   e.preventDefault();
-                  console.log(restaurant._id)
                   router.push(`/restaurant/${restaurant._id}`);
                 }}
               >

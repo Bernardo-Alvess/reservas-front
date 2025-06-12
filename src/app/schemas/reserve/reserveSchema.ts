@@ -8,6 +8,8 @@ const reserveSchema = z.object({
     amountOfPeople: z.number().min(1),
     cpf: z.string().min(1),
     birthDate: z.string().min(1),
+    name: z.string().min(1),
+    notes: z.string().optional(),
 })
 
 export default reserveSchema

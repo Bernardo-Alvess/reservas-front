@@ -25,9 +25,6 @@ const RestaurantPage = () => {
     queryFn: () => getRestaurantById(id as string),
   });
 
-console.log('amem')
-  // Mock data - em um app real, viria de uma API
-
   const restaurantMock = {
     id: 1,
     name: "Bella Vista",
@@ -192,10 +189,10 @@ console.log('amem')
                 className="w-full" 
                 size="lg"
                 onClick={() => setReservationModalOpen(true)}
-                disabled={!user}
+                disabled={(!user || restaurant.tables.length === 0)}
               >
                 <Users className="w-4 h-4 mr-2" />
-                {user ? 'Reservar Mesa' : 'Faça login para reservar'}
+                {restaurant.tables.length === 0 ? 'Não há mesas disponíveis' : user ? 'Reservar Mesa' : 'Faça login para reservar'}
               </Button>
             </CardContent>
           </Card>
