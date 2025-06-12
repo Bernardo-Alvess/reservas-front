@@ -9,6 +9,7 @@ import { Search, MapPin, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useRestaurant } from "@/app/hooks/useRestaurant";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const RestaurantSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -68,6 +69,7 @@ const RestaurantSearch = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {data?.map((restaurant: any) => (
           <Card key={restaurant._id} className="overflow-hidden hover-lift cursor-pointer group">
+            <Link href={`/restaurant/${restaurant._id}`}>
               <div className="relative h-48 overflow-hidden">
                 <img
                   src={"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
@@ -130,6 +132,7 @@ const RestaurantSearch = () => {
                 Reservar Mesa
               </Button>
             </CardContent>
+            </Link>
           </Card>
         ))}
       </div>

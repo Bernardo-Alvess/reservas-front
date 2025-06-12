@@ -25,10 +25,9 @@ const RestaurantPage = () => {
     queryFn: () => getRestaurantById(id as string),
   });
 
-
-  console.log(restaurant)
-
+console.log('amem')
   // Mock data - em um app real, viria de uma API
+
   const restaurantMock = {
     id: 1,
     name: "Bella Vista",

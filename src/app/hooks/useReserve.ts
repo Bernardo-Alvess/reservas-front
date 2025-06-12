@@ -3,18 +3,17 @@ import { API_URL } from '../configs/constants';
 import reserveSchema from '../schemas/reserve/reserveSchema';
 import { zodResolver } from '@hookform/resolvers/zod';	
 import { Reserve } from '../schemas/reserve/reserve';
+import { toast } from 'react-toastify';
+import { PageOptionsDto } from '@/lib/PageOptionsDto';
 
 export const useReserve = () => {
 
 	const methods = useForm(
 		{
-			resolver: zodResolver(reserveSchema),
 			defaultValues: {
+				startDate: '',
 				startTime: '',
-				// endTime: '',
 				amountOfPeople: 1,
-				cpf: '',
-				birthDate: '',
 				email: '',
 			}
 		}
@@ -48,14 +47,18 @@ export const useReserve = () => {
 				credentials: 'include',
 				body: JSON.stringify(data),
 			});
+
 			if(!response.ok) {
+				toast.error('Ocorreu um erro ao criar a reserva');
 				throw new Error('Erro ao criar reserva');
 			}
 
-			return 'Reserva criada com sucesso';
+			toast.success('Reserva realizada com sucesso');
+
+			return true
 		} catch (error) {
 			console.error('Erro ao criar reserva:', error);
-			return 'Erro ao criar reserva';
+			return false;
 		}	
 	}
 
@@ -79,10 +82,51 @@ export const useReserve = () => {
 		}
 	}
 
+	const getReservesForRestaurant = async (options?: PageOptionsDto) => {
+		try {
+			const id = localStorage.getItem('restauranteSelecionado');
+			let url = `${API_URL}reserve/restaurant/${id}`;
+			const queryParams = new URLSearchParams();
+			if(options) {
+				if(options.orderDirection) queryParams.append('orderDirection', options.orderDirection);
+				if(options.orderColumn) queryParams.append('orderColumn', options.orderColumn);
+				if(options.page) queryParams.append('page', options.page.toString());
+				if(options.limit) queryParams.append('limit', options.limit.toString());
+				if(options.search) queryParams.append('search', options.search);
+				url = `${url}?${queryParams.toString()}`;
+			}
+			console.log(id)
+			console.log(url)
+			
+			const response = await fetch(url, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
+			});
+
+			if(!response.ok) {
+				toast.error('Ocorreu um erro ao buscar as reservas');
+				throw new Error('Erro ao buscar reservas');
+			}
+
+			const data = await response.json();
+
+
+			console.log(data)
+			return data;
+		} catch (error) {
+			console.error('Erro ao buscar reservas:', error);
+			throw error;
+		}
+	}
+
 	return {
 		methods,
 		getReservesForUser,
 		createReserve,
 		confirmOrCancelReserve,
+		getReservesForRestaurant,
 	};
 };

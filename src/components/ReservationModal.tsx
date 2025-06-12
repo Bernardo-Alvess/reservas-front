@@ -10,11 +10,11 @@ import { CalendarIcon, Users } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
-import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover";
 import { useReserve } from "@/app/hooks/useReserve";
 import { Calendar } from "./ui/calendar";
 import { Controller } from "react-hook-form";
 import { useUserContext } from "@/app/context/user/useUserContext";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 interface ReservationModalProps {
   open: boolean;
@@ -36,7 +36,9 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
     "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"
   ];
 
+
   const onSubmit = async (data: any) => {
+    console.log(data)
     if (!date) {
       toast.error("Por favor, selecione uma data");
       return;
@@ -61,14 +63,13 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
 
       const result = await createReserve(reserveData);
       
-      if (result === 'Reserva criada com sucesso') {
-        toast.success(result);
+      if (result) {
         reset();
+        methods.reset()
         setDate(undefined);
         onOpenChange(false);
-      } else {
-        toast.error(result);
       }
+
     } catch (error) {
       toast.error("Erro ao criar reserva");
       console.error(error);
@@ -88,7 +89,7 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Data</Label>
+            <Label>Data</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -106,7 +107,7 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
                   <Calendar
                     mode="single"
                     selected={date}
-                    onSelect={(date) => setDate(date)}
+                    onSelect={setDate}
                     disabled={(date) => date < new Date()}
                     initialFocus
                     className="pointer-events-auto"
@@ -114,7 +115,6 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
                 </PopoverContent>
               </Popover>
             </div>
-
             <div className="space-y-2">
               <Label>Horário</Label>
               <Controller
@@ -176,10 +176,10 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
                 <Input
                   id="email"
                   type="email"
-                  value={ user ? user.email : field.value}
+                  value={field.value}
                   onChange={field.onChange}
                   placeholder="seu@email.com"
-                  disabled={!!user}
+                  // disabled={!!user}
                   required
                 />
               )}
@@ -189,7 +189,9 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
             )}
           </div>
 
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" onClick={() => {
+            console.log(methods.getValues())
+          }}>
             Confirmar Reserva
           </Button>
         </form>

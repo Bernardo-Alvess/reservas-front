@@ -30,7 +30,7 @@ export function UserProvider({ children }: UserProviderProps) {
       setUser(data);
     };
     fetchUser();
-  }, [getUserLogged]);
+  }, []);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
