@@ -46,7 +46,7 @@ export const TableCard = ({ table }: TableCardProps) => {
   };
 
   return (
-    <Card className="relative overflow-hidden transition-all hover:shadow-md">
+    <Card className="relative overflow-hidden transition-all hover:shadow-md p-2 py-2 max-w-96 w-full">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">

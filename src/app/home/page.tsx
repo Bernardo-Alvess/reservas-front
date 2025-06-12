@@ -68,7 +68,7 @@ const RestaurantSearch = () => {
       {/* Restaurant Results */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {data?.map((restaurant: any) => (
-          <Card key={restaurant._id} className="overflow-hidden hover-lift cursor-pointer group">
+          <Card key={restaurant._id} className="overflow-hidden hover-lift cursor-pointer group pb-2">
             <Link href={`/restaurant/${restaurant._id}`}>
               <div className="relative h-48 overflow-hidden">
                 <img

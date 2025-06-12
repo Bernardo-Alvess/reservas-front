@@ -79,7 +79,7 @@ export const useLogin = (type: 'client' | 'restaurant') => {
 
       await queryClient.resetQueries({ queryKey: ['user'] });
       await queryClient.invalidateQueries({ queryKey: ['user'] });
-      
+      localStorage.removeItem('restauranteSelecionado');
       window.location.href = '/home';
     } catch (error) {
       console.error('Erro ao fazer logout:', error);

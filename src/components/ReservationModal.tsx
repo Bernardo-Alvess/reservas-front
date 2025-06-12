@@ -13,7 +13,6 @@ import { toast } from "react-toastify";
 import { useReserve } from "@/app/hooks/useReserve";
 import { Calendar } from "./ui/calendar";
 import { Controller } from "react-hook-form";
-import { useUserContext } from "@/app/context/user/useUserContext";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 interface ReservationModalProps {

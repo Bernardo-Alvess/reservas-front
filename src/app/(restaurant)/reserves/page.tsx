@@ -1,27 +1,15 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState,  } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock, Filter, Mail, Phone, Search, Users, Loader2 } from 'lucide-react';
+import { Card, CardContent} from "@/components/ui/card";
+import { Calendar, Search, Users, Loader2 } from 'lucide-react';
 import Sidemenu from '@/app/components/Sidemenu';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { Reserva, useReserve } from '@/app/hooks/useReserve';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'react-toastify';
 import ReserveCard from '@/components/ReserveCard';
-import { formatDate, formatTime } from '@/lib/formatDate';
-import { 
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-  PaginationEllipsis,
-} from "@/components/ui/pagination";
 import { PaginationComponent } from '@/components/Pagination';
 
 const Reservas = () => {
@@ -32,7 +20,7 @@ const Reservas = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   
-  const { getReservesForRestaurant, confirmOrCancelReserve, getReserveStatsForRestaurant } = useReserve();
+  const { getReservesForRestaurant, getReserveStatsForRestaurant } = useReserve();
   const queryClient = useQueryClient();
 
   const getQueryOptions = () => {
@@ -161,7 +149,7 @@ const Reservas = () => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Hoje</p>
-                    <p className="text-2xl font-bold">{statsData.total}</p>
+                    <p className="text-2xl font-bold">{statsData?.total || 0}</p>
                   </div>
                 </div>
               </CardContent>
@@ -182,7 +170,7 @@ const Reservas = () => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Confirmadas</p>
-                    <p className="text-2xl font-bold">{statsData.confirmed}</p>
+                    <p className="text-2xl font-bold">{statsData?.confirmed || 0}</p>
                   </div>
                 </div>
               </CardContent>
@@ -202,7 +190,7 @@ const Reservas = () => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Pendentes</p>
-                    <p className="text-2xl font-bold">{statsData.pending}</p>
+                    <p className="text-2xl font-bold">{statsData?.pending || 0}</p>
                   </div>
                 </div>
               </CardContent>
@@ -222,7 +210,7 @@ const Reservas = () => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Total Pessoas Hoje</p>
-                    <p className="text-2xl font-bold">{statsData.totalPeople}</p>
+                    <p className="text-2xl font-bold">{statsData?.totalPeople || 0}</p>
                   </div>
                 </div>
               </CardContent>

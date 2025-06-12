@@ -64,7 +64,7 @@ const ReserveCard = ({
   };
 
   return (
-    <Card className={`hover-lift ${className}`}>
+    <Card className={`hover-lift ${className} py-3`}>
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <div>
@@ -82,8 +82,8 @@ const ReserveCard = ({
                 <Users className="w-4 h-4" />
                 {reservation.amountOfPeople} pessoas
               </span>
-              {reservation.table && (
-                <span>Mesa {reservation.table.number}</span>
+              {reservation.tableId && (
+                <span>Mesa {reservation.tableId.tableNumber}</span>
               )}
             </CardDescription>
           </div>

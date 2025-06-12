@@ -58,7 +58,7 @@ const TablesPage = () => {
             {/* Grid de Mesas */}
             <section>
               <h2 className="text-xl font-semibold mb-4">Layout das Mesas</h2>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="flex flex-wrap gap-4">
                 {tables.length === 0 ? (
                   <p className="text-muted-foreground">Nenhuma mesa cadastrada.</p>
                 ) : (

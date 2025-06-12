@@ -24,13 +24,14 @@ export function UserProvider({ children }: UserProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const { getUserLogged } = useUser();
   
+  const fetchUser = async () => {
+    const data = await getUserLogged();
+    setUser(data);
+  }
+
   useEffect(() => {
-    const fetchUser = async () => {
-      const data = await getUserLogged();
-      setUser(data);
-    };
     fetchUser();
-  }, []);
+  });
 
   return (
     <UserContext.Provider value={{ user, setUser }}>

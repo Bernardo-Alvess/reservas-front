@@ -9,19 +9,19 @@ import { TrendingUp, Clock, Book, Table, Users } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 
-interface Stats {
-  reservasHoje: number;
-  ocupacao: number;
-  mediaAvaliacoes: number;
-  proximasReservas: Array<{
-    id: string;
-    cliente: string;
-    data: string;
-    horario: string;
-    pessoas: number;
-    status: string;
-  }>;
-}
+// interface Stats {
+//   reservasHoje: number;
+//   ocupacao: number;
+//   mediaAvaliacoes: number;
+//   proximasReservas: Array<{
+//     id: string;
+//     cliente: string;
+//     data: string;
+//     horario: string;
+//     pessoas: number;
+//     status: string;
+//   }>;
+// }
 
 export default function DashboardLayout() {
   const router = useRouter();
@@ -51,7 +51,7 @@ export default function DashboardLayout() {
     };
 
     init();
-  }, [user, restauranteSelecionado]);
+  }, [user, restauranteSelecionado, router]);
   
   
   if(!user) return null
@@ -112,7 +112,7 @@ export default function DashboardLayout() {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
-              <Card key={index} className="hover-lift">
+              <Card key={index} className="hover-lift py-3">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">
                     {stat.title}
@@ -134,7 +134,7 @@ export default function DashboardLayout() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Ocupação por Horário */}
-            <Card>
+            <Card className="py-3">
               <CardHeader>
                 <CardTitle>Ocupação por Horário</CardTitle>
                 <CardDescription>Taxa de ocupação das mesas por faixa de horário</CardDescription>
@@ -159,7 +159,7 @@ export default function DashboardLayout() {
             </Card>
 
             {/* Próximas Reservas */}
-            <Card>
+            <Card className="py-3">
               <CardHeader>
                 <CardTitle>Próximas Reservas</CardTitle>
                 <CardDescription>Reservas para as próximas horas</CardDescription>

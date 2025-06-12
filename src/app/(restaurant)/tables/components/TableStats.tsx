@@ -16,7 +16,7 @@ export const TableStats = ({ tables }: TableStatsProps) => {
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
+      <Card className="py-3">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Disponíveis</CardTitle>
           <div className="h-4 w-4 rounded-full bg-green-500" />
@@ -27,7 +27,7 @@ export const TableStats = ({ tables }: TableStatsProps) => {
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="py-3">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Ocupadas</CardTitle>
           <div className="h-4 w-4 rounded-full bg-red-500" />
@@ -38,7 +38,7 @@ export const TableStats = ({ tables }: TableStatsProps) => {
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="py-3">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Reservadas</CardTitle>
           <div className="h-4 w-4 rounded-full bg-yellow-500" />
@@ -49,7 +49,7 @@ export const TableStats = ({ tables }: TableStatsProps) => {
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="py-3">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total</CardTitle>
           <Table className="h-4 w-4 text-muted-foreground" />

@@ -1,28 +1,53 @@
 import { useForm } from 'react-hook-form';
 import { API_URL } from '../configs/constants';
-import reserveSchema from '../schemas/reserve/reserveSchema';
-import { zodResolver } from '@hookform/resolvers/zod';	
 import { Reserve } from '../schemas/reserve/reserve';
 import { toast } from 'react-toastify';
 import { PageOptionsDto } from '@/lib/PageOptionsDto';
 
 export interface Reserva {
   _id: string;
-  email: string;
-  name: string;
+  clientId: {
+    _id: string;
+    email: string;
+    createdAt: string;
+    updatedAt: string;
+    type: string;
+  };
+  restaurantId: {
+    _id: string;
+    name: string;
+    phone: string;
+    address: any;
+    description: string;
+    type: string;
+    maxClients: number;
+    maxReservationTime: number;
+    workHours: any[];
+    companyId: string;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+  clientConfirmed: boolean;
+  restaurantConfirmed: boolean;
   startTime: string;
+  endTime: string;
   amountOfPeople: number;
   status: string;
+  canceledBy: string | null;
+  canceledAt?: string;
+  email: string;
+  name: string;
   createdAt: string;
   updatedAt: string;
-	canceledBy: string
-  clientId: {
-    email: string;
-  };
-  table: {
+  tableId: {
     _id: string;
-    number: number;
+    tableNumber: number;
+    numberOfSeats: number;
+    isReserved: boolean;
+    restaurantId: string;
   };
+  tableNumber: number;
 }
 
 export const useReserve = () => {
@@ -40,9 +65,26 @@ export const useReserve = () => {
 		}
 	)
 
-	const getReservesForUser = async () => {
+	const getReservesForUser = async (options?: PageOptionsDto) => {
 		try {
-			const response = await fetch(`${API_URL}reserve/client`, {
+			let url = `${API_URL}reserve/client`;
+			const queryParams = new URLSearchParams();
+			
+			if (options) {
+				if (options.orderDirection) queryParams.append('orderDirection', options.orderDirection);
+				if (options.orderColumn) queryParams.append('orderColumn', options.orderColumn);
+				if (options.page) queryParams.append('page', options.page.toString());
+				if (options.limit) queryParams.append('limit', options.limit <= 50 ? options.limit.toString() : '50');
+				if (options.search) queryParams.append('search', options.search);
+				if (options.status) queryParams.append('status', options.status);
+				
+				const queryString = queryParams.toString();
+				if (queryString) {
+					url = `${url}?${queryString}`;
+				}
+			}
+
+			const response = await fetch(url, {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json',
@@ -157,8 +199,11 @@ export const useReserve = () => {
 				},
 				credentials: 'include',
 			});
+			
+			if(!response.ok) {
+				throw new Error('Ocorreu um erro ao buscar as estatísticas de reservas');
+			}
 			const data = await response.json();
-			console.log(data)
 			return data;
 		} catch (error) {
 			toast.error('Ocorreu um erro ao buscar as estatísticas de reservas');
