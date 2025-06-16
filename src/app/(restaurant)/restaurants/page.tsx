@@ -75,17 +75,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Check } from "lucide-react";
+import { MapPin, Check, Plus } from "lucide-react";
 import { toast } from "react-toastify";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useUserContext } from "@/app/context/user/useUserContext";
 import { useRestaurantContext } from "@/app/context/selectedRestaurant/selectedRestaurantContext";
 import { Sidemenu } from "@/app/components/Sidemenu";
+import CreateRestaurantDialog from "@/components/CreateRestaurantDialog";
 
 const SelecionarRestaurante = () => {
   const { user } = useUserContext();
   const {selectedRestaurant, setSelectedRestaurant} = useRestaurantContext();
-
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   useEffect(() => {
     if(!selectedRestaurant) {
       console.log('Não tem restaurante selecionado')
@@ -108,24 +109,37 @@ const SelecionarRestaurante = () => {
     
     <main className="flex-1 p-6 overflow-auto">
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Selecionar Restaurante</h1>
-        <p className="text-muted-foreground">
-          Escolha o restaurante que você deseja gerenciar.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Selecionar Restaurante</h1>
+          <p className="text-muted-foreground">
+            Escolha o restaurante que você deseja gerenciar.
+          </p>
+        </div>
+        <Button onClick={() => setCreateDialogOpen(true)} className="flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            Novo Restaurante
+          </Button>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {user.restaurant.map((restaurant) => (
           <Card key={restaurant._id} className={`p-2 cursor-pointer transition-all hover:shadow-lg ${
             selectedRestaurant === restaurant._id ? 'ring-2 ring-primary' : ''
           }`}>
             <CardHeader className="pb-3">
-              {true && (
+              {restaurant.profileImage ? (
                 <div className="w-full h-48 mb-4 rounded-lg overflow-hidden">
                   <img
-                    src={"https://plus.unsplash.com/premium_photo-1679503585289-c02467981894?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
-                    alt={restaurant.name}
+                    src={restaurant.profileImage.url}
+                    alt={restaurant.profileImage.url}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) :  (
+                <div className="w-full h-48 mb-4 rounded-lg overflow-hidden">
+                  <img
+                    src={'/images/image-placeholder.jpg'}
+                    alt="Imagem do restaurante"
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -177,6 +191,10 @@ const SelecionarRestaurante = () => {
       )}
     </div>
     </main>
+    <CreateRestaurantDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+      />
     </div>
   );
 };
