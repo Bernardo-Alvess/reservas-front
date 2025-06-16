@@ -8,12 +8,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useRestaurant } from '@/app/hooks/useRestaurant';
 import { toast } from 'react-toastify';
-import { Upload, X, ImageIcon, FileText } from 'lucide-react';
+import { Upload, X, FileText } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import Sidemenu from '@/app/components/Sidemenu';
 import { useForm } from 'react-hook-form';
 import { CreateRestaurantDto, WorkHoursDto } from '@/types/restaurant';
 import { Checkbox } from "@/components/ui/checkbox";
+import "react-datepicker/dist/react-datepicker.css";
+import { TimeInput } from '@/components/TimeInput';
 
 const DAYS_OF_WEEK = [
     'Segunda-feira',
@@ -27,7 +29,6 @@ const DAYS_OF_WEEK = [
 
 const Restaurante = () => {
     const [isLoading, setIsLoading] = useState(false);
-    const [newGalleryImageUrl, setNewGalleryImageUrl] = useState('');
     const [id, setId] = useState<string>();
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [selectedMenu, setSelectedMenu] = useState<File | null>(null);
@@ -36,13 +37,15 @@ const Restaurante = () => {
     const [previewGallery, setPreviewGallery] = useState<File[]>([]);
     const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
+    console.log(selectedImage)
+
     const {
         register,
         handleSubmit,
         formState: { errors },
         setValue,
-        watch,
         getValues,
+        control
     } = useForm<CreateRestaurantDto>();
 
     const { 
@@ -91,6 +94,7 @@ const Restaurante = () => {
                     toast.success('Foto de perfil atualizada com sucesso!');
                 }
             } catch (error) {
+                console.log(error)
                 toast.error('Erro ao fazer upload da imagem');
             }
         }
@@ -108,27 +112,29 @@ const Restaurante = () => {
                     toast.success('Cardápio atualizado com sucesso!');
                 }
             } catch (error) {
+                console.log(error)
                 toast.error('Erro ao fazer upload do cardápio');
             }
         }
     };
 
-    const addGalleryImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(e.target.files || []);
-      console.log(files)
-      if (files.length > 0) {
-          setPreviewGallery((prev) => [...prev, ...files]);
+    // const addGalleryImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    //   const files = Array.from(e.target.files || []);
+    //   console.log(files)
+    //   if (files.length > 0) {
+    //       setPreviewGallery((prev) => [...prev, ...files]);
 
-          try {
-              if (id) {
-                  await uploadGalleryImage(id, files);
-                  toast.success('Foto de perfil atualizada com sucesso!');
-              }
-          } catch (error) {
-              toast.error('Erro ao fazer upload da imagem');
-          }
-      }
-    };
+    //       try {
+    //           if (id) {
+    //               await uploadGalleryImage(id, files);
+    //               toast.success('Foto de perfil atualizada com sucesso!');
+    //           }
+    //       } catch (error) {
+    //           console.log(error)
+    //           toast.error('Erro ao fazer upload da imagem');
+    //       }
+    //   }
+    // };
 
     const removeGalleryImage = async (index: number) => {
         try {
@@ -136,6 +142,7 @@ const Restaurante = () => {
             await updateRestaurant(id as string, { gallery: newGallery });
             toast.success('Imagem removida da galeria!');
         } catch (error) {
+            console.log(error)
             toast.error('Erro ao remover imagem da galeria');
         }
     };
@@ -147,6 +154,7 @@ const Restaurante = () => {
             await updateRestaurant(id as string, data);
             toast.success('Informações do restaurante atualizadas com sucesso!');
         } catch (error) {
+            console.log(error)
             toast.error('Erro ao salvar alterações');
         } finally {
             setIsLoading(false);
@@ -164,6 +172,7 @@ const Restaurante = () => {
                     toast.success('Imagem salva com sucesso.');
                 }
             } catch (error) {
+                console.log(error)
                 toast.error('Erro ao fazer upload da imagem');
             }
         }
@@ -449,10 +458,9 @@ const Restaurante = () => {
                                     ))}
                                 </div>
 
-                                {selectedDays.map((day, index) => {
+                                {selectedDays.map((day) => {
                                     const workHourIndex = getValues("workHours")?.findIndex(wh => wh.day === day) ?? -1;
                                     if (workHourIndex === -1) return null;
-
                                     return (
                                         <div key={day} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                                             <div className="space-y-2">
@@ -460,39 +468,47 @@ const Restaurante = () => {
                                                 <Input value={day} disabled />
                                             </div>
 
-                                            <div className="space-y-2">
+                                            {/* <div className="space-y-2">
                                                 <Label htmlFor={`open-${index}`}>Abertura</Label>
-                                                <Input
-                                                    id={`open-${index}`}
-                                                    type="time"
-                                                    {...register(`workHours.${workHourIndex}.open` as const, {
-                                                        required: 'Horário de abertura é obrigatório',
-                                                    })}
-                                                    value={getValues(`workHours.${workHourIndex}.open`) || ""}
+                                                <IMaskInput
+                                                  mask="00:00"
+                                                  {...register(`workHours.${workHourIndex}.open`)}
+                                                  placeholder='hh:mm'
+                                                  className='text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
                                                 />
                                                 {errors.workHours?.[workHourIndex]?.open && (
                                                     <p className="text-sm text-red-500">
                                                         {errors.workHours[workHourIndex]?.open?.message}
                                                     </p>
                                                 )}
-                                            </div>
+                                            </div> */}
+                                          <TimeInput
+                                            label="Abertura"
+                                            fieldName={`workHours.${workHourIndex}.open`}
+                                            control={control}
+                                            error={errors.workHours?.[workHourIndex]?.open}
+                                          />
+                                          <TimeInput
+                                            label="Fechamento"
+                                            fieldName={`workHours.${workHourIndex}.close`}
+                                            control={control}
+                                            error={errors.workHours?.[workHourIndex]?.close}
+                                          />
 
-                                            <div className="space-y-2">
+                                            {/* <div className="space-y-2">
                                                 <Label htmlFor={`close-${index}`}>Fechamento</Label>
-                                                <Input
-                                                    id={`close-${index}`}
-                                                    type="time"
-                                                    {...register(`workHours.${workHourIndex}.close` as const, {
-                                                        required: 'Horário de fechamento é obrigatório',
-                                                    })}
-                                                    value={getValues(`workHours.${workHourIndex}.close`) || ""}
+                                                <IMaskInput
+                                                  mask="00:00"
+                                                  {...register(`workHours.${workHourIndex}.close`)}
+                                                  placeholder='hh:mm'
+                                                  className='text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
                                                 />
                                                 {errors.workHours?.[workHourIndex]?.close && (
                                                     <p className="text-sm text-red-500">
                                                         {errors.workHours[workHourIndex]?.close?.message}
                                                     </p>
                                                 )}
-                                            </div>
+                                            </div> */}
                                         </div>
                                     );
                                 })}

@@ -79,6 +79,7 @@ const CreateRestaurantDialog = ({ open, onOpenChange }: CreateRestaurantDialogPr
       onOpenChange(false);
       form.reset();
     } catch (error) {
+      console.log(error)
       toast.error("Erro ao criar restaurante");
     } finally {
       setIsLoading(false);

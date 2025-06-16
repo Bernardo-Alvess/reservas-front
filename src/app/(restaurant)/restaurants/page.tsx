@@ -82,7 +82,6 @@ import { useUserContext } from "@/app/context/user/useUserContext";
 import { useRestaurantContext } from "@/app/context/selectedRestaurant/selectedRestaurantContext";
 import { Sidemenu } from "@/app/components/Sidemenu";
 import CreateRestaurantDialog from "@/components/CreateRestaurantDialog";
-import { useRestaurant } from "@/app/hooks/useRestaurant";
 
 const SelecionarRestaurante = () => {
   const { user } = useUserContext();
