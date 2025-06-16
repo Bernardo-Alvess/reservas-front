@@ -12,12 +12,12 @@ import Sidemenu from '@/app/components/Sidemenu';
 const UsersPage = () => {
   const { getUsers, addUser, updateUserStatus, updateUserRole, deleteUser, getUserStats } = useUser();
 
-  const {data: users, isLoading, error} = useQuery({
+  const {data: users, isLoading} = useQuery({
     queryKey: ['users'],
     queryFn: getUsers
   });
 
-  const {data: stats, isLoading: isLoadingStats, error: errorStats} = useQuery({
+  const {data: stats, isLoading: isLoadingStats} = useQuery({
     queryKey: ['stats'],
     queryFn: getUserStats
   });

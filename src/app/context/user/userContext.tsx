@@ -29,8 +29,10 @@ export function UserProvider({ children }: UserProviderProps) {
     setUser(data);
   }
 
+  
   useEffect(() => {
     fetchUser();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

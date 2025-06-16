@@ -159,7 +159,7 @@ export const useUser = () => {
 
     const deleteUser = async (userId: string) => {
         try {
-            const response = await fetch(`${API_URL}user/${userId}`, {
+            const response = await fetch(`${API_URL}users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',

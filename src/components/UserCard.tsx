@@ -3,7 +3,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Mail, Calendar, UserCheck, UserX } from "lucide-react";
-import { toast } from "react-toastify";
 
 interface UserCardProps {
   user: any;

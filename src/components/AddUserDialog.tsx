@@ -15,7 +15,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { CreateUserDto, UserTypeEnum } from "@/app/hooks/useUser";
-import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface AddUserDialogProps {
