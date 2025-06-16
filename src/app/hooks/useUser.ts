@@ -1,6 +1,19 @@
 import { toast } from "react-toastify"
 import { API_URL } from "../configs/constants"
 
+export enum UserTypeEnum {
+    ADMIN = 'admin',
+    WORKER = 'worker'
+}
+
+export interface CreateUserDto {
+    email: string;
+    name?: string;
+    type?: UserTypeEnum;
+    password?: string;
+    restaurantId?: string;
+}
+
 export const useUser = () => {
     const getUserLogged = async () => {
         try {
@@ -43,8 +56,159 @@ export const useUser = () => {
 
     }
 
+    const getUsers = async () => {
+        try {
+            const restaurantId = localStorage.getItem('restauranteSelecionado');
+            const response = await fetch(`${API_URL}users/restaurant/${restaurantId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao buscar usuários');
+            }
+
+            const data = await response.json();
+            console.log(data)
+            return data;
+        } catch (error) {
+            console.error('Erro ao buscar usuários:', error);
+            toast.error('Erro ao buscar usuários');
+            throw error;
+        }
+    }
+
+    const addUser = async (data: CreateUserDto) => {
+        try {
+            const restaurantId = localStorage.getItem('restauranteSelecionado');
+            const response = await fetch(`${API_URL}users/create-user`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    ...data,
+                    restaurantId,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Erro ao adicionar usuário');
+            }
+
+            toast.success('Usuário adicionado com sucesso');
+            return true;
+        } catch (error: any) {
+            console.error('Erro ao adicionar usuário:', error);
+            toast.error(error.message || 'Erro ao adicionar usuário');
+            return false;
+        }
+    }
+
+    const updateUserStatus = async (userId: string) => {
+        try {
+            const response = await fetch(`${API_URL}users/${userId}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao atualizar status do usuário');
+            }
+
+            toast.success('Status do usuário atualizado com sucesso');
+            return true;
+        } catch (error) {
+            console.error('Erro ao atualizar status do usuário:', error);
+            toast.error('Erro ao atualizar status do usuário');
+            return false;
+        }
+    }
+
+    const updateUserRole = async (userId: string, type: UserTypeEnum) => {
+        try {
+            const response = await fetch(`${API_URL}users/${userId}/role`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ type }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao atualizar função do usuário');
+            }
+
+            toast.success('Função do usuário atualizada com sucesso');
+            return true;
+        } catch (error) {
+            console.error('Erro ao atualizar função do usuário:', error);
+            toast.error('Erro ao atualizar função do usuário');
+            return false;
+        }
+    }
+
+    const deleteUser = async (userId: string) => {
+        try {
+            const response = await fetch(`${API_URL}user/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao excluir usuário');
+            }
+
+            toast.success('Usuário excluído com sucesso');
+            return true;
+        } catch (error) {
+            console.error('Erro ao excluir usuário:', error);
+            toast.error('Erro ao excluir usuário');
+            return false;
+        }
+    }
+
+    const getUserStats = async () => {
+        try {
+            const restaurantId = localStorage.getItem('restauranteSelecionado');
+            const response = await fetch(`${API_URL}users/restaurant/${restaurantId}/stats`, {
+                method: 'GET',
+                credentials: 'include',
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao buscar estatísticas de usuários');
+            }
+
+            const data = await response.json();
+            return data;
+        }catch(error){
+            console.error('Erro ao buscar estatísticas de usuários:', error);
+            toast.error('Erro ao buscar estatísticas de usuários');
+            throw error;
+        }
+    }
+
     return {
         getUserLogged,
-        createOrUpdateOtp
+        createOrUpdateOtp,
+        getUsers,
+        addUser,
+        updateUserStatus,
+        updateUserRole,
+        deleteUser,
+        getUserStats
     }
 }

@@ -1,112 +1,140 @@
 'use client';
 
-import { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Eye } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Users, UserCheck, UserX } from "lucide-react";
+import { AddUserDialog } from "@/components/AddUserDialog";
+import { UserCard } from "@/components/UserCard";
+import { UserTypeEnum, useUser } from "@/app/hooks/useUser";
+import { useQuery } from "@tanstack/react-query";
 import Sidemenu from '@/app/components/Sidemenu';
-import UsuarioModal from './userModal';
-import VerUsuarioModal from './viewUserModal';
 
-interface Usuario {
-  id: string;
-  nome: string;
-  email: string;
-  tipo: 'admin' | 'funcionario';
-  senha: string;
-}
+const UsersPage = () => {
+  const { getUsers, addUser, updateUserStatus, updateUserRole, deleteUser, getUserStats } = useUser();
 
-export default function UsuariosPage() {
-  const [usuarios, setUsuarios] = useState<Usuario[]>([
-    { id: '1', nome: 'João Silva', email: 'joao@email.com', tipo: 'admin', senha: '123' },
-    { id: '2', nome: 'Ana Costa', email: 'ana@email.com', tipo: 'funcionario', senha: '456' },
-  ]);
+  const {data: users, isLoading, error} = useQuery({
+    queryKey: ['users'],
+    queryFn: getUsers
+  });
 
-  const [modalAberto, setModalAberto] = useState(false);
-  const [usuarioSelecionado, setUsuarioSelecionado] = useState<Usuario | null>(null);
-  const [modalVisualizarAberto, setModalVisualizarAberto] = useState(false);
+  const {data: stats, isLoading: isLoadingStats, error: errorStats} = useQuery({
+    queryKey: ['stats'],
+    queryFn: getUserStats
+  });
 
-  const handleSalvar = (usuario: Usuario) => {
-    setUsuarios(prev => {
-      const existe = prev.find(u => u.id === usuario.id);
-      if (existe) {
-        return prev.map(u => u.id === usuario.id ? usuario : u);
-      } else {
-        return [...prev, { ...usuario, id: Date.now().toString() }];
-      }
-    });
-    setModalAberto(false);
-    setUsuarioSelecionado(null);
-  };
-
-  const handleExcluir = (id: string) => {
-    setUsuarios(prev => prev.filter(u => u.id !== id));
-    setModalVisualizarAberto(false);
-  };
+  if(isLoading) return <div>Carregando...</div>;
 
   return (
     <div className="flex h-screen">
-      <Sidemenu/>
+      <Sidemenu />
       <main className="flex-1 p-6 space-y-6 overflow-auto bg-zinc-100">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Usuários</h1>
-          <Button onClick={() => { setModalAberto(true); setUsuarioSelecionado(null); }}>
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Usuário
-          </Button>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Usuários</h1>
+              <p className="text-muted-foreground">
+                Gerencie os usuários do seu restaurante
+              </p>
+            </div>
+            <AddUserDialog onAddUser={addUser} />
+          </div>
+
+          {/* Stats Cards */}
+          {isLoadingStats || !stats ? (
+            <div>Carregando...</div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card className="p-2">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.total}</div>
+                <p className="text-xs text-muted-foreground">
+                  usuários cadastrados
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="p-2">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Usuários Ativos</CardTitle>
+                <UserCheck className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.activeUsers}</div>
+                <p className="text-xs text-muted-foreground">
+                  usuários ativos
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="p-2">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Administradores</CardTitle>
+                <Badge variant="default" className="h-4 px-2 text-xs">Admin</Badge>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.adminUsers}</div>
+                <p className="text-xs text-muted-foreground">
+                  administradores
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="p-2">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Usuários Inativos</CardTitle>
+                <UserX className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.workerUsers}</div>
+                <p className="text-xs text-muted-foreground">
+                  usuários inativos
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          )}
+          
+
+          {/* Users List */}
+          <Card className="p-2">
+          <CardHeader>
+              <CardTitle>Funcionários do Restaurante</CardTitle>
+              <CardDescription>
+                Lista de todos os usuários cadastrados no sistema
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {users.length === 0 ? (
+                <div className="text-center py-8">
+                  <Users className="mx-auto h-12 w-12 text-muted-foreground" />
+                  <h3 className="mt-2 text-sm font-semibold">Nenhum usuário cadastrado</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Comece adicionando o primeiro usuário ao sistema.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {users.map((user: any) => (
+                    <UserCard
+                      key={user._id}
+                      user={user}
+                      onUpdateStatus={() => updateUserStatus(user._id)}
+                      onUpdateRole={() => updateUserRole(user._id, user.role === UserTypeEnum.ADMIN ? UserTypeEnum.WORKER : UserTypeEnum.ADMIN)}
+                      onDelete={() => deleteUser(user._id)}
+                    />
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
-
-        <Card>
-          <CardContent className="p-4">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {usuarios.map(usuario => (
-                  <TableRow key={usuario.id}>
-                    <TableCell>{usuario.nome}</TableCell>
-                    <TableCell>{usuario.email}</TableCell>
-                    <TableCell>{usuario.tipo}</TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setUsuarioSelecionado(usuario);
-                          setModalVisualizarAberto(true);
-                        }}
-                      >
-                        <Eye className="w-4 h-4 mr-1" /> Ver
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-
-        <UsuarioModal
-          aberta={modalAberto}
-          aoFechar={() => { setModalAberto(false); setUsuarioSelecionado(null); }}
-          aoSalvar={handleSalvar}
-          usuarioInicial={usuarioSelecionado}
-        />
-
-        <VerUsuarioModal
-          aberta={modalVisualizarAberto}
-          usuario={usuarioSelecionado}
-          aoFechar={() => setModalVisualizarAberto(false)}
-          aoExcluir={handleExcluir}
-        />
       </main>
     </div>
   );
-}
+};
+
+export default UsersPage;
