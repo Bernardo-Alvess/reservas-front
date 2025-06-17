@@ -1,5 +1,6 @@
 import { toast } from "react-toastify"
 import { API_URL } from "../configs/constants"
+import { useQueryClient } from "@tanstack/react-query";
 
 export enum UserTypeEnum {
     ADMIN = 'admin',
@@ -15,6 +16,8 @@ export interface CreateUserDto {
 }
 
 export const useUser = () => {
+    const queryClient = useQueryClient();
+
     const getUserLogged = async () => {
         try {
             const response = await fetch(`${API_URL}users/me`,
@@ -27,6 +30,7 @@ export const useUser = () => {
                 throw new Error('Erro ao obter usuário logado')
             }
             const data = await response.json()
+            await queryClient.clear();
             return data || null
         }catch(error){
             console.error('Erro ao obter usuário logado:', error)
