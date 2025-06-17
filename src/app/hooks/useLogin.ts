@@ -80,6 +80,7 @@ export const useLogin = (type: 'client' | 'restaurant') => {
 
       await queryClient.resetQueries({ queryKey: ['user'] });
       await queryClient.invalidateQueries({ queryKey: ['user'] });
+      setUserContext(null);
       localStorage.removeItem('restauranteSelecionado');
       window.location.href = '/home';
     } catch (error) {
