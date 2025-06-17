@@ -72,6 +72,7 @@ export const useLogin = (type: 'client' | 'restaurant') => {
   };
 
   const logout = async () => {
+    console.log('logout');
     try {
       await fetch(`${API_URL}auth-user/logout`, {
         method: 'GET',
