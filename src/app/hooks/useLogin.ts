@@ -53,7 +53,8 @@ export const useLogin = (type: 'client' | 'restaurant') => {
       if (!response.ok) {
         throw new Error('Credenciais inválidas');
       }
-      
+      const data = await response.json();
+      console.log(data);
       const user = await getUserLogged();
       setUserContext(user);
 
