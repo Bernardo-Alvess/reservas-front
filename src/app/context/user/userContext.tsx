@@ -12,6 +12,7 @@ interface User {
 interface UserContextType {
   user: User | null;
   setUser: (user: User | null) => void;
+  fetchUser: () => Promise<void>;
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -36,7 +37,7 @@ export function UserProvider({ children }: UserProviderProps) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser, fetchUser }}>
       {children}
     </UserContext.Provider>
   );

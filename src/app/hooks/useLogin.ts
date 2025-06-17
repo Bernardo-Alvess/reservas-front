@@ -34,7 +34,7 @@ export const useLogin = (type: 'client' | 'restaurant') => {
   });
 
   const { getUserLogged } = useUser();
-  const { setUser: setUserContext } = useUserContext();
+  const { setUser: setUserContext, fetchUser } = useUserContext();
   const [error, setError] = useState('');
   const queryClient = useQueryClient();
 
@@ -81,6 +81,7 @@ export const useLogin = (type: 'client' | 'restaurant') => {
       await queryClient.resetQueries({ queryKey: ['user'] });
       await queryClient.invalidateQueries({ queryKey: ['user'] });
       setUserContext(null);
+      await fetchUser();
       localStorage.removeItem('restauranteSelecionado');
       window.location.href = '/home';
     } catch (error) {
