@@ -83,7 +83,7 @@ export const useLogin = (type: 'client' | 'restaurant') => {
       setUserContext(null);
       await fetchUser();
       localStorage.removeItem('restauranteSelecionado');
-      window.location.href = '/home';
+      // window.location.href = '/home';
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
     }
