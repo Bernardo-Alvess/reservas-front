@@ -4,12 +4,34 @@ import { API_URL } from "@/app/configs/constants"
 import { useForm } from "react-hook-form"
 import { CreateRestaurantDto } from "@/types/restaurant"
 
+interface RestaurantFilters {
+    search?: string;
+    type?: string;
+    page?: number;
+    limit?: number;
+}
+
 export const useRestaurant = () => {
     const methods = useForm<CreateRestaurantDto>()
 
-    const getRestaurants = async () => {
+    const getRestaurants = async (filters?: RestaurantFilters) => {
         try {
-            const response = await fetch(`${API_URL}restaurant`, {
+            let url = `${API_URL}restaurant`;
+            const queryParams = new URLSearchParams();
+            
+            if (filters) {
+                if (filters.search) queryParams.append('search', filters.search);
+                if (filters.type) queryParams.append('type', filters.type);
+                if (filters.page) queryParams.append('page', filters.page.toString());
+                if (filters.limit) queryParams.append('limit', filters.limit.toString());
+                
+                const queryString = queryParams.toString();
+                if (queryString) {
+                    url = `${url}?${queryString}`;
+                }
+            }
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

@@ -73,31 +73,29 @@ const RestaurantPage = () => {
       {/* Hero Section */}
       <div className="relative h-96 rounded-xl overflow-hidden mb-8">
         <img
-          src={'https://images.unsplash.com/photo-1721322800607-8c38375eef04?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
+          src={restaurant?.profileImage?.url || '/images/image-placeholder.jpg'}
           alt={restaurant.name}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/40 flex items-end">
-          <div className="p-8 text-white">
-            <div className="flex items-center gap-2 mb-2">
-              {/* <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-              <span className="text-lg font-semibold">{restaurant.rating}</span> */}
-              <Badge variant="secondary" className="ml-2">{restaurant.type}</Badge>
-            </div>
-            <h1 className="text-4xl font-bold mb-2">{restaurant.name}</h1>
-            <p className="text-lg opacity-90 flex items-center gap-2">
-              <MapPin className="w-5 h-5" />
-              {restaurant.address.city}, {restaurant.address.district}, {restaurant.address.street}, {restaurant.address.number}
-            </p>
+         <div className="absolute inset-0 bg-black/40 flex items-end">
+      <div className="p-8 w-fit">
+        <div className="bg-black/35 p-4 rounded-lg text-white">
+          <div className="flex items-center gap-2 mb-2">
+            <Badge variant="secondary" className="ml-2">{restaurant.type}</Badge>
           </div>
+          <h1 className="text-4xl font-bold mb-2">{restaurant.name}</h1>
+          <p className="text-lg opacity-90 flex items-center gap-2">
+            <MapPin className="w-5 h-5" />
+            {restaurant.address.city}, {restaurant.address.district}, {restaurant.address.street}, {restaurant.address.number}
+          </p>
         </div>
+      </div>
+     </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Content */}
         <div className="lg:col-span-2 space-y-8">
-          {/* About */}
-          <Card>
+          <Card className="p-2">
             <CardHeader>
               <CardTitle>Sobre o Restaurante</CardTitle>
             </CardHeader>
@@ -135,16 +133,17 @@ const RestaurantPage = () => {
           </Card>
 
           {/* Gallery */}
-          <Card>
+          {restaurant?.gallery.length > 0 && (
+          <Card className="p-2">
             <CardHeader>
               <CardTitle>Galeria</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {restaurantMock.gallery.map((image: string, index: number) => (
+                {restaurant?.gallery.map((image: Record<string, string>, index: number) => (
                   <div key={index} className="aspect-video rounded-lg overflow-hidden">
                     <img
-                      src={image}
+                      src={image.url}
                       alt={`${restaurant.name} - Foto ${index + 1}`}
                       className="w-full h-full object-cover hover:scale-105 transition-transform"
                     />
@@ -152,7 +151,8 @@ const RestaurantPage = () => {
                 ))}
               </div>
             </CardContent>
-          </Card>
+            </Card>
+          )}
 
           {/* Hours */}
           {/* <Card>
@@ -177,7 +177,7 @@ const RestaurantPage = () => {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Reservation Card */}
-          <Card>
+          <Card className="px-2 py-3">
             <CardHeader>
               <CardTitle>Fazer Reserva</CardTitle>
               <CardDescription>
@@ -198,7 +198,7 @@ const RestaurantPage = () => {
           </Card>
 
           {/* Contact Info */}
-          <Card>
+          <Card className="px-2 py-3">
             <CardHeader>
               <CardTitle>Informações de Contato</CardTitle>
             </CardHeader>
