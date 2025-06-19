@@ -12,6 +12,7 @@ import { useRestaurant } from "@/app/hooks/useRestaurant";
 import { useQuery } from "@tanstack/react-query";
 import { ReservationModal } from "@/components/ReservationModal";
 import { useUserContext } from "@/app/context/user/useUserContext";
+import { mapDay } from "@/lib/mapDay";
 
 const RestaurantPage = () => {
   const { id } = useParams();
@@ -155,23 +156,25 @@ const RestaurantPage = () => {
           )}
 
           {/* Hours */}
-          {/* <Card>
-            <CardHeader>
-              <CardTitle>Horário de Funcionamento</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {Object.entries(restaurant.hours).map(([day, hours]) => (
-                  <div key={day} className="flex justify-between">
-                    <span className="font-medium">{day}</span>
-                    <span className={hours === "Fechado" ? "text-muted-foreground" : ""}>
-                      {hours}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card> */}
+          {restaurant?.workHours && restaurant.workHours.length > 0 && (
+            <Card className="p-2">
+              <CardHeader>
+                <CardTitle>Horário de Funcionamento</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {restaurant.workHours.map((workHour: any) => (
+                    <div key={workHour.day} className="flex justify-between">
+                      <span className="font-medium">{mapDay(workHour.day)}</span>
+                      <span className="text-muted-foreground">
+                        {workHour.open} - {workHour.close}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Sidebar */}
