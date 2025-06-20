@@ -4,58 +4,30 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { MapPin, Phone, Globe, Users, ArrowLeft, ChefHat, BookOpenText } from "lucide-react";
+import { MapPin, Phone, Users, ArrowLeft, ChefHat, BookOpenText } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useRestaurant } from "@/app/hooks/useRestaurant";
 import { useQuery } from "@tanstack/react-query";
 import { ReservationModal } from "@/components/ReservationModal";
 import { useUserContext } from "@/app/context/user/useUserContext";
+import { mapDay } from "@/lib/mapDay";
+import { LoginModal } from "@/components/LoginModal";
+import { MenuModal } from "@/components/MenuModal";
 
 const RestaurantPage = () => {
   const { id } = useParams();
-  const [reservationModalOpen, setReservationModalOpen] = useState(false);
   const { user } = useUserContext();
-
   const { getRestaurantById } = useRestaurant();
+
+  const [reservationModalOpen, setReservationModalOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [menuModalOpen, setMenuModalOpen] = useState(false);
 
   const { data: restaurant, isLoading } = useQuery({
     queryKey: ['restaurant', id],
     queryFn: () => getRestaurantById(id as string),
   });
-
-  const restaurantMock = {
-    id: 1,
-    name: "Bella Vista",
-    cuisine: "Italiana",
-    rating: 4.8,
-    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    location: "Centro, São Paulo",
-    address: "Rua Augusta, 123 - Centro, São Paulo - SP",
-    phone: "(11) 3333-4444",
-    website: "www.bellavista.com.br",
-    price: "$$",
-    time: "30-45 min",
-    availability: "Disponível hoje",
-    description: "Autêntica cozinha italiana em ambiente aconchegante. Nossa tradição familiar se reflete em cada prato, preparado com ingredientes frescos e receitas transmitidas por gerações.",
-    hours: {
-      "Segunda": "Fechado",
-      "Terça": "18:00 - 23:00",
-      "Quarta": "18:00 - 23:00", 
-      "Quinta": "18:00 - 23:00",
-      "Sexta": "18:00 - 00:00",
-      "Sábado": "12:00 - 00:00",
-      "Domingo": "12:00 - 22:00"
-    },
-    specialties: ["Risotto de Cogumelos", "Osso Buco", "Tiramisu", "Pasta Carbonara"],
-    amenities: ["Wi-Fi", "Estacionamento", "Ar Condicionado", "Aceita Cartão", "Delivery"],
-    gallery: [
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      "https://images.unsplash.com/photo-1481833761820-0509d3217039?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-    ]
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -73,31 +45,29 @@ const RestaurantPage = () => {
       {/* Hero Section */}
       <div className="relative h-96 rounded-xl overflow-hidden mb-8">
         <img
-          src={'https://images.unsplash.com/photo-1721322800607-8c38375eef04?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
+          src={restaurant?.profileImage?.url || '/images/image-placeholder.jpg'}
           alt={restaurant.name}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/40 flex items-end">
-          <div className="p-8 text-white">
-            <div className="flex items-center gap-2 mb-2">
-              {/* <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-              <span className="text-lg font-semibold">{restaurant.rating}</span> */}
-              <Badge variant="secondary" className="ml-2">{restaurant.type}</Badge>
-            </div>
-            <h1 className="text-4xl font-bold mb-2">{restaurant.name}</h1>
-            <p className="text-lg opacity-90 flex items-center gap-2">
-              <MapPin className="w-5 h-5" />
-              {restaurant.address.city}, {restaurant.address.district}, {restaurant.address.street}, {restaurant.address.number}
-            </p>
+         <div className="absolute inset-0 bg-black/40 flex items-end">
+      <div className="p-8 w-fit">
+        <div className="bg-black/35 p-4 rounded-lg text-white">
+          <div className="flex items-center gap-2 mb-2">
+            <Badge variant="secondary" className="ml-2">{restaurant.type}</Badge>
           </div>
+          <h1 className="text-4xl font-bold mb-2">{restaurant.name}</h1>
+          <p className="text-lg opacity-90 flex items-center gap-2">
+            <MapPin className="w-5 h-5" />
+            {restaurant.address.city}, {restaurant.address.district}, {restaurant.address.street}, {restaurant.address.number}
+          </p>
         </div>
+      </div>
+     </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Content */}
         <div className="lg:col-span-2 space-y-8">
-          {/* About */}
-          <Card>
+          <Card className="p-2">
             <CardHeader>
               <CardTitle>Sobre o Restaurante</CardTitle>
             </CardHeader>
@@ -105,6 +75,15 @@ const RestaurantPage = () => {
               <p className="text-muted-foreground mb-6">{restaurant.description}</p>
               
               <div className="flex gap-10">
+               {restaurant.menu && (
+                 <div 
+                   className="flex items-center gap-2 text-sm cursor-pointer hover:text-primary transition-colors border border-primary rounded-md p-2"
+                   onClick={() => setMenuModalOpen(true)}
+                 >
+                   <BookOpenText className="w-4 h-4" />
+                   <span>Visualizar cardápio</span>
+                 </div>
+               )}
                 <div className="flex items-center gap-2 text-sm">
                   <Phone className="w-4 h-4" />
                   {restaurant.phone}
@@ -113,38 +92,23 @@ const RestaurantPage = () => {
                   <ChefHat className="w-4 h-4" />
                   {restaurant.type}
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <BookOpenText className="w-4 h-4" />
-                  <Link href={'#'} target="_blank">Acessar cardápio</Link>
-                </div>
-              </div>
 
-              <Separator className="my-6" />
-
-              <div>
-                <h3 className="font-semibold mb-3">Especialidades</h3>
-                <div className="flex flex-wrap gap-2">
-                  {restaurantMock.specialties.map((specialty: string) => (
-                    <Badge key={specialty} variant="outline">
-                      {specialty}
-                    </Badge>
-                  ))}
-                </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Gallery */}
-          <Card>
+          {restaurant?.gallery.length > 0 && (
+          <Card className="p-2">
             <CardHeader>
               <CardTitle>Galeria</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {restaurantMock.gallery.map((image: string, index: number) => (
+                {restaurant?.gallery.map((image: Record<string, string>, index: number) => (
                   <div key={index} className="aspect-video rounded-lg overflow-hidden">
                     <img
-                      src={image}
+                      src={image.url}
                       alt={`${restaurant.name} - Foto ${index + 1}`}
                       className="w-full h-full object-cover hover:scale-105 transition-transform"
                     />
@@ -152,32 +116,35 @@ const RestaurantPage = () => {
                 ))}
               </div>
             </CardContent>
-          </Card>
+            </Card>
+          )}
 
           {/* Hours */}
-          {/* <Card>
-            <CardHeader>
-              <CardTitle>Horário de Funcionamento</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {Object.entries(restaurant.hours).map(([day, hours]) => (
-                  <div key={day} className="flex justify-between">
-                    <span className="font-medium">{day}</span>
-                    <span className={hours === "Fechado" ? "text-muted-foreground" : ""}>
-                      {hours}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card> */}
+          {restaurant?.workHours && restaurant.workHours.length > 0 && (
+            <Card className="p-2">
+              <CardHeader>
+                <CardTitle>Horário de Funcionamento</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {restaurant.workHours.map((workHour: any) => (
+                    <div key={workHour.day} className="flex justify-between">
+                      <span className="font-medium">{mapDay(workHour.day)}</span>
+                      <span className="text-muted-foreground">
+                        {workHour.open} - {workHour.close}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Reservation Card */}
-          <Card>
+          <Card className="px-2 py-3">
             <CardHeader>
               <CardTitle>Fazer Reserva</CardTitle>
               <CardDescription>
@@ -186,10 +153,18 @@ const RestaurantPage = () => {
             </CardHeader>
             <CardContent>
               <Button 
-                className="w-full" 
+                className={`w-full ${restaurant.tables.length === 0 ? 'cursor-not-allowed' : 'cursor-pointer'}`} 
                 size="lg"
-                onClick={() => setReservationModalOpen(true)}
-                disabled={(!user || restaurant.tables.length === 0)}
+                onClick={() => {
+                  if (!user) {
+                    setLoginModalOpen(true);
+                  } else if (restaurant.tables.length === 0) {
+                    return
+                  } else {
+                    setReservationModalOpen(true);
+                  }
+                }}
+                // disabled={(!user || restaurant.tables.length === 0)}
               >
                 <Users className="w-4 h-4 mr-2" />
                 {restaurant.tables.length === 0 ? 'Não há mesas disponíveis' : user ? 'Reservar Mesa' : 'Faça login para reservar'}
@@ -198,7 +173,7 @@ const RestaurantPage = () => {
           </Card>
 
           {/* Contact Info */}
-          <Card>
+          <Card className="px-2 py-3">
             <CardHeader>
               <CardTitle>Informações de Contato</CardTitle>
             </CardHeader>
@@ -211,28 +186,9 @@ const RestaurantPage = () => {
                 <Phone className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm">{restaurant.phone}</span>
               </div>
-              <div className="flex items-center gap-3">
-                <Globe className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm">{restaurant.website || 'Não possui site'}</span>
-              </div>
+
             </CardContent>
           </Card>
-
-          {/* Amenities */}
-          {/* <Card>
-            <CardHeader>
-              <CardTitle>Comodidades</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {restaurant.amenities.map((amenity) => (
-                  <Badge key={amenity} variant="secondary">
-                    {amenity}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card> */}
         </div>
       </div>
     </div>
@@ -240,7 +196,22 @@ const RestaurantPage = () => {
       <ReservationModal
         open={reservationModalOpen}
         onOpenChange={setReservationModalOpen}
-        restaurant={{ id: restaurant._id, name: restaurant.name, image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" }}
+        restaurant={{ 
+          id: restaurant._id, 
+          name: restaurant.name,
+          workHours: restaurant.workHours 
+        }}
+      />
+
+      <MenuModal
+        open={menuModalOpen}
+        onOpenChange={setMenuModalOpen}
+        menuUrl={restaurant?.menu?.url || ""}
+        restaurantName={restaurant?.name || ""}
+      />
+      <LoginModal
+        open={loginModalOpen}
+        onOpenChange={setLoginModalOpen}
       />
     </>
     )}

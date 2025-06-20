@@ -7,7 +7,8 @@ import { AddUserDialog } from "@/components/AddUserDialog";
 import { UserCard } from "@/components/UserCard";
 import { UserTypeEnum, useUser } from "@/app/hooks/useUser";
 import { useQuery } from "@tanstack/react-query";
-import Sidemenu from '@/app/components/Sidemenu';
+import Sidemenu from '@/components/Sidemenu';
+import { StatCard } from "@/components/StatCard";
 
 const UsersPage = () => {
   const { getUsers, addUser, updateUserStatus, updateUserRole, deleteUser, getUserStats } = useUser();
@@ -40,65 +41,44 @@ const UsersPage = () => {
           </div>
 
           {/* Stats Cards */}
-          {isLoadingStats || !stats ? (
-            <div>Carregando...</div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="p-2">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.total}</div>
-                <p className="text-xs text-muted-foreground">
-                  usuários cadastrados
-                </p>
-              </CardContent>
-            </Card>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <StatCard
+              title="Total de Usuários"
+              value={stats?.total}
+              description="usuários cadastrados"
+              icon={<Users className="h-4 w-4 text-muted-foreground" />}
+              isLoading={isLoadingStats}
+              isError={!stats && !isLoadingStats}
+            />
 
-            <Card className="p-2">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Usuários Ativos</CardTitle>
-                <UserCheck className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.activeUsers}</div>
-                <p className="text-xs text-muted-foreground">
-                  usuários ativos
-                </p>
-              </CardContent>
-            </Card>
+            <StatCard
+              title="Usuários Ativos"
+              value={stats?.activeUsers}
+              description="usuários ativos"
+              icon={<UserCheck className="h-4 w-4 text-muted-foreground" />}
+              isLoading={isLoadingStats}
+              isError={!stats && !isLoadingStats}
+            />
 
-            <Card className="p-2">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Administradores</CardTitle>
-                <Badge variant="default" className="h-4 px-2 text-xs">Admin</Badge>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.adminUsers}</div>
-                <p className="text-xs text-muted-foreground">
-                  administradores
-                </p>
-              </CardContent>
-            </Card>
+            <StatCard
+              title="Administradores"
+              value={stats?.adminUsers}
+              description="administradores"
+              icon={<Badge variant="default" className="h-4 px-2 text-xs">Admin</Badge>}
+              isLoading={isLoadingStats}
+              isError={!stats && !isLoadingStats}
+            />
 
-            <Card className="p-2">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Usuários Inativos</CardTitle>
-                <UserX className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.workerUsers}</div>
-                <p className="text-xs text-muted-foreground">
-                  usuários inativos
-                </p>
-              </CardContent>
-            </Card>
+            <StatCard
+              title="Usuários Inativos"
+              value={stats?.inactiveUsers}
+              description="usuários inativos"
+              icon={<UserX className="h-4 w-4 text-muted-foreground" />}
+              isLoading={isLoadingStats}
+              isError={!stats && !isLoadingStats}
+            />
           </div>
-          )}
           
-
           {/* Users List */}
           <Card className="p-2">
           <CardHeader>

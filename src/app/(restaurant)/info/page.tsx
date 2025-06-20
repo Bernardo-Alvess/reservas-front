@@ -10,12 +10,14 @@ import { useRestaurant } from '@/app/hooks/useRestaurant';
 import { toast } from 'react-toastify';
 import { Upload, X, FileText } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import Sidemenu from '@/app/components/Sidemenu';
+import Sidemenu from '@/components/Sidemenu';
 import { useForm } from 'react-hook-form';
 import { CreateRestaurantDto, WorkHoursDto } from '@/types/restaurant';
 import { Checkbox } from "@/components/ui/checkbox";
 import "react-datepicker/dist/react-datepicker.css";
 import { TimeInput } from '@/components/TimeInput';
+import { mapDay, reverseMapDay } from '@/lib/mapDay';
+import { MenuModal } from '@/components/MenuModal';
 
 const DAYS_OF_WEEK = [
     'Segunda-feira',
@@ -30,14 +32,14 @@ const DAYS_OF_WEEK = [
 const Restaurante = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [id, setId] = useState<string>();
-    const [selectedImage, setSelectedImage] = useState<File | null>(null);
-    const [selectedMenu, setSelectedMenu] = useState<File | null>(null);
-    const [previewImage, setPreviewImage] = useState<string>('');
+    // const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    // const [selectedMenu, setSelectedMenu] = useState<File | null>(null);
+    const [menuUrl, setMenuUrl] = useState<string>('');
+    const [previewImage, setPreviewImage] = useState<File>();
     const [previewMenu, setPreviewMenu] = useState<string>('');
     const [previewGallery, setPreviewGallery] = useState<File[]>([]);
     const [selectedDays, setSelectedDays] = useState<string[]>([]);
-
-    console.log(selectedImage)
+    const [openMenuModal, setOpenMenuModal] = useState(false);
 
     const {
         register,
@@ -78,16 +80,15 @@ const Restaurante = () => {
             setValue('address', restaurant.address);
             setValue('workHours', restaurant.workHours);
             setSelectedDays(restaurant.workHours.map((wh: WorkHoursDto) => wh.day));
+            setMenuUrl(restaurant?.menu?.url);
         }
     }, [restaurant, setValue]);
 
     const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        console.log(file)
         if (file) {
-            setSelectedImage(file);
-            setPreviewImage(URL.createObjectURL(file));
-
+            // setSelectedImage(file);
+            setPreviewImage(file);
             try {
                 if (id) {
                     await uploadProfileImage(id, file);
@@ -103,12 +104,13 @@ const Restaurante = () => {
     const handleMenuUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setSelectedMenu(file);
+            // setSelectedMenu(file);
             setPreviewMenu(URL.createObjectURL(file));
 
             try {
                 if (id) {
-                    await uploadMenu(id, file);
+                    const upload = await uploadMenu(id, file);
+                    setMenuUrl(upload.url);
                     toast.success('Cardápio atualizado com sucesso!');
                 }
             } catch (error) {
@@ -117,24 +119,6 @@ const Restaurante = () => {
             }
         }
     };
-
-    // const addGalleryImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    //   const files = Array.from(e.target.files || []);
-    //   console.log(files)
-    //   if (files.length > 0) {
-    //       setPreviewGallery((prev) => [...prev, ...files]);
-
-    //       try {
-    //           if (id) {
-    //               await uploadGalleryImage(id, files);
-    //               toast.success('Foto de perfil atualizada com sucesso!');
-    //           }
-    //       } catch (error) {
-    //           console.log(error)
-    //           toast.error('Erro ao fazer upload da imagem');
-    //       }
-    //   }
-    // };
 
     const removeGalleryImage = async (index: number) => {
         try {
@@ -183,27 +167,37 @@ const Restaurante = () => {
     };
 
     const handleDayToggle = (day: string, checked: boolean) => {
+        // Converte o dia de português para inglês (ex: "Segunda-feira" -> "MONDAY")
+        const dayInEnglish = reverseMapDay(day);
+        
         const newSelectedDays = checked
-            ? [...selectedDays, day]
-            : selectedDays.filter((d) => d !== day);
+            ? [...selectedDays, dayInEnglish]
+            : selectedDays.filter((d) => d !== dayInEnglish);
         setSelectedDays(newSelectedDays);
 
         const currentWorkHours = getValues("workHours") || [];
         if (checked) {
-            setValue("workHours", [...currentWorkHours, { day, open: "", close: "" }]);
+            setValue("workHours", [...currentWorkHours, { day: dayInEnglish, open: "", close: "" }]);
         } else {
-            setValue("workHours", currentWorkHours.filter((wh: WorkHoursDto) => wh.day !== day));
+            setValue("workHours", currentWorkHours.filter((wh: WorkHoursDto) => wh.day !== dayInEnglish));
         }
     };
 
     if (isLoadingRestaurant) return <div>Carregando...</div>;
     if (!id) return <div>Carregando por conta do id...</div>;
 
+    const getMenuName = (menuName?: string) => {
+        if (!menuName) return 'Cardápio';
+
+        const menuNameWithoutExtension = menuName.split('/').pop();
+        return menuNameWithoutExtension;
+    }
+
     return (
-        <div className="flex h-screen">
+        <div className="flex min-h-screen w-full">
             <Sidemenu />
-            <main className="flex-1 p-6 space-y-6 overflow-auto bg-zinc-100">
-                <div className="space-y-6">
+            <main className="flex p-6 bg-zinc-100 w-full justify-start">
+                <div className="space-y-6 w-full">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">
                             Configurações do Restaurante
@@ -213,7 +207,7 @@ const Restaurante = () => {
                         </p>
                     </div>
 
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-8">
                         {/* Informações Básicas */}
                         <Card className="p-2">
                             <CardHeader>
@@ -445,7 +439,7 @@ const Restaurante = () => {
                                         <div key={day} className="flex items-center space-x-2">
                                             <Checkbox
                                                 id={day}
-                                                checked={selectedDays.includes(day)}
+                                                checked={selectedDays.includes(reverseMapDay(day))}
                                                 onCheckedChange={(checked) => handleDayToggle(day, checked as boolean)}
                                             />
                                             <label
@@ -464,24 +458,9 @@ const Restaurante = () => {
                                     return (
                                         <div key={day} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                                             <div className="space-y-2">
-                                                <Label>{day}</Label>
-                                                <Input value={day} disabled />
+                                                <Label>{mapDay(day)}</Label>
+                                                <Input value={mapDay(day)} disabled />
                                             </div>
-
-                                            {/* <div className="space-y-2">
-                                                <Label htmlFor={`open-${index}`}>Abertura</Label>
-                                                <IMaskInput
-                                                  mask="00:00"
-                                                  {...register(`workHours.${workHourIndex}.open`)}
-                                                  placeholder='hh:mm'
-                                                  className='text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
-                                                />
-                                                {errors.workHours?.[workHourIndex]?.open && (
-                                                    <p className="text-sm text-red-500">
-                                                        {errors.workHours[workHourIndex]?.open?.message}
-                                                    </p>
-                                                )}
-                                            </div> */}
                                           <TimeInput
                                             label="Abertura"
                                             fieldName={`workHours.${workHourIndex}.open`}
@@ -494,21 +473,6 @@ const Restaurante = () => {
                                             control={control}
                                             error={errors.workHours?.[workHourIndex]?.close}
                                           />
-
-                                            {/* <div className="space-y-2">
-                                                <Label htmlFor={`close-${index}`}>Fechamento</Label>
-                                                <IMaskInput
-                                                  mask="00:00"
-                                                  {...register(`workHours.${workHourIndex}.close`)}
-                                                  placeholder='hh:mm'
-                                                  className='text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive'
-                                                />
-                                                {errors.workHours?.[workHourIndex]?.close && (
-                                                    <p className="text-sm text-red-500">
-                                                        {errors.workHours[workHourIndex]?.close?.message}
-                                                    </p>
-                                                )}
-                                            </div> */}
                                         </div>
                                     );
                                 })}
@@ -523,11 +487,13 @@ const Restaurante = () => {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="flex items-center space-x-4">
-                                    {(previewImage || restaurant?.profileImage) && (
+                                    {(previewImage || restaurant?.profileImage ) && (
                                         <img
                                             src={
-                                                restaurant?.profileImage?.url ||
-                                                '/images/image-placeholder.jpg'
+                                                previewImage 
+                                                    ? URL.createObjectURL(previewImage)
+                                                    : restaurant?.profileImage?.url ||
+                                                    '/images/image-placeholder.jpg'
                                             }
                                             alt="Foto de perfil"
                                             className="w-20 h-20 rounded-lg object-cover"
@@ -562,17 +528,6 @@ const Restaurante = () => {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                {/* <div className="flex space-x-2">
-                  <Input
-                    placeholder="URL da imagem"
-                    value={newGalleryImageUrl}
-                    onChange={(e) => setNewGalleryImageUrl(e.target.value)}
-                  />
-                  <Button type="button" variant="outline" onClick={() => addGalleryImage(newGalleryImageUrl)}>
-                    <ImageIcon className="w-4 h-4 mr-2" />
-                    Adicionar
-                  </Button>
-                </div> */}
                                 <div className="space-y-2">
                                     <input
                                         id="gallery-upload"
@@ -647,8 +602,8 @@ const Restaurante = () => {
                                     {(previewMenu || restaurant?.menu) && (
                                         <div className="flex items-center space-x-2 p-2 border rounded-lg">
                                             <FileText className="w-4 h-4" />
-                                            <span className="text-sm">
-                                                {selectedMenu?.name || restaurant?.menu?.url}
+                                            <span className="text-sm" onClick={() => setOpenMenuModal(true)}>
+                                                {getMenuName(menuUrl)}
                                             </span>
                                         </div>
                                     )}
@@ -673,7 +628,7 @@ const Restaurante = () => {
                             </CardContent>
                         </Card>
 
-                        <div className="flex justify-end">
+                        <div className="flex justify-end pb-4">
                             <Button type="submit" size="lg" disabled={isLoading}>
                                 {isLoading ? 'Salvando...' : 'Salvar Alterações'}
                             </Button>
@@ -681,6 +636,12 @@ const Restaurante = () => {
                     </form>
                 </div>
             </main>
+            <MenuModal
+                open={openMenuModal}
+                onOpenChange={setOpenMenuModal}
+                menuUrl={menuUrl}
+                restaurantName={restaurant?.name}
+            />
         </div>
     );
 };

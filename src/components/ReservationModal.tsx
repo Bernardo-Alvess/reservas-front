@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,13 +15,19 @@ import { Calendar } from "./ui/calendar";
 import { Controller } from "react-hook-form";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
+interface WorkHour {
+  day: string;
+  open: string;
+  close: string;
+}
+
 interface ReservationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   restaurant: {
     id: string;
     name: string;
-    image: string;
+    workHours?: WorkHour[];
   };
 }
 
@@ -30,9 +36,74 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
   const { handleSubmit, control, formState: { errors }, reset } = methods;
   const [date, setDate] = useState<Date>();
 
-  const timeSlots = [
-    "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"
-  ];
+  // Mapeamento de dias da semana (0 = Domingo, 1 = Segunda, etc.)
+  const dayMap = {
+    'SUNDAY': 0,
+    'MONDAY': 1,
+    'TUESDAY': 2,
+    'WEDNESDAY': 3,
+    'THURSDAY': 4,
+    'FRIDAY': 5,
+    'SATURDAY': 6
+  };
+
+  // Função para obter os dias em que o restaurante funciona
+  const getWorkingDays = useMemo(() => {
+    if (!restaurant.workHours) return [];
+    return restaurant.workHours.map(wh => dayMap[wh.day.toUpperCase() as keyof typeof dayMap]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurant.workHours]);
+
+  // Função para verificar se uma data é válida (restaurante aberto)
+  const isDateDisabled = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (date < today) return true;
+    
+    if (!restaurant.workHours || restaurant.workHours.length === 0) return false;
+    
+    const dayOfWeek = date.getDay();
+    return !getWorkingDays.includes(dayOfWeek);
+  };
+
+  const getAvailableTimeSlots = useMemo(() => {
+    if (!date || !restaurant.workHours) {
+      // Horários padrão se não há data selecionada ou horários de funcionamento
+      return ["18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"];
+    }
+
+    const dayOfWeek = date.getDay();
+    const dayNames = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+    const selectedDay = dayNames[dayOfWeek];
+
+    const workHour = restaurant.workHours.find(wh => wh.day.toUpperCase() === selectedDay);
+
+    if (!workHour) return [];
+
+    const timeSlots = [];
+    const [openHour, openMinute] = workHour.open.split(':').map(Number);
+    let [closeHour, closeMinute] = workHour.close.split(':').map(Number);
+    
+    if(closeHour + closeMinute == 0 ) {
+      closeHour = 24
+      closeMinute = 0
+    }
+
+    const openTime = openHour * 60 + openMinute;
+    const closeTime = closeHour * 60 + closeMinute;
+    
+    const lastReservationTime = closeTime - 60;
+    
+    for (let time = openTime; time <= lastReservationTime; time += 30) {
+      const hour = Math.floor(time / 60);
+      const minute = time % 60;
+      const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+      timeSlots.push(timeString);
+    }
+    
+    return timeSlots;
+  }, [date, restaurant.workHours]);
 
   const onSubmit = async (data: any) => {
     if (!date) {
@@ -107,12 +178,17 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
                     mode="single"
                     selected={date}
                     onSelect={setDate}
-                    disabled={(date) => date < new Date()}
+                    disabled={isDateDisabled}
                     initialFocus
                     className="pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
+              {date && getAvailableTimeSlots.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Restaurante fechado neste dia
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Horário</Label>
@@ -120,12 +196,16 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
                 name="startTime"
                 control={control}
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select 
+                    value={field.value} 
+                    onValueChange={field.onChange}
+                    disabled={!date || getAvailableTimeSlots.length === 0}
+                  >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecionar" />
+                      <SelectValue placeholder={!date ? "Selecione uma data primeiro" : "Selecionar horário"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {timeSlots.map((time) => (
+                      {getAvailableTimeSlots.map((time) => (
                         <SelectItem key={time} value={time}>
                           {time}
                         </SelectItem>
@@ -136,6 +216,11 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
               />
               {errors.startTime && (
                 <span className="text-sm text-red-500">{errors.startTime.message as string}</span>
+              )}
+              {date && getAvailableTimeSlots.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Horários disponíveis para reserva
+                </p>
               )}
             </div>
           </div>

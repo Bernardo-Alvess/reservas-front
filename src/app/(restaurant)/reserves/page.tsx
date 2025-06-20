@@ -4,13 +4,14 @@ import { useState,  } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent} from "@/components/ui/card";
 import { Calendar, Search, Users, Loader2 } from 'lucide-react';
-import Sidemenu from '@/app/components/Sidemenu';
+import Sidemenu from '@/components/Sidemenu';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Reserva, useReserve } from '@/app/hooks/useReserve';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ReserveCard from '@/components/ReserveCard';
 import { PaginationComponent } from '@/components/Pagination';
+import { StatCard } from "@/components/StatCard";
 
 const Reservas = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -136,86 +137,41 @@ const Reservas = () => {
 
           {/* Estatísticas */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
-              {isLoadingStats ? (
-                <div className="flex items-center justify-center h-full">
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                </div>
-              ) : (
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Calendar className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Hoje</p>
-                    <p className="text-2xl font-bold">{statsData?.total || 0}</p>
-                  </div>
-                </div>
-              </CardContent>
-            )}
-
-            </Card>
+            <StatCard
+              title="Hoje"
+              value={statsData?.total}
+              description="reservas hoje"
+              icon={<Calendar className="w-4 h-4 text-blue-600" />}
+              isLoading={isLoadingStats}
+              isError={!statsData && !isLoadingStats}
+            />
             
-            <Card>
-              {isLoadingStats ? (
-                <div className="flex items-center justify-center h-full">
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                </div>
-              ) : (
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                    <div className="w-3 h-3 bg-green-500 rounded-full" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Confirmadas</p>
-                    <p className="text-2xl font-bold">{statsData?.confirmed || 0}</p>
-                  </div>
-                </div>
-              </CardContent>
-              )}
-            </Card>
+            <StatCard
+              title="Confirmadas"
+              value={statsData?.confirmed}
+              description="reservas confirmadas"
+              icon={<div className="w-3 h-3 bg-green-500 rounded-full" />}
+              isLoading={isLoadingStats}
+              isError={!statsData && !isLoadingStats}
+            />
             
-            <Card>
-              {isLoadingStats ? (
-                <div className="flex items-center justify-center h-full">
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                </div>
-              ) : (
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Pendentes</p>
-                    <p className="text-2xl font-bold">{statsData?.pending || 0}</p>
-                  </div>
-                </div>
-              </CardContent>
-              )}
-            </Card>
+            <StatCard
+              title="Pendentes"
+              value={statsData?.pending}
+              description="reservas pendentes"
+              icon={<div className="w-3 h-3 bg-yellow-500 rounded-full" />}
+              isLoading={isLoadingStats}
+              isError={!statsData && !isLoadingStats}
+            />
             
-            <Card>
-              {isLoadingStats ? (
-                <div className="flex items-center justify-center h-full">
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                </div>
-              ) : (
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Users className="w-4 h-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Total Pessoas Hoje</p>
-                    <p className="text-2xl font-bold">{statsData?.totalPeople || 0}</p>
-                  </div>
-                </div>
-              </CardContent>
-              )}
-            </Card>
+            <StatCard
+              title="Total Pessoas Hoje"
+              value={statsData?.totalPeople}
+              description="pessoas esperadas"
+              icon={<Users className="w-4 h-4 text-primary" />}
+              isLoading={isLoadingStats}
+              isError={!statsData && !isLoadingStats}
+            />
           </div>
 
           {/* Busca e Filtros */}

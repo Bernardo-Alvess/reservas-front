@@ -102,23 +102,6 @@ const CreateRestaurantDialog = ({ open, onOpenChange }: CreateRestaurantDialogPr
       form.setValue("workHours", currentWorkHours.filter((wh) => wh.day !== day));
     }
   };
-  
-
-  // const handleDayToggle = (day: string, checked: boolean) => {
-  //   const currentWorkHours = form.getValues("workHours") || [];
-  //   console.log(currentWorkHours)
-  //   if (checked) {
-  //     form.setValue("workHours", [
-  //       ...currentWorkHours,
-  //       { day, open: "", close: "" }
-  //     ]);
-  //   } else {
-  //     form.setValue(
-  //       "workHours",
-  //       currentWorkHours.filter((wh) => wh.day !== day)
-  //     );
-  //   }
-  // };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

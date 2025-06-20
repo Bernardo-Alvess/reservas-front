@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { API_URL } from '@/app/configs/constants';
 import { useQueryClient } from '@tanstack/react-query';
 import { useUser } from './useUser';
@@ -9,6 +8,7 @@ import { useUserContext } from '../context/user/useUserContext';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'react-toastify';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -22,9 +22,8 @@ export interface LoginFormProps {
   password: string;
 }
 
-export const useLogin = (type: 'client' | 'restaurant') => {
-  const router = useRouter();
-  
+export const useLogin = (type: 'client' | 'restaurant') => {  
+  console.log(type)
   const methods = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -53,26 +52,22 @@ export const useLogin = (type: 'client' | 'restaurant') => {
       if (!response.ok) {
         throw new Error('Credenciais inválidas');
       }
-      const data = await response.json();
-      console.log(data);
       const user = await getUserLogged();
       setUserContext(user);
 
+      toast.success('Login realizado com sucesso!');
+
       await queryClient.invalidateQueries({ queryKey: ['user'] });
-      
-      if (type === 'client') {
-        router.push('/home');
-      } else {
-        router.push('/dashboard');
-      }
+      return true
     } catch (error) {
-      setError('Email ou senha incorretos');
-      throw error;
+      console.log(error)
+      toast.error('Verifique suas credenciais');
+      setError('Erro ao fazer login');
+      return false
     }
   };
 
   const logout = async () => {
-    console.log('logout');
     try {
       await fetch(`${API_URL}auth-user/logout`, {
         method: 'GET',
@@ -84,7 +79,7 @@ export const useLogin = (type: 'client' | 'restaurant') => {
       setUserContext(null);
       await fetchUser();
       localStorage.removeItem('restauranteSelecionado');
-      // window.location.href = '/home';
+      window.location.href = '/home';
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
     }

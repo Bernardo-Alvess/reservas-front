@@ -40,8 +40,6 @@ const MyReservations = () => {
     hasNextPage: false 
   };
 
-  console.log(reservationsData);
-
   const handleFilterChange = (newFilter: typeof filter) => {
     setFilter(newFilter);
     setCurrentPage(1); // Reset para primeira página ao filtrar
