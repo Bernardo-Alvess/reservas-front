@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useRestaurant } from '@/app/hooks/useRestaurant';
 import { toast } from 'react-toastify';
-import { Upload, X, FileText } from 'lucide-react';
+import { Upload, X, FileText, Download } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import Sidemenu from '@/components/Sidemenu';
 import { useForm } from 'react-hook-form';
@@ -83,6 +83,16 @@ const Restaurante = () => {
             setMenuUrl(restaurant?.menu?.url);
         }
     }, [restaurant, setValue]);
+
+    const downloadQrCode = () => {
+        const qrCodeUrl = restaurant?.qrCode;
+        if (qrCodeUrl) {
+            const link = document.createElement('a');
+            link.href = qrCodeUrl;
+            link.download = 'qr-code.png';
+            link.click();
+        }
+    }
 
     const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -480,44 +490,68 @@ const Restaurante = () => {
                         </Card>
 
                         {/* Foto de Perfil */}
-                        <Card className="p-2">
-                            <CardHeader>
-                                <CardTitle>Foto de Perfil</CardTitle>
-                                <CardDescription>Imagem principal do restaurante</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="flex items-center space-x-4">
-                                    {(previewImage || restaurant?.profileImage ) && (
-                                        <img
-                                            src={
-                                                previewImage 
-                                                    ? URL.createObjectURL(previewImage)
-                                                    : restaurant?.profileImage?.url ||
-                                                    '/images/image-placeholder.jpg'
-                                            }
-                                            alt="Foto de perfil"
-                                            className="w-20 h-20 rounded-lg object-cover"
-                                        />
-                                    )}
-                                    <div>
-                                        <Label htmlFor="profile-image" className="cursor-pointer">
-                                        <span className="inline-flex items-center space-x-2 border border-input bg-background hover:bg-accent px-4 py-2 rounded-md text-sm">                                                <Upload className="w-4 h-4 mr-2" />
-                                            {restaurant?.profileImage
-                                                ? 'Alterar Foto de Perfil'
-                                                : 'Adicionar Foto de Perfil'}
-                                            </span>
-                                            <input
-                                                id="profile-image"
-                                                type="file"
-                                                accept="image/*"
-                                                className="hidden"
-                                                onChange={handleProfileImageUpload}
-                                            />
-                                        </Label>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <div className="flex flex-row gap-4 w-full justify-evenly items-start">
+                            <Card className="p-2 flex flex-col justify-evenly w-full">
+                                    <CardHeader>
+                                        <CardTitle>Foto de Perfil</CardTitle>
+                                        <CardDescription>Imagem principal do restaurante</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4 flex flex-col gap-4">
+                                        <div className="flex flex-col items-center space-x-4 gap-3">
+                                            {(previewImage || restaurant?.profileImage ) && (
+                                                <img
+                                                    src={
+                                                        previewImage
+                                                            ? URL.createObjectURL(previewImage)
+                                                            : restaurant?.profileImage?.url ||
+                                                            '/images/image-placeholder.jpg'
+                                                    }
+                                                    alt="Foto de perfil"
+                                                    className="w-2xs h-full rounded-lg object-cover"
+                                                />
+                                            )}
+                                            <div>
+                                                <Label htmlFor="profile-image" className="cursor-pointer">
+                                                <span className="inline-flex items-center space-x-2 border border-input bg-background hover:bg-accent px-4 py-2 rounded-md text-sm">                                                <Upload className="w-4 h-4 mr-2" />
+                                                    {restaurant?.profileImage
+                                                        ? 'Alterar Foto de Perfil'
+                                                        : 'Adicionar Foto de Perfil'}
+                                                    </span>
+                                                    <input
+                                                        id="profile-image"
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={handleProfileImageUpload}
+                                                    />
+                                                </Label>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                            </Card>
+                            <Card className="p-2 flex flex-col justify-start w-full items-start">
+                                <CardHeader className="w-full">
+                                        <CardTitle>Qr Code para Check-in</CardTitle>
+                                        <CardDescription>Apresente esse qr code para o cliente</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4 flex flex-col gap-4">
+                                    <img
+                                        src={restaurant?.qrCode} alt="Qr Code"
+                                        className="w-3xs h-full rounded-lg object-cover border"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => downloadQrCode()}
+                                        className="flex items-center gap-2 w-fit p-2"
+                                    >
+                                        <Download className="w-4 h-4" />
+                                        <span>Baixar Qr Code</span>
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        </div>
 
                         {/* Galeria de Imagens */}
                         <Card className="p-2">
