@@ -4,7 +4,7 @@ import { useState,  } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent} from "@/components/ui/card";
 import { Calendar, Search, Users, Loader2 } from 'lucide-react';
-import Sidemenu from '@/app/components/Sidemenu';
+import Sidemenu from '@/components/Sidemenu';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Reserva, useReserve } from '@/app/hooks/useReserve';

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Sidemenu } from "@/app/components/Sidemenu";
+import { Sidemenu } from "@/components/Sidemenu";
 import { useUserContext } from "@/app/context/user/useUserContext";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { TrendingUp, Clock, Book, Table, Users } from "lucide-react";

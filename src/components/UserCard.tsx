@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Mail, Calendar, UserCheck, UserX } from "lucide-react";
+import { MoreHorizontal, Calendar, UserCheck, UserX, Mail, Clock } from "lucide-react";
 
 interface UserCardProps {
   user: any;
@@ -31,7 +31,7 @@ export const UserCard = ({ user, onUpdateStatus, onUpdateRole, onDelete }: UserC
   };
 
   return (
-    <Card className={`transition-all p-2 ${!user.isActive ? 'opacity-60' : ''}`}>
+    <Card className={`transition-all px-3 py-2 ${!user.active ? 'opacity-60' : ''} w-fit`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-lg">{user.name}</CardTitle>
         <DropdownMenu>
@@ -63,8 +63,8 @@ export const UserCard = ({ user, onUpdateStatus, onUpdateRole, onDelete }: UserC
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex items-center gap-2">
+      <CardContent className="flex-col space-y-2">
+        <div className="flex items-center gap-2 justify-self-start justify-start">
           <Mail className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm">{user.email}</span>
         </div>

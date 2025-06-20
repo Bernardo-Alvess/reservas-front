@@ -7,7 +7,7 @@ import { AddUserDialog } from "@/components/AddUserDialog";
 import { UserCard } from "@/components/UserCard";
 import { UserTypeEnum, useUser } from "@/app/hooks/useUser";
 import { useQuery } from "@tanstack/react-query";
-import Sidemenu from '@/app/components/Sidemenu';
+import Sidemenu from '@/components/Sidemenu';
 
 const UsersPage = () => {
   const { getUsers, addUser, updateUserStatus, updateUserRole, deleteUser, getUserStats } = useUser();
@@ -89,7 +89,7 @@ const UsersPage = () => {
                 <UserX className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.workerUsers}</div>
+                <div className="text-2xl font-bold">{stats.inactiveUsers}</div>
                 <p className="text-xs text-muted-foreground">
                   usuários inativos
                 </p>

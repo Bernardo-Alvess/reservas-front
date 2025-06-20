@@ -192,9 +192,18 @@ const RestaurantSearch = () => {
               </CardHeader>
               
               <CardContent className="pt-0">
-                <p className="text-sm text-muted-foreground mb-4">
-                  {restaurant.description}
-                </p>
+              <p
+              className="text-gray-600 text-sm mb-2 break-words overflow-hidden"
+              style={{
+                display: '-webkit-box',
+                WebkitBoxOrient: 'vertical',
+                WebkitLineClamp: 3, // número de linhas visíveis
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {restaurant.description}
+            </p>
                 
                 <div className="flex items-center justify-between text-sm mb-4">
                   <div className="flex items-center gap-4">

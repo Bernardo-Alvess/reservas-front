@@ -10,7 +10,7 @@ import { useRestaurant } from '@/app/hooks/useRestaurant';
 import { toast } from 'react-toastify';
 import { Upload, X, FileText } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import Sidemenu from '@/app/components/Sidemenu';
+import Sidemenu from '@/components/Sidemenu';
 import { useForm } from 'react-hook-form';
 import { CreateRestaurantDto, WorkHoursDto } from '@/types/restaurant';
 import { Checkbox } from "@/components/ui/checkbox";

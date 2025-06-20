@@ -3,9 +3,9 @@
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { useUserContext } from "../context/user/useUserContext";
+import { useUserContext } from "../app/context/user/useUserContext";
 import { useEffect } from "react";
-import { useRestaurantContext } from "../context/selectedRestaurant/selectedRestaurantContext";
+import { useRestaurantContext } from "../app/context/selectedRestaurant/selectedRestaurantContext";
 
 export function Sidemenu() {
   const pathname = usePathname();

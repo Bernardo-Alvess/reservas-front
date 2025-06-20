@@ -6,7 +6,7 @@ import { NewTableDialog } from "./components/NewTableDialog";
 import { TableCard } from "./components/TableCard";
 import { TableStats } from "./components/TableStats";
 import { useQuery } from "@tanstack/react-query";
-import Sidemenu from "@/app/components/Sidemenu";
+import Sidemenu from "@/components/Sidemenu";
 
 const TablesPage = () => {
   const { getTables, addEditTable } = useTables();
