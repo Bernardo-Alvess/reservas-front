@@ -233,6 +233,50 @@ export const useReserve = () => {
 		}
 	}
 
+	const searchUserNowReservations = async (restaurantId: string) => {
+		try {
+			const response = await fetch(`${API_URL}reserve/client/now/${restaurantId}`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
+			});
+
+			if(!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.message || 'Reserva não encontrada');
+			}
+
+			const data = await response.json();
+			return data;
+		} catch (error) {
+			console.error('Erro ao buscar reserva:', error);
+			throw error;
+		}
+	}
+
+	const checkInReserve = async (reserveId: string) => {
+		try {
+			const response = await fetch(`${API_URL}reserve/check-in/${reserveId}`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
+			});
+
+			if(!response.ok) {
+				throw new Error('Erro ao fazer check-in na reserva');
+			}
+
+			return 'Reserva confirmada com sucesso';
+		} catch (error) {
+			console.error('Erro ao confirmar reserva:', error);
+			throw error;
+		}
+	}
+
 	return {
 		methods,
 		getReservesForUser,
@@ -240,6 +284,8 @@ export const useReserve = () => {
 		confirmOrCancelReserve,
 		getReservesForRestaurant,
 		getReserveStatsForRestaurant,
-		getUpcomingReservations
+		getUpcomingReservations,
+		searchUserNowReservations,
+		checkInReserve
 	};
 };
