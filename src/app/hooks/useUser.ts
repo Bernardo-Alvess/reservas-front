@@ -72,7 +72,6 @@ export const useUser = () => {
             }
 
             const data = await response.json();
-            console.log(data)
             return data;
         } catch (error) {
             console.error('Erro ao buscar usuários:', error);

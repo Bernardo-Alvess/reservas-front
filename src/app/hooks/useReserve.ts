@@ -92,7 +92,6 @@ export const useReserve = () => {
 				credentials: 'include',
 			});
 			const data = await response.json();
-			console.log(data)
 			return data;
 		} catch (error) {
 			console.error('Erro ao buscar reservas:', error);
@@ -138,7 +137,6 @@ export const useReserve = () => {
 			if(!response.ok) {
 				throw new Error('Erro ao confirmar reserva');
 			}
-			console.log('reserva confirmada com sucesso')
 			return 'Reserva confirmada com sucesso';
 		} catch (error) {
 			console.error('Erro ao confirmar reserva:', error);
@@ -166,7 +164,6 @@ export const useReserve = () => {
 					url = `${url}?${queryString}`;
 				}
 			}
-			console.log(url)
 			const response = await fetch(url, {
 				method: 'GET',
 				headers: {
