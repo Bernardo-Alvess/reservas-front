@@ -175,6 +175,29 @@ export const useRestaurant = () => {
         }
     }
 
+    const getDashboardData = async () => {
+        const id = localStorage.getItem('restauranteSelecionado');
+        const url = `${API_URL}restaurant/${id}/dashboard`;
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao buscar dados do dashboard');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Erro ao buscar dados do dashboard:', error);
+            throw error;
+        }
+    }
+
     return {
         methods,
         getRestaurants,
@@ -183,6 +206,8 @@ export const useRestaurant = () => {
         updateRestaurant,
         uploadProfileImage,
         uploadMenu,
-        uploadGalleryImage
+        uploadGalleryImage,
+        getDashboardData
     }
 }
+

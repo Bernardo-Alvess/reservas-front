@@ -37,7 +37,7 @@ const Header = () => {
             </>
             )}
             {user && user?.type !== 'user' && (
-            <Link href="/dashboard">
+            <Link href="/restaurants">
               <Button variant="outline" size="sm">
                 <Settings className="w-4 h-4 mr-2" />
                 Área Administrativa

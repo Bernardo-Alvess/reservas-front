@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { MapPin, Phone, Globe, Users, ArrowLeft, ChefHat, BookOpenText } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -13,50 +12,22 @@ import { useQuery } from "@tanstack/react-query";
 import { ReservationModal } from "@/components/ReservationModal";
 import { useUserContext } from "@/app/context/user/useUserContext";
 import { mapDay } from "@/lib/mapDay";
+import { LoginModal } from "@/components/LoginModal";
+import { MenuModal } from "@/components/MenuModal";
 
 const RestaurantPage = () => {
   const { id } = useParams();
-  const [reservationModalOpen, setReservationModalOpen] = useState(false);
   const { user } = useUserContext();
-
   const { getRestaurantById } = useRestaurant();
+
+  const [reservationModalOpen, setReservationModalOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [menuModalOpen, setMenuModalOpen] = useState(false);
 
   const { data: restaurant, isLoading } = useQuery({
     queryKey: ['restaurant', id],
     queryFn: () => getRestaurantById(id as string),
   });
-
-  const restaurantMock = {
-    id: 1,
-    name: "Bella Vista",
-    cuisine: "Italiana",
-    rating: 4.8,
-    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    location: "Centro, São Paulo",
-    address: "Rua Augusta, 123 - Centro, São Paulo - SP",
-    phone: "(11) 3333-4444",
-    website: "www.bellavista.com.br",
-    price: "$$",
-    time: "30-45 min",
-    availability: "Disponível hoje",
-    description: "Autêntica cozinha italiana em ambiente aconchegante. Nossa tradição familiar se reflete em cada prato, preparado com ingredientes frescos e receitas transmitidas por gerações.",
-    hours: {
-      "Segunda": "Fechado",
-      "Terça": "18:00 - 23:00",
-      "Quarta": "18:00 - 23:00", 
-      "Quinta": "18:00 - 23:00",
-      "Sexta": "18:00 - 00:00",
-      "Sábado": "12:00 - 00:00",
-      "Domingo": "12:00 - 22:00"
-    },
-    specialties: ["Risotto de Cogumelos", "Osso Buco", "Tiramisu", "Pasta Carbonara"],
-    amenities: ["Wi-Fi", "Estacionamento", "Ar Condicionado", "Aceita Cartão", "Delivery"],
-    gallery: [
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      "https://images.unsplash.com/photo-1481833761820-0509d3217039?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-    ]
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -104,6 +75,15 @@ const RestaurantPage = () => {
               <p className="text-muted-foreground mb-6">{restaurant.description}</p>
               
               <div className="flex gap-10">
+               {restaurant.menu && (
+                 <div 
+                   className="flex items-center gap-2 text-sm cursor-pointer hover:text-primary transition-colors border border-primary rounded-md p-2"
+                   onClick={() => setMenuModalOpen(true)}
+                 >
+                   <BookOpenText className="w-4 h-4" />
+                   <span>Visualizar cardápio</span>
+                 </div>
+               )}
                 <div className="flex items-center gap-2 text-sm">
                   <Phone className="w-4 h-4" />
                   {restaurant.phone}
@@ -112,23 +92,7 @@ const RestaurantPage = () => {
                   <ChefHat className="w-4 h-4" />
                   {restaurant.type}
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <BookOpenText className="w-4 h-4" />
-                  <Link href={'#'} target="_blank">Acessar cardápio</Link>
-                </div>
-              </div>
 
-              <Separator className="my-6" />
-
-              <div>
-                <h3 className="font-semibold mb-3">Especialidades</h3>
-                <div className="flex flex-wrap gap-2">
-                  {restaurantMock.specialties.map((specialty: string) => (
-                    <Badge key={specialty} variant="outline">
-                      {specialty}
-                    </Badge>
-                  ))}
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -189,10 +153,18 @@ const RestaurantPage = () => {
             </CardHeader>
             <CardContent>
               <Button 
-                className="w-full" 
+                className={`w-full ${restaurant.tables.length === 0 ? 'cursor-not-allowed' : 'cursor-pointer'}`} 
                 size="lg"
-                onClick={() => setReservationModalOpen(true)}
-                disabled={(!user || restaurant.tables.length === 0)}
+                onClick={() => {
+                  if (!user) {
+                    setLoginModalOpen(true);
+                  } else if (restaurant.tables.length === 0) {
+                    return
+                  } else {
+                    setReservationModalOpen(true);
+                  }
+                }}
+                // disabled={(!user || restaurant.tables.length === 0)}
               >
                 <Users className="w-4 h-4 mr-2" />
                 {restaurant.tables.length === 0 ? 'Não há mesas disponíveis' : user ? 'Reservar Mesa' : 'Faça login para reservar'}
@@ -214,28 +186,12 @@ const RestaurantPage = () => {
                 <Phone className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm">{restaurant.phone}</span>
               </div>
-              <div className="flex items-center gap-3">
+              {/* <div className="flex items-center gap-3">
                 <Globe className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm">{restaurant.website || 'Não possui site'}</span>
-              </div>
+              </div> */}
             </CardContent>
           </Card>
-
-          {/* Amenities */}
-          {/* <Card>
-            <CardHeader>
-              <CardTitle>Comodidades</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {restaurant.amenities.map((amenity) => (
-                  <Badge key={amenity} variant="secondary">
-                    {amenity}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card> */}
         </div>
       </div>
     </div>
@@ -243,7 +199,22 @@ const RestaurantPage = () => {
       <ReservationModal
         open={reservationModalOpen}
         onOpenChange={setReservationModalOpen}
-        restaurant={{ id: restaurant._id, name: restaurant.name, image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" }}
+        restaurant={{ 
+          id: restaurant._id, 
+          name: restaurant.name,
+          workHours: restaurant.workHours 
+        }}
+      />
+
+      <MenuModal
+        open={menuModalOpen}
+        onOpenChange={setMenuModalOpen}
+        menuUrl={restaurant?.menu?.url || ""}
+        restaurantName={restaurant?.name || ""}
+      />
+      <LoginModal
+        open={loginModalOpen}
+        onOpenChange={setLoginModalOpen}
       />
     </>
     )}

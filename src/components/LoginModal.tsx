@@ -46,7 +46,6 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
   const { createOrUpdateOtp } = useUser();
   const { login } = useLogin(loginType);
 
-  // Formulário para email do cliente
   const clientEmailForm = useForm<ClientEmailForm>({
     resolver: zodResolver(clientEmailSchema),
     defaultValues: {
@@ -77,18 +76,20 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
     setClientLoginStep("otp");
   };
 
-  const handleClientOTPSubmit = (data: ClientOTPForm) => {
-    login(clientEmail, data.otpCode);
-    toast.success("Login realizado com sucesso!");
-    onOpenChange(false);
-    resetClientLogin();
+  const handleClientOTPSubmit = async (data: ClientOTPForm) => {
+    const success = await login(clientEmail, data.otpCode);
+    if (success) {
+      onOpenChange(false);
+      resetClientLogin();
+    }
   };
 
-  const handleRestaurantLogin = (data: RestaurantLoginForm) => {
+  const handleRestaurantLogin = async (data: RestaurantLoginForm) => {
     setLoginType('restaurant');
-    login(data.email, data.password);
-    toast.success("Login do restaurante realizado com sucesso!");
-    onOpenChange(false);
+    const success = await login(data.email, data.password);
+    if (success) {
+      onOpenChange(false);
+    }
   };
 
   const resetClientLogin = () => {

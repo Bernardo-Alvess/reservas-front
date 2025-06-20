@@ -97,11 +97,33 @@ export const useTables = () => {
     }
   }
 
+  const getTableStats = async () => {
+    try {
+      const id = localStorage.getItem('restauranteSelecionado')
+      const url = `${API_URL}tables/restaurant/${id}/stats`
+      const response = await fetch(url, {
+        method: 'GET',
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        throw new Error('Falha na requisição')
+      }
+
+      const data = await response.json()
+      return data
+    } catch(err) {
+      console.error(err)
+      toast.error('Erro ao buscar estatísticas das mesas')
+    }
+  }
+
   return {
     tables,
     getTables,
     addEditTable,
     getTableById,
+    getTableStats,
     methods
   };
 };

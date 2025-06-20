@@ -212,6 +212,30 @@ export const useReserve = () => {
 		}
 	}
 
+	const getUpcomingReservations = async () => {
+		try {
+			const id = localStorage.getItem('restauranteSelecionado');
+			const response = await fetch(`${API_URL}reserve/restaurant/${id}/upcoming?limit=10`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
+			});
+
+			if(!response.ok) {
+				throw new Error('Ocorreu um erro ao buscar as reservas pendentes');
+			}
+
+			const data = await response.json();
+			return data;
+		} catch (error) {
+			toast.error('Ocorreu um erro ao buscar as reservas pendentes');
+			console.error('Erro ao buscar reservas pendentes:', error);
+			throw error;
+		}
+	}
+
 	return {
 		methods,
 		getReservesForUser,
@@ -219,5 +243,6 @@ export const useReserve = () => {
 		confirmOrCancelReserve,
 		getReservesForRestaurant,
 		getReserveStatsForRestaurant,
+		getUpcomingReservations
 	};
 };

@@ -8,6 +8,10 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/com
 import { TrendingUp, Clock, Book, Table, Users } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { useRestaurant } from "@/app/hooks/useRestaurant";
+import { useQuery } from "@tanstack/react-query";
+import { useReserve } from "@/app/hooks/useReserve";
+import { formatDate } from "@/lib/formatDate";
 
 // interface Stats {
 //   reservasHoje: number;
@@ -28,6 +32,19 @@ export default function DashboardLayout() {
   const [restauranteSelecionado, setRestauranteSelecionado] = useState<string>();
 
   const { user } = useUserContext();
+
+  const { getDashboardData } = useRestaurant();
+  const { getUpcomingReservations } = useReserve();
+
+  const { data: dashboardData, isLoading: isLoadingDashboard } = useQuery({
+    queryKey: ['dashboardData'],
+    queryFn: getDashboardData,
+  });
+
+  const { data: upcomingReservations, isLoading: isLoadingUpcomingReservations } = useQuery({
+    queryKey: ['upcomingReservations'],
+    queryFn: getUpcomingReservations,
+  });
 
   useEffect(() => {
     if (!user) return;
@@ -59,44 +76,44 @@ export default function DashboardLayout() {
   const stats = [
     {
       title: "Reservas Hoje",
-      value: "24",
-      change: "+12%",
+      value: dashboardData?.totalReservations || 0,
+      // change: "+12%",
       icon: Book,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
     },
     {
       title: "Taxa de Ocupação",
-      value: "85%",
-      change: "+5%",
+      value: dashboardData?.totalOccupancyRate || 0,
+      // change: "+5%",
       icon: Table,
       color: "text-green-600",
       bgColor: "bg-green-50",
     },
     {
-      title: "Novos Clientes",
-      value: "8",
-      change: "+25%",
+      title: "Taxa de Ocupação Confirmada",
+      value: dashboardData?.confirmedOccupancyRate || 0,
+      // change: "+5%",
+      icon: Table,
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+    },
+    {
+      title: "Clientes Esperados",
+      value: dashboardData?.totalPeople || 0,
+      // change: "+5%",
       icon: Users,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
-    },
-    {
-      title: "Receita Estimada",
-      value: "R$ 3.240",
-      change: "+18%",
-      icon: TrendingUp,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-    },
+    }
   ];
 
-  const upcomingReservations = [
-    { time: "19:00", name: "Maria Silva", people: 4, table: "Mesa 5", status: "confirmada" },
-    { time: "19:30", name: "João Santos", people: 2, table: "Mesa 12", status: "confirmada" },
-    { time: "20:00", name: "Ana Costa", people: 6, table: "Mesa 8", status: "pendente" },
-    { time: "20:30", name: "Pedro Lima", people: 3, table: "Mesa 3", status: "confirmada" },
-  ];
+  // const upcomingReservations = [
+  //   { time: "19:00", name: "Maria Silva", people: 4, table: "Mesa 5", status: "confirmada" },
+  //   { time: "19:30", name: "João Santos", people: 2, table: "Mesa 12", status: "confirmada" },
+  //   { time: "20:00", name: "Ana Costa", people: 6, table: "Mesa 8", status: "pendente" },
+  //   { time: "20:30", name: "Pedro Lima", people: 3, table: "Mesa 3", status: "confirmada" },
+  // ];
 
   return (
     <div className="flex min-h-screen">
@@ -110,9 +127,9 @@ export default function DashboardLayout() {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="flex gap-6 justify-between">
             {stats.map((stat, index) => (
-              <Card key={index} className="hover-lift py-3">
+              <Card key={index} className="hover:scale-105 transition-transform duration-300 py-3 w-full">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">
                     {stat.title}
@@ -132,9 +149,8 @@ export default function DashboardLayout() {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Ocupação por Horário */}
-            <Card className="py-3">
+          <div className="flex flex-col gap-6">
+            {/* <Card className="py-3">
               <CardHeader>
                 <CardTitle>Ocupação por Horário</CardTitle>
                 <CardDescription>Taxa de ocupação das mesas por faixa de horário</CardDescription>
@@ -156,40 +172,44 @@ export default function DashboardLayout() {
                   </div>
                 ))}
               </CardContent>
-            </Card>
+            </Card> */}
 
             {/* Próximas Reservas */}
-            <Card className="py-3">
+            <Card className="py-3 w-full">
               <CardHeader>
                 <CardTitle>Próximas Reservas</CardTitle>
-                <CardDescription>Reservas para as próximas horas</CardDescription>
+                <CardDescription>Reservas para as próximas horas a partir de {new Date().toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {upcomingReservations.map((reservation, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                          <Clock className="w-5 h-5 text-primary" />
+                  {upcomingReservations?.length === 0 ? (
+                    <p className="text-muted-foreground">Nenhuma reserva nas próximas horas</p>
+                  ) : (
+                    upcomingReservations?.map((reservation: any, index: any) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <Clock className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="font-medium">{reservation.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {reservation.amountOfPeople} pessoas • {reservation.tableId.tableNumber}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium">{reservation.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {reservation.people} pessoas • {reservation.table}
-                          </p>
+                        <div className="text-right">
+                          <p className="font-medium">{formatDate(reservation.startTime)}</p>
+                          <Badge 
+                            variant="outline"
+                            className={`text-xs ${reservation.status === "Confirmada" ? "bg-green-500" : "bg-yellow-500"}`}
+                          >
+                            {reservation.status}
+                          </Badge>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-medium">{reservation.time}</p>
-                        <Badge 
-                          variant={reservation.status === "confirmada" ? "default" : "secondary"}
-                          className="text-xs"
-                        >
-                          {reservation.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
