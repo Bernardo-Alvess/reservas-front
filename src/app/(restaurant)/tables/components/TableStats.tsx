@@ -1,20 +1,15 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, Loader2 } from "lucide-react";
-import { Table as TableType, useTables } from "@/app/hooks/useTables";
+import { Table } from "lucide-react";
+import { useTables } from "@/app/hooks/useTables";
 import { useQuery } from "@tanstack/react-query";
 import { StatCard } from "@/components/StatCard";
 
-interface TableStatsProps {
-  tables: TableType[];
-}
 
-
-export const TableStats = ({ tables }: TableStatsProps) => {
+export const TableStats = () => {
   const { getTableStats } = useTables()
 
-  let { data: stats, isLoading, isError } = useQuery({
+  const { data: stats, isLoading, isError } = useQuery({
     queryKey: ['tableStats'],
     queryFn: getTableStats
   })

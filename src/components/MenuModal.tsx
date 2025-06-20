@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Download } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 interface MenuModalProps {
   open: boolean;
@@ -81,7 +81,7 @@ export const MenuModal = ({ open, onOpenChange, menuUrl, restaurantName }: MenuM
           </div>
           
           <p className="text-xs text-muted-foreground text-center">
-            Se o cardápio não carregar, clique em "Abrir em Nova Aba"
+            Se o cardápio não carregar, clique em <span className="font-bold">Abrir em Nova Aba</span>
           </p>
         </div>
       </DialogContent>

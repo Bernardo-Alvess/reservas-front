@@ -23,6 +23,7 @@ export interface LoginFormProps {
 }
 
 export const useLogin = (type: 'client' | 'restaurant') => {  
+  console.log(type)
   const methods = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -59,6 +60,7 @@ export const useLogin = (type: 'client' | 'restaurant') => {
       await queryClient.invalidateQueries({ queryKey: ['user'] });
       return true
     } catch (error) {
+      console.log(error)
       toast.error('Verifique suas credenciais');
       setError('Erro ao fazer login');
       return false

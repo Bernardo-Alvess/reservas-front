@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Sidemenu } from "@/components/Sidemenu";
 import { useUserContext } from "@/app/context/user/useUserContext";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { Clock, Book, Table, Users } from "lucide-react";
+import { Clock, Book, Table, Users, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useRestaurant } from "@/app/hooks/useRestaurant";
 import { useQuery } from "@tanstack/react-query";
@@ -120,8 +120,9 @@ export default function DashboardLayout() {
           </div>
 
           <div className="flex justify-between gap-6">
-            {stats.map((stat, index) => (
+            {stats.map((stat) => (
                 <StatCard
+                  key={stat.title}
                   title={stat.title}
                   value={stat.value}
                   description={stat.description}
@@ -142,11 +143,17 @@ export default function DashboardLayout() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {upcomingReservations?.length === 0 ? (
-                    <p className="text-muted-foreground">Nenhuma reserva nas próximas horas</p>
-                  ) : (
-                    upcomingReservations?.map((reservation: any, index: any) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  {
+                    isLoadingUpcomingReservations ? (
+                      <div className="flex items-center justify-center">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      </div>
+                    ) : (
+                      upcomingReservations?.length === 0 ? (
+                        <p className="text-muted-foreground">Nenhuma reserva nas próximas horas</p>
+                      ) : (
+                        upcomingReservations?.map((reservation: any, index: any) => (
+                          <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                         <div className="flex items-center space-x-3">
                           <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
                             <Clock className="w-5 h-5 text-primary" />
@@ -167,9 +174,11 @@ export default function DashboardLayout() {
                             {reservation.status}
                           </Badge>
                         </div>
-                      </div>
-                    ))
-                  )}
+                          </div>
+                        ))
+                      )
+                    )
+                  }
                 </div>
               </CardContent>
             </Card>

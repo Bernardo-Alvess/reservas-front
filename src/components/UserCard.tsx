@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Calendar, UserCheck, UserX, Mail, Clock } from "lucide-react";
+import { MoreHorizontal, Calendar, UserCheck, UserX, Mail } from "lucide-react";
 
 interface UserCardProps {
   user: any;

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Phone, Globe, Users, ArrowLeft, ChefHat, BookOpenText } from "lucide-react";
+import { MapPin, Phone, Users, ArrowLeft, ChefHat, BookOpenText } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useRestaurant } from "@/app/hooks/useRestaurant";
@@ -186,10 +186,7 @@ const RestaurantPage = () => {
                 <Phone className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm">{restaurant.phone}</span>
               </div>
-              {/* <div className="flex items-center gap-3">
-                <Globe className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm">{restaurant.website || 'Não possui site'}</span>
-              </div> */}
+
             </CardContent>
           </Card>
         </div>

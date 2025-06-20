@@ -51,7 +51,7 @@ const TablesPage = () => {
         {/* Estatísticas */}
         {!isLoading && !isError && (
           <>
-            <TableStats tables={tables} />
+            <TableStats/>
 
             <Separator className="my-6" />
 

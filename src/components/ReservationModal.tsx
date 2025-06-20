@@ -51,6 +51,7 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
   const getWorkingDays = useMemo(() => {
     if (!restaurant.workHours) return [];
     return restaurant.workHours.map(wh => dayMap[wh.day.toUpperCase() as keyof typeof dayMap]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [restaurant.workHours]);
 
   // Função para verificar se uma data é válida (restaurante aberto)

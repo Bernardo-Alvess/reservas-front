@@ -32,8 +32,8 @@ const DAYS_OF_WEEK = [
 const Restaurante = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [id, setId] = useState<string>();
-    const [selectedImage, setSelectedImage] = useState<File | null>(null);
-    const [selectedMenu, setSelectedMenu] = useState<File | null>(null);
+    // const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    // const [selectedMenu, setSelectedMenu] = useState<File | null>(null);
     const [menuUrl, setMenuUrl] = useState<string>('');
     const [previewImage, setPreviewImage] = useState<File>();
     const [previewMenu, setPreviewMenu] = useState<string>('');
@@ -87,7 +87,7 @@ const Restaurante = () => {
     const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setSelectedImage(file);
+            // setSelectedImage(file);
             setPreviewImage(file);
             try {
                 if (id) {
@@ -104,7 +104,7 @@ const Restaurante = () => {
     const handleMenuUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setSelectedMenu(file);
+            // setSelectedMenu(file);
             setPreviewMenu(URL.createObjectURL(file));
 
             try {
