@@ -10,24 +10,10 @@ import { CheckCircle, Clock, Users, Calendar, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale/pt-BR';
 
-interface Reservation {
-  _id: string;
-  name: string;
-  email: string;
-  startTime: string;
-  amountOfPeople: number;
-  status: string;
-  tableNumber?: number;
-  restaurantId: {
-    name: string;
-  };
-}
-
 export default function ConfirmReservationPage() {
   const { restaurantId } = useParams();
   const [loading, setLoading] = useState(true);
   const [reservations, setReservations] = useState<any[]>([]);
-  const [confirmedId, setConfirmedId] = useState<string | null>(null);
 
   const { searchUserNowReservations, checkInReserve } = useReserve();
 
@@ -37,7 +23,6 @@ export default function ConfirmReservationPage() {
     setLoading(true);
     try {
       const result = await searchUserNowReservations(restaurantId as string);
-      // Garantir que result seja sempre um array
       const reservationArray = Array.isArray(result) ? result : [result];
       setReservations(reservationArray);
     } catch (error: any) {
@@ -50,13 +35,13 @@ export default function ConfirmReservationPage() {
 
   useEffect(() => {
     loadReservations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [restaurantId]);
 
   const handleCheckIn = async (id: string) => {
     try {
       setLoading(true);
       await checkInReserve(id);
-      setConfirmedId(id);
       toast.success('Reserva confirmada com sucesso!');
     } catch (error: any) {
       toast.error(error.message || 'Erro ao confirmar reserva.');

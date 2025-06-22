@@ -19,7 +19,7 @@ import { LoginFormProps, useLogin } from '@/app/hooks/useLogin';
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const { methods, login, error: loginError } = useLogin('client');
+  const { methods, login, responseError: loginError } = useLogin('client');
 
   const onSubmit = async (data: LoginFormProps) => {
     setIsLoading(true);
