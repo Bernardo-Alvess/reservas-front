@@ -34,7 +34,7 @@ export const useLogin = (type: 'client' | 'restaurant') => {
 
   const { getUserLogged } = useUser();
   const { setUser: setUserContext, fetchUser } = useUserContext();
-  const [error, setError] = useState('');
+  const [responseError, setError] = useState('');
   const queryClient = useQueryClient();
 
   const login = async (email: string, password: string) => {
@@ -48,21 +48,23 @@ export const useLogin = (type: 'client' | 'restaurant') => {
         body: JSON.stringify({ email, password }),
         credentials: 'include',
       });
-
+      
+      const data = await response.json();
+      setError(data.message);
       if (!response.ok) {
         throw new Error('Credenciais inválidas');
       }
+
       const user = await getUserLogged();
       setUserContext(user);
 
-      toast.success('Login realizado com sucesso!');
+      toast.success(data.message);
 
       await queryClient.invalidateQueries({ queryKey: ['user'] });
       return true
     } catch (error) {
       console.log(error)
-      toast.error('Verifique suas credenciais');
-      setError('Erro ao fazer login');
+      toast.error(responseError || 'Credenciais inválidas');
       return false
     }
   };
@@ -87,7 +89,7 @@ export const useLogin = (type: 'client' | 'restaurant') => {
 
   return {
     login,
-    error,
+    responseError,
     logout,
     methods
   };
