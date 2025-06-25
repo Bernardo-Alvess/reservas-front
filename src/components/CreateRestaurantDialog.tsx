@@ -46,24 +46,6 @@ const DAYS_OF_WEEK = [
   "Domingo",
 ];
 
-const CookTypes = [
-  "Italiana",
-  "Japonesa",
-  "Brasileira",
-  "Chinesa",
-  "Indiana",
-  "Francesa",
-  "Steakhouse",
-  "Vegetariana",
-  "Mexicana",
-  "Fast Food",
-  "Churrasco",
-  "Pizzaria",
-  "Hamburgueria",
-  "Sorveteria",
-  "Chocolateria",
-  "Outros",
-]
 
 const CreateRestaurantDialog = ({ open, onOpenChange }: CreateRestaurantDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
