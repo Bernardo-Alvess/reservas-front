@@ -18,7 +18,7 @@ const RestaurantSearch = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const router = useRouter();
-  const { getRestaurants } = useRestaurant();
+  const { getRestaurants, getCuisineTypes } = useRestaurant();
 
   const itemsPerPage = 6;
 
@@ -47,18 +47,11 @@ const RestaurantSearch = () => {
     }),
   });
 
-  // Tipos de culinária únicos para os filtros
-  const { data: allRestaurants } = useQuery({
-    queryKey: ['restaurants-types'],
-    queryFn: () => getRestaurants(),
+  const { data: cuisineTypes } = useQuery({
+    queryKey: ['cuisine-types'],
+    queryFn: () => getCuisineTypes(),
     staleTime: 300000, // Cache por 5 minutos
   });
-
-  const cuisineTypes = useMemo(() => {
-    if (!allRestaurants?.data) return [];
-    const types = [...new Set(allRestaurants.data.map((restaurant: any) => restaurant.type))];
-    return types.filter(Boolean) as string[];
-  }, [allRestaurants]);
 
   const restaurants = data?.data || [];
   
@@ -138,9 +131,9 @@ const RestaurantSearch = () => {
         >
           Todos
         </Badge>
-        {cuisineTypes.map((type: string) => (
+        {cuisineTypes?.map((type: string, index: number) => (
           <Badge
-            key={type}
+            key={index}
             variant={selectedType === type ? "default" : "secondary"}
             className="px-4 py-2 cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
             onClick={() => handleTypeFilter(type)}

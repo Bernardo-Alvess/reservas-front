@@ -198,6 +198,27 @@ export const useRestaurant = () => {
         }
     }
 
+    const getCuisineTypes = async () => {
+        try {
+            const response = await fetch(`${API_URL}restaurant/cook-types`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao buscar tipos de culinária');
+            }
+            const data = await response.json();
+            console.log(data);
+            return data;
+        } catch (error) {
+            console.error('Erro ao buscar tipos de culinária:', error);
+            throw error;
+        }
+    }
+
     return {
         methods,
         getRestaurants,
@@ -207,7 +228,8 @@ export const useRestaurant = () => {
         uploadProfileImage,
         uploadMenu,
         uploadGalleryImage,
-        getDashboardData
+        getDashboardData,
+        getCuisineTypes
     }
 }
 
