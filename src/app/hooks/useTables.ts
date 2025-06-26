@@ -38,7 +38,7 @@ export const useTables = () => {
     const body: any = {}
     if(table.tableNumber) body.tableNumber = parseInt(table.tableNumber)
     if(table.numberOfSeats) body.numberOfSeats = table.numberOfSeats
-    if(table.isReserved) body.isReserved = table.isReserved
+    if(table.isReserved !== undefined) body.isReserved = table.isReserved
 
     return body
   }

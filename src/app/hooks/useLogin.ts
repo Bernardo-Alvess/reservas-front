@@ -87,10 +87,57 @@ export const useLogin = (type: 'client' | 'restaurant') => {
     }
   }
 
+  const forgotPassword = async (email: string) => {
+    try {
+      const response = await fetch(`${API_URL}password-reset/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.message);
+        throw new Error('Erro ao enviar email de recuperação');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Erro ao enviar email de recuperação:', error);
+      throw error;
+    }
+  };
+
+  const resetPassword = async (token: string, newPassword: string) => {
+    try {
+      const response = await fetch(`${API_URL}password-reset/reset-password/${token}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newPassword }),
+        credentials: 'include',
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      toast.error(data.message);
+      throw new Error('Erro ao redefinir senha');
+    }
+
+    return data;
+    } catch (error) {
+      console.error('Erro ao redefinir senha:', error);
+      throw error;
+    }
+  };
+
   return {
     login,
     responseError,
     logout,
-    methods
+    methods,
+    forgotPassword,
+    resetPassword,
   };
 }; 
