@@ -11,7 +11,7 @@ import Sidemenu from '@/components/Sidemenu';
 import { StatCard } from "@/components/StatCard";
 
 const UsersPage = () => {
-  const { getUsers, addUser, getUserStats } = useUser();
+  const { getUsers, getUserStats } = useUser();
 
   const {data: users = [], isLoading, isError} = useQuery({
     queryKey: ['users'],
@@ -35,7 +35,7 @@ const UsersPage = () => {
                 Gerencie os usuários do seu restaurante
               </p>
             </div>
-            <AddUserDialog onAddUser={addUser} />
+            <AddUserDialog/>
           </div>
 
           {/* Loading */}

@@ -10,9 +10,8 @@ export enum UserTypeEnum {
 
 export interface CreateUserDto {
     email: string;
-    name?: string;
-    type?: UserTypeEnum;
-    password?: string;
+    name: string;
+    type: UserTypeEnum;
     restaurantId?: string;
 }
 
@@ -110,7 +109,9 @@ export const useUser = () => {
                 },
                 credentials: 'include',
                 body: JSON.stringify({
-                    ...data,
+                    email: data.email,
+                    name: data.name,
+                    type: data.type,
                     restaurantId,
                 }),
             });

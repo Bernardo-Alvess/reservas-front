@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from "react";
 import {
   Dialog,
@@ -13,26 +15,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { CreateUserDto, UserTypeEnum } from "@/app/hooks/useUser";
+import { useForm, Controller } from "react-hook-form";
+import { CreateUserDto, UserTypeEnum, useUser } from "@/app/hooks/useUser";
 
-interface AddUserDialogProps {
-  onAddUser: (data: CreateUserDto) => Promise<boolean>;
-}
-
-export function AddUserDialog({ onAddUser }: AddUserDialogProps) {
+export function AddUserDialog() {
   const [open, setOpen] = useState(false);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateUserDto>({
+  const { addUser } = useUser();
+  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<CreateUserDto>({
     defaultValues: {
       email: '',
       name: '',
       type: UserTypeEnum.WORKER,
-      password: '',
     }
   });
 
   const onSubmit = async (data: CreateUserDto) => {
-    const success = await onAddUser(data);
+    console.log('Dados do formulário:', data); // Para debug
+    const success = await addUser(data);
     if (success) {
       setOpen(false);
       reset();
@@ -57,6 +56,17 @@ export function AddUserDialog({ onAddUser }: AddUserDialogProps) {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
+              <Label htmlFor="name">Nome</Label>
+              <Input
+                id="name"
+                {...register('name', { required: 'Nome é obrigatório' })}
+              />
+              {errors.name && (
+                <span className="text-sm text-red-500">{errors.name.message}</span>
+              )}
+            </div>
+            
+            <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -67,40 +77,33 @@ export function AddUserDialog({ onAddUser }: AddUserDialogProps) {
                 <span className="text-sm text-red-500">{errors.email.message}</span>
               )}
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="name">Nome</Label>
-              <Input
-                id="name"
-                {...register('name')}
-              />
-            </div>
+            
             <div className="grid gap-2">
               <Label htmlFor="type">Tipo de Usuário</Label>
-              <Select
-                defaultValue={UserTypeEnum.WORKER}
-                onValueChange={(value) => register('type').onChange({ target: { value } })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={UserTypeEnum.ADMIN}>Administrador</SelectItem>
-                  <SelectItem value={UserTypeEnum.WORKER}>Funcionário</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                {...register('password', { required: 'Senha é obrigatória' })}
+              <Controller
+                name="type"
+                control={control}
+                rules={{ required: 'Tipo de usuário é obrigatório' }}
+                render={({ field }) => (
+                  <Select 
+                    value={field.value} 
+                    onValueChange={field.onChange}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={UserTypeEnum.ADMIN}>Administrador</SelectItem>
+                      <SelectItem value={UserTypeEnum.WORKER}>Funcionário</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               />
-              {errors.password && (
-                <span className="text-sm text-red-500">{errors.password.message}</span>
+              {errors.type && (
+                <span className="text-sm text-red-500">{errors.type.message}</span>
               )}
             </div>
-          </div>
+          </div> 
           <DialogFooter>
             <Button type="submit">Adicionar Usuário</Button>
           </DialogFooter>

@@ -199,7 +199,7 @@ const Reservas = () => {
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <StatCard
                                 title="Hoje"
-                                value={statsData.stats.total}
+                                value={statsData.stats?.total || 0}
                                 description="reservas hoje"
                                 icon={<Calendar className="w-4 h-4 text-blue-600" />}
                                 isLoading={isLoadingStats}
@@ -208,7 +208,7 @@ const Reservas = () => {
 
                             <StatCard
                                 title="Confirmadas"
-                                value={statsData.stats.confirmed}
+                                value={statsData.stats?.confirmed || 0}
                                 description="reservas confirmadas"
                                 icon={<div className="w-3 h-3 bg-green-500 rounded-full" />}
                                 isLoading={isLoadingStats}
@@ -217,7 +217,7 @@ const Reservas = () => {
 
                             <StatCard
                                 title="Pendentes"
-                                value={statsData.stats.pending}
+                                value={statsData.stats?.pending || 0}
                                 description="reservas pendentes"
                                 icon={<div className="w-3 h-3 bg-yellow-500 rounded-full" />}
                                 isLoading={isLoadingStats}
@@ -226,7 +226,7 @@ const Reservas = () => {
 
                             <StatCard
                                 title="Total Pessoas Hoje"
-                                value={statsData.stats.totalPeople}
+                                value={statsData.stats?.totalPeople || 0}
                                 description="pessoas esperadas"
                                 icon={<Users className="w-4 h-4 text-primary" />}
                                 isLoading={isLoadingStats}
