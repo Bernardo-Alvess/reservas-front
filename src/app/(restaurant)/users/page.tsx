@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Users, UserCheck, UserX } from "lucide-react";
 import { AddUserDialog } from "@/components/AddUserDialog";
 import { UserCard } from "@/components/UserCard";
-import { UserTypeEnum, useUser } from "@/app/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import { useQuery } from "@tanstack/react-query";
 import Sidemenu from '@/components/Sidemenu';
 import { StatCard } from "@/components/StatCard";

@@ -1,7 +1,6 @@
 import Header from '../components/Header'
 import './globals.css'
 import { Providers } from './providers'
-import { Bounce, ToastContainer} from 'react-toastify';
 export const metadata = {
   title: 'Sistema de Reservas',
   description: 'Encontre e reserve os melhores restaurantes',

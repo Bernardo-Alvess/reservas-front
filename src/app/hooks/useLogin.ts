@@ -110,6 +110,7 @@ export const useLogin = () => {
       toast.success('Logout realizado com sucesso!');
       
     } catch (error) {
+      console.log('error', error)
       localStorage.removeItem('restauranteSelecionado');
       setUserContext(null);
       router.push('/');
