@@ -18,6 +18,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { TimeInput } from '@/components/TimeInput';
 import { mapDay, reverseMapDay } from '@/lib/mapDay';
 import { MenuModal } from '@/components/MenuModal';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 const DAYS_OF_WEEK = [
     'Segunda-feira',
@@ -56,6 +57,7 @@ const Restaurante = () => {
       uploadProfileImage,
       uploadMenu,
       uploadGalleryImage,
+      deleteGalleryImage
   } = useRestaurant();
 
     useEffect(() => {
@@ -133,11 +135,11 @@ const Restaurante = () => {
     const removeGalleryImage = async (index: number) => {
         try {
             const newGallery = restaurant?.gallery.filter((_: any, i: number) => i !== index);
-            await updateRestaurant(id as string, { gallery: newGallery });
-            toast.success('Imagem removida da galeria!');
+            const publicId = restaurant?.gallery[index].publicId;
+            await deleteGalleryImage(publicId);
+            // await updateRestaurant(id as string, { gallery: newGallery });
         } catch (error) {
             console.log(error)
-            toast.error('Erro ao remover imagem da galeria');
         }
     };
 
@@ -193,8 +195,31 @@ const Restaurante = () => {
         }
     };
 
-    if (isLoadingRestaurant) return <div>Carregando...</div>;
-    if (!id) return <div>Carregando por conta do id...</div>;
+    if (isLoadingRestaurant) return (
+        <div className="flex min-h-screen w-full">
+            <Sidemenu />
+            <main className="flex p-6 bg-zinc-100 w-full justify-start">
+                <LoadingSpinner 
+                    text="Carregando informações do restaurante..." 
+                    size="lg"
+                    fullScreen
+                />
+            </main>
+        </div>
+    );
+    
+    if (!id) return (
+        <div className="flex min-h-screen w-full">
+            <Sidemenu />
+            <main className="flex p-6 bg-zinc-100 w-full justify-start">
+                <LoadingSpinner 
+                    text="Inicializando..." 
+                    size="lg"
+                    fullScreen
+                />
+            </main>
+        </div>
+    );
 
     const getMenuName = (menuName?: string) => {
         if (!menuName) return 'Cardápio';

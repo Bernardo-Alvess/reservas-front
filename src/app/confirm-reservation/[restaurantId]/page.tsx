@@ -9,6 +9,9 @@ import { useReserve } from '@/app/hooks/useReserve';
 import { CheckCircle, Clock, Users, Calendar, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale/pt-BR';
+import { useRestaurant } from '@/app/hooks/useRestaurant';
+import { useUserContext } from '@/app/context/user/useUserContext';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 export default function ConfirmReservationPage() {
   const { restaurantId } = useParams();
@@ -60,15 +63,14 @@ export default function ConfirmReservationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="w-full max-w-md p-2">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              <p className="text-muted-foreground">Carregando suas reservas...</p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <LoadingSpinner 
+            text="Carregando suas reservas..." 
+            size="lg"
+            fullScreen
+          />
+        </div>
       </div>
     );
   }

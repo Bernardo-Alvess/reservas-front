@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useReserve } from "@/app/hooks/useReserve";
 import { formatDate } from "@/lib/formatDate";
 import { StatCard } from "@/components/StatCard";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 // interface Stats {
 //   reservasHoje: number;
@@ -145,9 +146,11 @@ export default function DashboardLayout() {
                 <div className="space-y-4">
                   {
                     isLoadingUpcomingReservations ? (
-                      <div className="flex items-center justify-center">
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      </div>
+                      <LoadingSpinner 
+                        text="Carregando próximas reservas..." 
+                        size="sm"
+                        className="h-20"
+                      />
                     ) : (
                       upcomingReservations?.length === 0 ? (
                         <p className="text-muted-foreground">Nenhuma reserva nas próximas horas</p>

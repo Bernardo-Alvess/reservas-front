@@ -14,6 +14,7 @@ import { useUserContext } from "@/app/context/user/useUserContext";
 import { mapDay } from "@/lib/mapDay";
 import { LoginModal } from "@/components/LoginModal";
 import { MenuModal } from "@/components/MenuModal";
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 const RestaurantPage = () => {
   const { id } = useParams();
@@ -31,7 +32,13 @@ const RestaurantPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {isLoading ? (<div>Carregando...</div>) : (
+      {isLoading ? (
+        <LoadingSpinner 
+          text="Carregando restaurante..." 
+          size="lg"
+          fullScreen
+        />
+      ) : (
         <>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Back Button */}

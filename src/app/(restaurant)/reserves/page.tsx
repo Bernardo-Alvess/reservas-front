@@ -15,6 +15,7 @@ import { StatCard } from '@/components/StatCard';
 import { ReservationModal } from '@/components/ReservationModal';
 import { useRestaurant } from '@/app/hooks/useRestaurant';
 import { useRestaurantContext } from '@/app/context/selectedRestaurant/selectedRestaurantContext';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 const Reservas = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -120,12 +121,11 @@ const Reservas = () => {
             <div className="flex min-h-screen">
                 <Sidemenu />
                 <main className="flex-1 p-6 overflow-auto">
-                    <div className="flex justify-center items-center h-64">
-                        <div className="flex items-center gap-2">
-                            <Loader2 className="w-6 h-6 animate-spin" />
-                            <span className="text-lg">Carregando reservas...</span>
-                        </div>
-                    </div>
+                    <LoadingSpinner 
+                        text="Carregando reservas..." 
+                        size="lg"
+                        className="h-64"
+                    />
                 </main>
             </div>
         );
@@ -192,9 +192,11 @@ const Reservas = () => {
                     </div>
 
                     {isLoadingStats ? (
-                        <div className="flex justify-center items-center h-64">
-                            <p>Carregando estatísticas...</p>
-                        </div>
+                        <LoadingSpinner 
+                            text="Carregando estatísticas..." 
+                            size="md"
+                            className="h-32"
+                        />
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <StatCard

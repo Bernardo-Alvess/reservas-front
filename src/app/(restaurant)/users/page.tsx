@@ -9,6 +9,7 @@ import { useUser } from "@/app/hooks/useUser";
 import { useQuery } from "@tanstack/react-query";
 import Sidemenu from '@/components/Sidemenu';
 import { StatCard } from "@/components/StatCard";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 const UsersPage = () => {
   const { getUsers, getUserStats } = useUser();
@@ -40,9 +41,10 @@ const UsersPage = () => {
 
           {/* Loading */}
           {isLoading && (
-            <div className="flex justify-center items-center h-40">
-              <p className="text-lg text-muted-foreground">Carregando usuários...</p>
-            </div>
+            <LoadingSpinner 
+              text="Carregando usuários..." 
+              size="md"
+            />
           )}
 
           {/* Error */}

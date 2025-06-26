@@ -7,6 +7,7 @@ import { TableCard } from "./components/TableCard";
 import { TableStats } from "./components/TableStats";
 import { useQuery } from "@tanstack/react-query";
 import Sidemenu from "@/components/Sidemenu";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 const TablesPage = () => {
   const { getTables } = useTables();
@@ -36,9 +37,10 @@ const TablesPage = () => {
 
         {/* Loading */}
         {isLoading && (
-          <div className="flex justify-center items-center h-40">
-            <p className="text-lg text-muted-foreground">Carregando mesas...</p>
-          </div>
+          <LoadingSpinner 
+            text="Carregando mesas..." 
+            size="md"
+          />
         )}
 
         {/* Error */}
