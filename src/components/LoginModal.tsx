@@ -40,10 +40,9 @@ type RestaurantLoginForm = z.infer<typeof restaurantLoginSchema>;
 export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
   const [clientLoginStep, setClientLoginStep] = useState<"email" | "otp">("email");
   const [clientEmail, setClientEmail] = useState("");
-  const [loginType, setLoginType] = useState<'client' | 'restaurant'>('client');
   
   const { createOrUpdateOtp } = useUser();
-  const { login } = useLogin(loginType);
+  const { login } = useLogin();
 
   const clientEmailForm = useForm<ClientEmailForm>({
     resolver: zodResolver(clientEmailSchema),
@@ -84,7 +83,6 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
   };
 
   const handleRestaurantLogin = async (data: RestaurantLoginForm) => {
-    setLoginType('restaurant');
     const success = await login(data.email, data.password);
     if (success) {
       onOpenChange(false);

@@ -1,5 +1,7 @@
 import { toast } from "react-toastify"
 import { API_URL } from "../configs/constants"
+import { useQueryClient } from "@tanstack/react-query"
+import { useState } from "react"
 
 export enum UserTypeEnum {
     ADMIN = 'admin',
@@ -14,7 +16,20 @@ export interface CreateUserDto {
     restaurantId?: string;
 }
 
+export interface User {
+    _id: string;
+    email: string;
+    name: string;
+    type: UserTypeEnum;
+    active: boolean;
+    role: string;
+    createdAt: string;
+}
+
 export const useUser = () => {
+    const [users, setUsers] = useState<User[]>([]);
+    const queryClient = useQueryClient();
+
     const getUserLogged = async () => {
         try {
             const response = await fetch(`${API_URL}users/me`,
@@ -23,10 +38,14 @@ export const useUser = () => {
                     credentials: 'include',
                 },
             )
-            if (!response.ok) {
-                throw new Error('Erro ao obter usuário logado')
+
+            if (!response.ok || response.status === 401) {
+                console.log('Erro ao obter usuário logado')
+                return null
             }
             const data = await response.json()
+
+
             return data || null
         }catch(error){
             console.error('Erro ao obter usuário logado:', error)
@@ -72,6 +91,7 @@ export const useUser = () => {
             }
 
             const data = await response.json();
+            setUsers(data); // Atualiza o estado local
             return data;
         } catch (error) {
             console.error('Erro ao buscar usuários:', error);
@@ -101,6 +121,11 @@ export const useUser = () => {
             }
 
             toast.success('Usuário adicionado com sucesso');
+            
+            // Invalidar o cache para atualizar a lista automaticamente
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: ['user-stats'] });
+            
             return true;
         } catch (error: any) {
             console.error('Erro ao adicionar usuário:', error);
@@ -124,6 +149,11 @@ export const useUser = () => {
             }
 
             toast.success('Status do usuário atualizado com sucesso');
+            
+            // Invalidar o cache para atualizar a lista automaticamente
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: ['user-stats'] });
+            
             return true;
         } catch (error) {
             console.error('Erro ao atualizar status do usuário:', error);
@@ -148,6 +178,11 @@ export const useUser = () => {
             }
 
             toast.success('Função do usuário atualizada com sucesso');
+            
+            // Invalidar o cache para atualizar a lista automaticamente
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: ['user-stats'] });
+            
             return true;
         } catch (error) {
             console.error('Erro ao atualizar função do usuário:', error);
@@ -171,6 +206,11 @@ export const useUser = () => {
             }
 
             toast.success('Usuário excluído com sucesso');
+            
+            // Invalidar o cache para atualizar a lista automaticamente
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: ['user-stats'] });
+            
             return true;
         } catch (error) {
             console.error('Erro ao excluir usuário:', error);
@@ -201,6 +241,8 @@ export const useUser = () => {
     }
 
     return {
+        users,
+        setUsers,
         getUserLogged,
         createOrUpdateOtp,
         getUsers,

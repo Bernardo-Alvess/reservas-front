@@ -10,7 +10,7 @@ import { LoginModal } from "./LoginModal";
 
 const Header = () => {
   const { user } = useUserContext();
-  const { logout } = useLogin('client');
+  const { logout } = useLogin();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   return (
@@ -45,7 +45,10 @@ const Header = () => {
             </Link>
             )}
             {user ? (
-              <Button variant="outline" size="sm" onClick={logout}>
+              <Button variant="outline" size="sm" onClick={() => {
+                logout();
+                console.log('teste')
+              }}>
                 <User className="w-4 h-4 mr-2" />
                 Sair
               </Button>

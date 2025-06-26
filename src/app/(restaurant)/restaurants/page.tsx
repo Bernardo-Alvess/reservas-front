@@ -16,7 +16,14 @@ const SelecionarRestaurante = () => {
   const { user } = useUserContext();
   const {selectedRestaurant, setSelectedRestaurant} = useRestaurantContext();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+
   useEffect(() => {
+    const initialRestaurant = localStorage.getItem('restauranteSelecionado');
+    if(initialRestaurant) {
+      setSelectedRestaurant(initialRestaurant);
+    } else {
+      setSelectedRestaurant(null);
+    }
     if(!selectedRestaurant) {
       toast.info('Selecione um restaurante para continuar');
     }

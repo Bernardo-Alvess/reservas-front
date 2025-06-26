@@ -14,6 +14,7 @@ import { useReserve } from "@/app/hooks/useReserve";
 import { Calendar } from "./ui/calendar";
 import { Controller } from "react-hook-form";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { useRestaurantContext } from "@/app/context/selectedRestaurant/selectedRestaurantContext";
 
 interface WorkHour {
   day: string;
@@ -29,12 +30,14 @@ interface ReservationModalProps {
     name: string;
     workHours?: WorkHour[];
   };
+  mode?: string;
 }
 
-export const ReservationModal = ({ open, onOpenChange, restaurant }: ReservationModalProps) => {
-  const { methods, createReserve } = useReserve();
+export const ReservationModal = ({ open, onOpenChange, restaurant, mode = 'client' }: ReservationModalProps) => {
+  const { methods, createReserve } = useReserve(mode);
   const { handleSubmit, control, formState: { errors }, reset } = methods;
   const [date, setDate] = useState<Date>();
+  const {selectedRestaurant} = useRestaurantContext();
 
   // Mapeamento de dias da semana (0 = Domingo, 1 = Segunda, etc.)
   const dayMap = {
@@ -122,7 +125,7 @@ export const ReservationModal = ({ open, onOpenChange, restaurant }: Reservation
       startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
       const reserveData = {
-        restaurantId: restaurant.id,
+        restaurantId: restaurant.id || selectedRestaurant || '',
         startTime: startDateTime.toISOString(),
         amountOfPeople: data.amountOfPeople,
         email: data.email,

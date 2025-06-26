@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -22,8 +23,8 @@ export interface LoginFormProps {
   password: string;
 }
 
-export const useLogin = (type: 'client' | 'restaurant') => {  
-  console.log(type)
+export const useLogin = () => {  
+
   const methods = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -36,6 +37,7 @@ export const useLogin = (type: 'client' | 'restaurant') => {
   const { setUser: setUserContext, fetchUser } = useUserContext();
   const [responseError, setError] = useState('');
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const login = async (email: string, password: string) => {
     try {
@@ -68,22 +70,49 @@ export const useLogin = (type: 'client' | 'restaurant') => {
       return false
     }
   };
-
+  
   const logout = async () => {
     try {
+      console.log('teste chamando o hook')
       await fetch(`${API_URL}auth-user/logout`, {
         method: 'GET',
         credentials: 'include',
       });
+      
+      localStorage.removeItem('restauranteSelecionado');
+      
+      // 3. Verificar e forçar limpeza se necessário
+      if (localStorage.getItem('restauranteSelecionado')) {
+        console.log('limpando localStorage dnv')
+        localStorage.clear(); // Como fallback, limpa tudo se o item específico não foi removido
+      }
+      
+      router.push('/');
 
+      // 4. Resetar contexto do usuário
+      setUserContext(null);
+      
+      // 5. Limpar queries do React Query
       await queryClient.resetQueries({ queryKey: ['user'] });
       await queryClient.invalidateQueries({ queryKey: ['user'] });
-      setUserContext(null);
+      
+      // 6. Limpar todas as queries relacionadas ao restaurante/usuário
+      await queryClient.resetQueries({ queryKey: ['reserves'] });
+      await queryClient.resetQueries({ queryKey: ['tables'] });
+      await queryClient.resetQueries({ queryKey: ['users'] });
+      
+      // 7. Refetch user para garantir estado limpo
       await fetchUser();
-      localStorage.removeItem('restauranteSelecionado');
-      window.location.href = '/home';
+      
+      // 8. Redirecionar para home
+      
+      // 9. Mostrar mensagem de sucesso
+      toast.success('Logout realizado com sucesso!');
+      
     } catch (error) {
-      console.error('Erro ao fazer logout:', error);
+      localStorage.removeItem('restauranteSelecionado');
+      setUserContext(null);
+      router.push('/');
     }
   }
 

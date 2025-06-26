@@ -161,31 +161,6 @@ export const useTables = () => {
     }
   }
 
-  const deleteTable = async (tableId: string) => {
-    try {
-      const response = await fetch(`${API_URL}tables/${tableId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      })
-      
-      if (!response.ok) {
-        throw new Error('Falha na requisição');
-      }
-      
-      toast.success('Mesa removida com sucesso!')
-      
-      // Invalidar o cache para atualizar a lista automaticamente
-      queryClient.invalidateQueries({ queryKey: ['tables'] });
-      queryClient.invalidateQueries({ queryKey: ['table-stats'] });
-      
-      return true
-    } catch(err) {
-      console.error(err)
-      toast.error('Erro ao remover mesa')
-      throw err;
-    }
-  }
-
   return {
     tables,
     setTables,
@@ -194,7 +169,6 @@ export const useTables = () => {
     getTableById,
     getTableStats,
     updateTableStatus,
-    deleteTable,
     methods
   };
 };

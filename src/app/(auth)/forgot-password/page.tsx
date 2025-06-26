@@ -14,7 +14,7 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
-  const { forgotPassword } = useLogin('restaurant');
+  const { forgotPassword } = useLogin();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -17,25 +17,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className='text-black antialiased'>
-      <body>
         <Providers>
           <Header />
-          <ToastContainer
-            position="bottom-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover={false}
-            theme="colored"
-            transition={Bounce}
-            />
           {children}
         </Providers>
-      </body>
     </html>
   )
 }

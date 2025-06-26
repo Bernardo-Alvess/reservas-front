@@ -15,7 +15,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { CreateUserDto, UserTypeEnum } from "@/app/hooks/useUser";
-import { useQueryClient } from "@tanstack/react-query";
 
 interface AddUserDialogProps {
   onAddUser: (data: CreateUserDto) => Promise<boolean>;
@@ -23,7 +22,6 @@ interface AddUserDialogProps {
 
 export function AddUserDialog({ onAddUser }: AddUserDialogProps) {
   const [open, setOpen] = useState(false);
-  const queryClient = useQueryClient();
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateUserDto>({
     defaultValues: {
       email: '',
@@ -34,12 +32,10 @@ export function AddUserDialog({ onAddUser }: AddUserDialogProps) {
   });
 
   const onSubmit = async (data: CreateUserDto) => {
-    console.log(data)
     const success = await onAddUser(data);
     if (success) {
       setOpen(false);
       reset();
-      queryClient.invalidateQueries({ queryKey: ['users'] });
     }
   };
 

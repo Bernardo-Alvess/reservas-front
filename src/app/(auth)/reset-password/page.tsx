@@ -23,7 +23,7 @@ const ResetPassword = () => {
   
   const router = useRouter();
   const { token } = useParams();
-  const { resetPassword } = useLogin('restaurant');
+  const { resetPassword } = useLogin();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
