@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { Button } from "./ui/button";
 import { Reserva, useReserve } from "@/app/hooks/useReserve";
 import { Badge } from "./ui/badge";
-import { useQueryClient } from "@tanstack/react-query";
 import { formatDate, formatTime } from "@/lib/formatDate";
 
 interface ReserveCardProps {
@@ -20,11 +19,13 @@ const ReserveCard = ({
   const clientEmail = reservation.email || reservation.clientId?.email || '';
 
   const { confirmOrCancelReserve } = useReserve();
-  const queryClient = useQueryClient();
 
   const handleStatusChange = async (reserveId: string, mode: 'confirm' | 'cancel') => {
-    await confirmOrCancelReserve(reserveId, 'restaurant', mode);
-    queryClient.invalidateQueries({ queryKey: ['reserves'] });
+    try {
+      await confirmOrCancelReserve(reserveId, 'restaurant', mode);
+    } catch (error) {
+      console.error('Erro ao atualizar status da reserva:', error);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -110,7 +111,7 @@ const ReserveCard = ({
               <>
                 <Button 
                   size="sm" 
-                  variant="outline"
+                  variant="destructive"
                   onClick={() => handleStatusChange(reservation._id, 'cancel')}
                 >
                   Recusar

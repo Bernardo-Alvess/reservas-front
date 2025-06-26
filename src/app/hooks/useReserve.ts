@@ -3,6 +3,8 @@ import { API_URL } from '../configs/constants';
 import { Reserve } from '../schemas/reserve/reserve';
 import { toast } from 'react-toastify';
 import { PageOptionsDto } from '@/lib/PageOptionsDto';
+import { useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 
 export interface Reserva {
   _id: string;
@@ -50,7 +52,9 @@ export interface Reserva {
   tableNumber: number;
 }
 
-export const useReserve = () => {
+export const useReserve = (mode?: string) => {
+	const [reserves, setReserves] = useState<Reserva[]>([]);
+	const queryClient = useQueryClient();
 
 	const methods = useForm(
 		{
@@ -100,8 +104,15 @@ export const useReserve = () => {
 	};
 
 	const createReserve = async (data: Reserve) => {
+
+		let url = `${API_URL}reserve`;
+
+		if(mode && mode === 'restaurant') {
+			url = `${API_URL}reserve/restaurant`;
+		}
+
 		try {
-			const response = await fetch(`${API_URL}reserve`, {
+			const response = await fetch(url, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -117,6 +128,11 @@ export const useReserve = () => {
 			}
 
 			toast.success('Reserva realizada com sucesso');
+
+			// Invalidar o cache para atualizar as listas automaticamente
+			queryClient.invalidateQueries({ queryKey: ['reserves'] });
+			queryClient.invalidateQueries({ queryKey: ['reserves-stats'] });
+			queryClient.invalidateQueries({ queryKey: ['upcoming-reserves'] });
 
 			return true
 		} catch (error) {
@@ -135,12 +151,22 @@ export const useReserve = () => {
 				credentials: 'include',
 			});
 			if(!response.ok) {
-				throw new Error('Erro ao confirmar reserva');
+				throw new Error(`Erro ao ${mode === 'confirm' ? 'confirmar' : 'cancelar'} reserva`);
 			}
-			return 'Reserva confirmada com sucesso';
+			
+			toast.success(`Reserva ${mode === 'confirm' ? 'confirmada' : 'cancelada'} com sucesso`);
+			
+			// Invalidar o cache para atualizar as listas automaticamente
+			queryClient.invalidateQueries({ queryKey: ['reserves'] });
+			queryClient.invalidateQueries({ queryKey: ['reserves-stats'] });
+			queryClient.invalidateQueries({ queryKey: ['upcoming-reserves'] });
+			queryClient.invalidateQueries({ queryKey: ['user-reserves'] });
+			
+			return `Reserva ${mode === 'confirm' ? 'confirmada' : 'cancelada'} com sucesso`;
 		} catch (error) {
-			console.error('Erro ao confirmar reserva:', error);
-			return 'Erro ao confirmar reserva';
+			console.error(`Erro ao ${mode === 'confirm' ? 'confirmar' : 'cancelar'} reserva:`, error);
+			toast.error(`Erro ao ${mode === 'confirm' ? 'confirmar' : 'cancelar'} reserva`);
+			throw error;
 		}
 	}
 
@@ -178,6 +204,7 @@ export const useReserve = () => {
 			}
 
 			const data = await response.json();
+			setReserves(data.data || []); // Atualiza o estado local
 
 			return data;
 		} catch (error) {
@@ -270,14 +297,85 @@ export const useReserve = () => {
 				throw new Error('Erro ao fazer check-in na reserva');
 			}
 
-			return 'Reserva confirmada com sucesso';
+			toast.success('Check-in realizado com sucesso');
+			
+			// Invalidar o cache para atualizar as listas automaticamente
+			queryClient.invalidateQueries({ queryKey: ['reserves'] });
+			queryClient.invalidateQueries({ queryKey: ['reserves-stats'] });
+			queryClient.invalidateQueries({ queryKey: ['upcoming-reserves'] });
+
+			return 'Check-in realizado com sucesso';
 		} catch (error) {
 			console.error('Erro ao confirmar reserva:', error);
+			toast.error('Erro ao realizar check-in');
+			throw error;
+		}
+	}
+
+	const updateReserve = async (reserveId: string, data: Partial<Reserve>) => {
+		try {
+			const response = await fetch(`${API_URL}reserve/${reserveId}`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
+				body: JSON.stringify(data),
+			});
+
+			if(!response.ok) {
+				throw new Error('Erro ao atualizar reserva');
+			}
+
+			toast.success('Reserva atualizada com sucesso');
+			
+			// Invalidar o cache para atualizar as listas automaticamente
+			queryClient.invalidateQueries({ queryKey: ['reserves'] });
+			queryClient.invalidateQueries({ queryKey: ['reserves-stats'] });
+			queryClient.invalidateQueries({ queryKey: ['upcoming-reserves'] });
+			queryClient.invalidateQueries({ queryKey: ['user-reserves'] });
+
+			return true;
+		} catch (error) {
+			console.error('Erro ao atualizar reserva:', error);
+			toast.error('Erro ao atualizar reserva');
+			throw error;
+		}
+	}
+
+	const deleteReserve = async (reserveId: string) => {
+		try {
+			const response = await fetch(`${API_URL}reserve/${reserveId}`, {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
+			});
+
+			if(!response.ok) {
+				throw new Error('Erro ao excluir reserva');
+			}
+
+			toast.success('Reserva excluída com sucesso');
+			
+			// Invalidar o cache para atualizar as listas automaticamente
+			queryClient.invalidateQueries({ queryKey: ['reserves'] });
+			queryClient.invalidateQueries({ queryKey: ['reserves-stats'] });
+			queryClient.invalidateQueries({ queryKey: ['upcoming-reserves'] });
+			queryClient.invalidateQueries({ queryKey: ['user-reserves'] });
+
+			return true;
+		} catch (error) {
+			console.error('Erro ao excluir reserva:', error);
+			toast.error('Erro ao excluir reserva');
 			throw error;
 		}
 	}
 
 	return {
+		reserves,
+		setReserves,
 		methods,
 		getReservesForUser,
 		createReserve,
@@ -286,6 +384,8 @@ export const useReserve = () => {
 		getReserveStatsForRestaurant,
 		getUpcomingReservations,
 		searchUserNowReservations,
-		checkInReserve
+		checkInReserve,
+		updateReserve,
+		deleteReserve
 	};
 };

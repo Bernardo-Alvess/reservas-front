@@ -12,8 +12,6 @@ import { FormProvider } from "react-hook-form";
 
 interface NewTableDialogProps {
   editingTable?: any;
-  onAddTable?: (table: Omit<TableData, "id">) => void;
-  // onEditTable?: (table: TableData, _id: string) => void;
   buttonType?: 'button' | 'icon'
 }
 

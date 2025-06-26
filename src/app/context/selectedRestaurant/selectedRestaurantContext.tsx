@@ -15,6 +15,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const restaurant = localStorage.getItem('restauranteSelecionado');
     setSelectedRestaurant(restaurant);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateSelectedRestaurant = (id: string | null) => {

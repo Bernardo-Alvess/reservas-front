@@ -5,6 +5,7 @@ import { CookiesProvider } from 'react-cookie';
 import { ReactNode } from 'react';
 import { UserProvider } from './context/user/userContext';
 import { RestaurantProvider } from './context/selectedRestaurant/selectedRestaurantContext';
+import { Bounce, ToastContainer } from 'react-toastify';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,14 +18,29 @@ const queryClient = new QueryClient({
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
+    <body>
     <CookiesProvider>
-      <UserProvider>
-        <RestaurantProvider>
-          <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <UserProvider>
+          <RestaurantProvider>
+          <ToastContainer
+            position="bottom-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover={false}
+            theme="colored"
+            transition={Bounce}
+            />
             {children}
-          </QueryClientProvider>
-        </RestaurantProvider>
-      </UserProvider>
+          </RestaurantProvider>
+        </UserProvider>
+      </QueryClientProvider>
     </CookiesProvider>
+    </body>
   );
 } 

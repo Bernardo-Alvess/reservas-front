@@ -25,8 +25,8 @@ const MyReservations = () => {
     };
   };
 
-  const { data: reservationsData, isLoading } = useQuery({
-    queryKey: ["reservations", filter, currentPage],
+  const { data: reservationsData, isLoading, isError } = useQuery({
+    queryKey: ["user-reserves", filter, currentPage],
     queryFn: () => getReservesForUser(getQueryOptions()),
   });
 
@@ -57,6 +57,23 @@ const MyReservations = () => {
             <div className="flex items-center gap-2">
               <Loader2 className="w-6 h-6 animate-spin" />
               <span className="text-lg">Carregando suas reservas...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex justify-center items-center h-64">
+            <div className="text-center">
+              <p className="text-red-600 font-semibold mb-4">Erro ao carregar suas reservas</p>
+              <Button onClick={() => window.location.reload()}>
+                Tentar novamente
+              </Button>
             </div>
           </div>
         </div>

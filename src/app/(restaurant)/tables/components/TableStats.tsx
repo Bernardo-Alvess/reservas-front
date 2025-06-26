@@ -10,7 +10,7 @@ export const TableStats = () => {
   const { getTableStats } = useTables()
 
   const { data: stats, isLoading, isError } = useQuery({
-    queryKey: ['tableStats'],
+    queryKey: ['table-stats'],
     queryFn: getTableStats
   })
 
