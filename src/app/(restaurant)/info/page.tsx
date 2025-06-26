@@ -207,7 +207,7 @@ const Restaurante = () => {
         <div className="flex min-h-screen w-full">
             <Sidemenu />
             <main className="flex p-6 bg-zinc-100 w-full justify-start">
-                <div className="space-y-6 w-full">
+                <div className="flex flex-col space-y-6 w-full">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">
                             Configurações do Restaurante
@@ -217,8 +217,7 @@ const Restaurante = () => {
                         </p>
                     </div>
 
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-8">
-                        {/* Informações Básicas */}
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 space-y-6 pb-8">
                         <Card className="p-2">
                             <CardHeader>
                                 <CardTitle>Informações Básicas</CardTitle>
@@ -490,14 +489,14 @@ const Restaurante = () => {
                         </Card>
 
                         {/* Foto de Perfil */}
-                        <div className="flex flex-row gap-4 w-full justify-evenly items-start">
-                            <Card className="p-2 flex flex-col justify-evenly w-full">
+                        <div className="flex flex-row gap-4 w-full justify-evenly">
+                            <Card className="p-2 flex flex-col justify-between w-full h-full">
                                     <CardHeader>
                                         <CardTitle>Foto de Perfil</CardTitle>
                                         <CardDescription>Imagem principal do restaurante</CardDescription>
                                     </CardHeader>
-                                    <CardContent className="space-y-4 flex flex-col gap-4">
-                                        <div className="flex flex-col items-center space-x-4 gap-3">
+                                    <CardContent className="flex flex-col flex-1 justify-center items-center gap-4">
+                                        <div className="flex flex-col items-center gap-3 flex-1 justify-center">
                                             {(previewImage || restaurant?.profileImage ) && (
                                                 <img
                                                     src={
@@ -507,7 +506,7 @@ const Restaurante = () => {
                                                             '/images/image-placeholder.jpg'
                                                     }
                                                     alt="Foto de perfil"
-                                                    className="w-2xs h-full rounded-lg object-cover"
+                                                    className="w-48 h-48 rounded-lg object-cover"
                                                 />
                                             )}
                                             <div>
@@ -529,7 +528,7 @@ const Restaurante = () => {
                                         </div>
                                     </CardContent>
                             </Card>
-                            <Card className="p-2 flex flex-col justify-start w-full items-start">
+                            <Card className="p-2 flex flex-col justify-start w-full">
                                 <CardHeader className="w-full">
                                         <CardTitle>Qr Code para Check-in</CardTitle>
                                         <CardDescription>Apresente esse qr code para o cliente</CardDescription>
@@ -579,7 +578,7 @@ const Restaurante = () => {
                                     </Label>
 
                                     {previewGallery.length > 0 && (
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                                        <div className="flex flex-wrap gap-4">
                                             {previewGallery.map((img, index) => (
                                                 <div key={index} className="relative group">
                                                     <img
