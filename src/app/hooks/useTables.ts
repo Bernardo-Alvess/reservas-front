@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { API_URL } from "../configs/constants";
 import { useForm } from "react-hook-form";
 import { TableData } from "../(restaurant)/tables/table.schema";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface Table {
   _id: string;
@@ -11,10 +12,12 @@ export interface Table {
   numberOfSeats: number;
   status: "disponível" | "ocupada" | "reservada" | "manutenção";
   location: string;
+  isReserved: boolean;
 }
 
 export const useTables = () => {
-  const [tables] = useState<Table[]>();
+  const [tables, setTables] = useState<Table[]>([]);
+  const queryClient = useQueryClient();
 
   const methods = useForm({
     // resolver: zodResolver(TableSchema),
@@ -50,10 +53,12 @@ export const useTables = () => {
         credentials: 'include'
       })
       const data = await response.json()
+      setTables(data); // Atualiza o estado local
       return data
     }catch(err) {
       console.error(err)
       toast.error('Erro ao buscar mesas')
+      throw err; // Re-throw para que o React Query trate o erro
     }
   }
 
@@ -76,11 +81,17 @@ export const useTables = () => {
       }
       
       const result = await response.json()
-      toast.success('Mesa adicionada com sucesso!')
+      toast.success(id ? 'Mesa atualizada com sucesso!' : 'Mesa adicionada com sucesso!')
+      
+      // Invalidar o cache para atualizar a lista automaticamente
+      queryClient.invalidateQueries({ queryKey: ['tables'] });
+      queryClient.invalidateQueries({ queryKey: ['table-stats'] });
+      
       return result
     } catch(err) {
       console.error(err)
-      toast.error('Erro ao adicionar mesa')
+      toast.error(id ? 'Erro ao atualizar mesa' : 'Erro ao adicionar mesa')
+      throw err; // Re-throw para que o componente possa tratar o erro
     }
   }
 
@@ -94,6 +105,7 @@ export const useTables = () => {
     } catch(err) {
       console.error(err)
       toast.error('Erro ao buscar mesa')
+      throw err;
     }
   }
 
@@ -115,15 +127,74 @@ export const useTables = () => {
     } catch(err) {
       console.error(err)
       toast.error('Erro ao buscar estatísticas das mesas')
+      throw err;
+    }
+  }
+
+  const updateTableStatus = async (tableId: string, isReserved: boolean) => {
+    try {
+      const response = await fetch(`${API_URL}tables/${tableId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isReserved }),
+        credentials: 'include'
+      })
+      
+      if (!response.ok) {
+        throw new Error('Falha na requisição');
+      }
+      
+      const result = await response.json()
+      toast.success('Status da mesa atualizado com sucesso!')
+      
+      // Invalidar o cache para atualizar a lista automaticamente
+      queryClient.invalidateQueries({ queryKey: ['tables'] });
+      queryClient.invalidateQueries({ queryKey: ['table-stats'] });
+      
+      return result
+    } catch(err) {
+      console.error(err)
+      toast.error('Erro ao atualizar status da mesa')
+      throw err;
+    }
+  }
+
+  const deleteTable = async (tableId: string) => {
+    try {
+      const response = await fetch(`${API_URL}tables/${tableId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      })
+      
+      if (!response.ok) {
+        throw new Error('Falha na requisição');
+      }
+      
+      toast.success('Mesa removida com sucesso!')
+      
+      // Invalidar o cache para atualizar a lista automaticamente
+      queryClient.invalidateQueries({ queryKey: ['tables'] });
+      queryClient.invalidateQueries({ queryKey: ['table-stats'] });
+      
+      return true
+    } catch(err) {
+      console.error(err)
+      toast.error('Erro ao remover mesa')
+      throw err;
     }
   }
 
   return {
     tables,
+    setTables,
     getTables,
     addEditTable,
     getTableById,
     getTableStats,
+    updateTableStatus,
+    deleteTable,
     methods
   };
 };

@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import Sidemenu from "@/components/Sidemenu";
 
 const TablesPage = () => {
-  const { getTables, addEditTable } = useTables();
+  const { getTables } = useTables();
 
   const { data: tables = [], isLoading, isError } = useQuery({
     queryKey: ['tables'],
@@ -31,7 +31,7 @@ const TablesPage = () => {
             </p>
           </div>
 
-          <NewTableDialog onAddTable={addEditTable} />
+          <NewTableDialog />
         </div>
 
         {/* Loading */}
@@ -66,7 +66,6 @@ const TablesPage = () => {
                     <TableCard
                       key={table._id}
                       table={table}
-                      onStatusChange={() => {}}
                     />
                   ))
                 )}

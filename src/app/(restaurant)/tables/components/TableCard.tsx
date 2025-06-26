@@ -9,23 +9,17 @@ import { NewTableDialog } from "./NewTableDialog";
 
 interface TableCardProps {
   table: any;
-  onStatusChange: (id: number, status: Table["status"]) => void;
+  onStatusChange?: (id: number, status: Table["status"]) => void;
 }
 
 export const TableCard = ({ table }: TableCardProps) => {
-  const { addEditTable } = useTables();
+  const { updateTableStatus } = useTables();
 
-  const handleStatusAction = () => {
-    if(table.isReserved) {
-      addEditTable({
-        ...table,
-        isReserved: false
-      }, table._id)
-    } else {
-      addEditTable({
-        ...table,
-        isReserved: true
-      }, table._id)
+  const handleStatusAction = async () => {
+    try {
+      await updateTableStatus(table._id, !table.isReserved);
+    } catch (error) {
+      console.error('Erro ao atualizar status da mesa:', error);
     }
   }
 
