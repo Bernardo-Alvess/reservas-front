@@ -126,6 +126,7 @@ const Restaurante = () => {
             console.log(restaurant.type)
             setValue('type', restaurant.type);
         }
+        //eslint-disable-next-line react-hooks/exhaustive-deps
     }, [restaurant, reset]);
 
     const downloadQrCode = () => {

@@ -6,11 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'react-toastify';
 import { useReserve } from '@/app/hooks/useReserve';
-import { CheckCircle, Clock, Users, Calendar, Loader2 } from 'lucide-react';
+import { CheckCircle, Clock, Users, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale/pt-BR';
-import { useRestaurant } from '@/app/hooks/useRestaurant';
-import { useUserContext } from '@/app/context/user/useUserContext';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 export default function ConfirmReservationPage() {

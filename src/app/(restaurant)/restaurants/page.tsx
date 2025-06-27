@@ -27,6 +27,7 @@ const SelecionarRestaurante = () => {
     if(!selectedRestaurant) {
       toast.info('Selecione um restaurante para continuar');
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRestaurant])
 
   if(!user) {

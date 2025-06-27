@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, Search, Users, Loader2, CalendarIcon, FunnelX } from 'lucide-react';
+import { Calendar, Search, Users, FunnelX } from 'lucide-react';
 import Sidemenu from '@/components/Sidemenu';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';

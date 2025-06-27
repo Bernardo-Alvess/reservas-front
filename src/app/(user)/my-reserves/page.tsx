@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Loader2 } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { useReserve } from "@/app/hooks/useReserve";
 import { useQuery } from "@tanstack/react-query";
 import { ClientReserveCard } from "@/components/ClientReserveCard";

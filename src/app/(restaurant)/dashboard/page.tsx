@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Sidemenu } from "@/components/Sidemenu";
 import { useUserContext } from "@/app/context/user/useUserContext";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { Clock, Book, Table, Users, Loader2 } from "lucide-react";
+import { Clock, Book, Table, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useRestaurant } from "@/app/hooks/useRestaurant";
 import { useQuery } from "@tanstack/react-query";
