@@ -11,7 +11,7 @@ import { toast } from 'react-toastify';
 import { Upload, X, FileText, Download } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Sidemenu from '@/components/Sidemenu';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { CreateRestaurantDto, WorkHoursDto } from '@/types/restaurant';
 import { Checkbox } from "@/components/ui/checkbox";
 import "react-datepicker/dist/react-datepicker.css";
@@ -19,6 +19,13 @@ import { TimeInput } from '@/components/TimeInput';
 import { mapDay, reverseMapDay } from '@/lib/mapDay';
 import { MenuModal } from '@/components/MenuModal';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const DAYS_OF_WEEK = [
     'Segunda-feira',
@@ -30,11 +37,36 @@ const DAYS_OF_WEEK = [
     'Domingo',
 ];
 
+// Função para validar formato de hora (hh:mm)
+const validateTimeFormat = (value: string) => {
+    if (!value) return 'Horário é obrigatório';
+    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test(value)) {
+        return 'Formato deve ser hh:mm (ex: 08:30, 18:45)';
+    }
+    return true;
+};
+
+// Função para validar horários de funcionamento
+const validateWorkHours = (workHours: WorkHoursDto[]) => {
+    if (!workHours || workHours.length === 0) {
+        return 'Pelo menos um dia de funcionamento deve ser selecionado';
+    }
+    
+    for (const wh of workHours) {
+        const openValidation = validateTimeFormat(wh.open);
+        const closeValidation = validateTimeFormat(wh.close);
+        
+        if (openValidation !== true) return openValidation;
+        if (closeValidation !== true) return closeValidation;
+    }
+    
+    return true;
+};
+
 const Restaurante = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [id, setId] = useState<string>();
-    // const [selectedImage, setSelectedImage] = useState<File | null>(null);
-    // const [selectedMenu, setSelectedMenu] = useState<File | null>(null);
     const [menuUrl, setMenuUrl] = useState<string>('');
     const [previewImage, setPreviewImage] = useState<File>();
     const [previewMenu, setPreviewMenu] = useState<string>('');
@@ -48,8 +80,12 @@ const Restaurante = () => {
         formState: { errors },
         setValue,
         getValues,
-        control
-    } = useForm<CreateRestaurantDto>();
+        control,
+        trigger,
+        reset
+    } = useForm<CreateRestaurantDto>({
+        mode: 'onChange'
+    });
 
     const { 
       getRestaurantById,
@@ -75,18 +111,22 @@ const Restaurante = () => {
 
     useEffect(() => {
         if (restaurant) {
-            setValue('name', restaurant.name);
-            setValue('phone', restaurant.phone);
-            setValue('description', restaurant.description);
-            setValue('type', restaurant.type);
-            setValue('maxClients', restaurant.maxClients);
-            setValue('maxReservationTime', restaurant.maxReservationTime);
-            setValue('address', restaurant.address);
-            setValue('workHours', restaurant.workHours);
+            reset({
+                name: restaurant.name,
+                phone: restaurant.phone,
+                description: restaurant.description,
+                // type: restaurant.type,
+                maxClients: restaurant.maxClients,
+                maxReservationTime: restaurant.maxReservationTime,
+                address: restaurant.address,
+                workHours: restaurant.workHours
+            });
             setSelectedDays(restaurant.workHours.map((wh: WorkHoursDto) => wh.day));
             setMenuUrl(restaurant?.menu?.url);
+            console.log(restaurant.type)
+            setValue('type', restaurant.type);
         }
-    }, [restaurant, setValue]);
+    }, [restaurant, reset]);
 
     const downloadQrCode = () => {
         const qrCodeUrl = restaurant?.qrCode;
@@ -101,13 +141,23 @@ const Restaurante = () => {
     const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // setSelectedImage(file);
+            // Validar tipo de arquivo
+            if (!file.type.startsWith('image/')) {
+                toast.error('Por favor, selecione apenas arquivos de imagem');
+                return;
+            }
+            
+            // Validar tamanho (máximo 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error('A imagem deve ter no máximo 5MB');
+                return;
+            }
+            
             setPreviewImage(file);
             try {
                 if (id) {
                     await uploadProfileImage(id, file);
                     
-                    // Invalidar a query para recarregar os dados do restaurante
                     queryClient.invalidateQueries({ queryKey: ['restaurant', id] });
                     
                     toast.success('Foto de perfil atualizada com sucesso!');
@@ -122,7 +172,18 @@ const Restaurante = () => {
     const handleMenuUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // setSelectedMenu(file);
+            // Validar tipo de arquivo
+            if (file.type !== 'application/pdf') {
+                toast.error('Por favor, selecione apenas arquivos PDF');
+                return;
+            }
+            
+            // Validar tamanho (máximo 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                toast.error('O arquivo PDF deve ter no máximo 10MB');
+                return;
+            }
+            
             setPreviewMenu(URL.createObjectURL(file));
 
             try {
@@ -130,7 +191,6 @@ const Restaurante = () => {
                     const upload = await uploadMenu(id, file);
                     setMenuUrl(upload.url);
                     
-                    // Invalidar a query para recarregar os dados do restaurante
                     queryClient.invalidateQueries({ queryKey: ['restaurant', id] });
                     
                     toast.success('Cardápio atualizado com sucesso!');
@@ -147,7 +207,6 @@ const Restaurante = () => {
             const publicId = restaurant?.gallery[index].publicId;
             await deleteGalleryImage(publicId);
             
-            // Invalidar a query para recarregar os dados do restaurante
             queryClient.invalidateQueries({ queryKey: ['restaurant', id] });
             
         } catch (error) {
@@ -158,6 +217,14 @@ const Restaurante = () => {
 
     const onSubmit = async (data: CreateRestaurantDto) => {
         setIsLoading(true);
+
+        // Validar horários de funcionamento
+        const workHoursValidation = validateWorkHours(data.workHours);
+        if (workHoursValidation !== true) {
+            toast.error(workHoursValidation);
+            setIsLoading(false);
+            return;
+        }
 
         try {
             await updateRestaurant(id as string, data);
@@ -173,16 +240,35 @@ const Restaurante = () => {
     const handleGalleryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         if (files.length > 0) {
+            // Validar tipos de arquivo
+            const invalidFiles = files.filter(file => !file.type.startsWith('image/'));
+            if (invalidFiles.length > 0) {
+                toast.error('Por favor, selecione apenas arquivos de imagem');
+                return;
+            }
+            
+            // Validar tamanhos (máximo 5MB cada)
+            const oversizedFiles = files.filter(file => file.size > 5 * 1024 * 1024);
+            if (oversizedFiles.length > 0) {
+                toast.error('Cada imagem deve ter no máximo 5MB');
+                return;
+            }
+            
+            // Validar quantidade máxima (10 imagens)
+            const currentGalleryCount = restaurant?.gallery?.length || 0;
+            if (currentGalleryCount + files.length > 10) {
+                toast.error('Máximo de 10 imagens na galeria');
+                return;
+            }
+            
             setPreviewGallery((prev) => [...prev, ...files]);
 
             try {
                 if (id) {
                     await uploadGalleryImage(id, files);
                     
-                    // Invalidar a query para recarregar os dados do restaurante
                     queryClient.invalidateQueries({ queryKey: ['restaurant', id] });
                     
-                    // Limpar preview após upload bem-sucedido
                     setPreviewGallery([]);
                     
                     toast.success('Imagem salva com sucesso.');
@@ -194,8 +280,7 @@ const Restaurante = () => {
         }
     };
 
-    const handleDayToggle = (day: string, checked: boolean) => {
-        // Converte o dia de português para inglês (ex: "Segunda-feira" -> "MONDAY")
+    const handleDayToggle = async (day: string, checked: boolean) => {
         const dayInEnglish = reverseMapDay(day);
         
         const newSelectedDays = checked
@@ -209,6 +294,9 @@ const Restaurante = () => {
         } else {
             setValue("workHours", currentWorkHours.filter((wh: WorkHoursDto) => wh.day !== dayInEnglish));
         }
+        
+        // Trigger validation para workHours
+        await trigger("workHours");
     };
 
     if (isLoadingRestaurant) return (
@@ -272,6 +360,14 @@ const Restaurante = () => {
                                             id="name"
                                             {...register('name', {
                                                 required: 'Nome é obrigatório',
+                                                minLength: {
+                                                    value: 2,
+                                                    message: 'Nome deve ter pelo menos 2 caracteres'
+                                                },
+                                                maxLength: {
+                                                    value: 100,
+                                                    message: 'Nome deve ter no máximo 100 caracteres'
+                                                }
                                             })}
                                         />
                                         {errors.name && (
@@ -285,6 +381,7 @@ const Restaurante = () => {
                                         <Label htmlFor="phone">Telefone</Label>
                                         <Input
                                             id="phone"
+                                            placeholder="(11) 99999-9999"
                                             {...register('phone', {
                                                 required: 'Telefone é obrigatório',
                                             })}
@@ -303,6 +400,14 @@ const Restaurante = () => {
                                         id="description"
                                         {...register('description', {
                                             required: 'Descrição é obrigatória',
+                                            minLength: {
+                                                value: 10,
+                                                message: 'Descrição deve ter pelo menos 10 caracteres'
+                                            },
+                                            maxLength: {
+                                                value: 500,
+                                                message: 'Descrição deve ter no máximo 500 caracteres'
+                                            }
                                         })}
                                         rows={3}
                                     />
@@ -316,11 +421,37 @@ const Restaurante = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="type">Tipo de Culinária</Label>
-                                        <Input
-                                            id="type"
-                                            {...register('type', {
-                                                required: 'Tipo é obrigatório',
-                                            })}
+                                        <Controller
+                                            name="type"
+                                            control={control}
+                                            rules={{
+                                                required: 'Tipo de culinária é obrigatório'
+                                            }}
+                                            render={({ field }) => (
+                                                <Select 
+                                                    defaultValue={restaurant?.type}
+                                                    onValueChange={field.onChange} 
+                                                    value={field.value} 
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Selecione o tipo de culinária" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Italiana">Italiana</SelectItem>
+                                                        <SelectItem value="Japonesa">Japonesa</SelectItem>
+                                                        <SelectItem value="Brasileira">Brasileira</SelectItem>
+                                                        <SelectItem value="Francesa">Francesa</SelectItem>
+                                                        <SelectItem value="Steakhouse">Steakhouse</SelectItem>
+                                                        <SelectItem value="Vegetariana">Vegetariana</SelectItem>
+                                                        <SelectItem value="Mexicana">Mexicana</SelectItem>
+                                                        <SelectItem value="Chinesa">Chinesa</SelectItem>
+                                                        <SelectItem value="Tailandesa">Tailandesa</SelectItem>
+                                                        <SelectItem value="Indiana">Indiana</SelectItem>
+                                                        <SelectItem value="Árabe">Árabe</SelectItem>
+                                                        <SelectItem value="Outro">Outro</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
                                         />
                                         {errors.type && (
                                             <p className="text-sm text-red-500">
@@ -334,9 +465,19 @@ const Restaurante = () => {
                                         <Input
                                             id="maxClients"
                                             type="number"
+                                            min="1"
+                                            max="1000"
                                             {...register('maxClients', {
                                                 required: 'Capacidade é obrigatória',
                                                 valueAsNumber: true,
+                                                min: {
+                                                    value: 1,
+                                                    message: 'Capacidade deve ser pelo menos 1'
+                                                },
+                                                max: {
+                                                    value: 1000,
+                                                    message: 'Capacidade deve ser no máximo 1000'
+                                                }
                                             })}
                                         />
                                         {errors.maxClients && (
@@ -353,10 +494,25 @@ const Restaurante = () => {
                                         <Input
                                             id="maxReservationTime"
                                             type="number"
+                                            min="30"
+                                            max="480"
                                             {...register('maxReservationTime', {
                                                 valueAsNumber: true,
+                                                min: {
+                                                    value: 30,
+                                                    message: 'Tempo mínimo é 30 minutos'
+                                                },
+                                                max: {
+                                                    value: 480,
+                                                    message: 'Tempo máximo é 480 minutos (8 horas)'
+                                                }
                                             })}
                                         />
+                                        {errors.maxReservationTime && (
+                                            <p className="text-sm text-red-500">
+                                                {errors.maxReservationTime.message}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </CardContent>
@@ -376,6 +532,10 @@ const Restaurante = () => {
                                             id="street"
                                             {...register('address.street', {
                                                 required: 'Rua é obrigatória',
+                                                minLength: {
+                                                    value: 5,
+                                                    message: 'Rua deve ter pelo menos 5 caracteres'
+                                                }
                                             })}
                                         />
                                         {errors.address?.street && (
@@ -391,6 +551,10 @@ const Restaurante = () => {
                                             id="number"
                                             {...register('address.number', {
                                                 required: 'Número é obrigatório',
+                                                pattern: {
+                                                    value: /^[0-9]+[A-Za-z]*$/,
+                                                    message: 'Número inválido'
+                                                }
                                             })}
                                         />
                                         {errors.address?.number && (
@@ -408,6 +572,10 @@ const Restaurante = () => {
                                             id="district"
                                             {...register('address.district', {
                                                 required: 'Bairro é obrigatório',
+                                                minLength: {
+                                                    value: 2,
+                                                    message: 'Bairro deve ter pelo menos 2 caracteres'
+                                                }
                                             })}
                                         />
                                         {errors.address?.district && (
@@ -421,8 +589,18 @@ const Restaurante = () => {
                                         <Label htmlFor="complement">Complemento</Label>
                                         <Input
                                             id="complement"
-                                            {...register('address.complement')}
+                                            {...register('address.complement', {
+                                                maxLength: {
+                                                    value: 100,
+                                                    message: 'Complemento deve ter no máximo 100 caracteres'
+                                                }
+                                            })}
                                         />
+                                        {errors.address?.complement && (
+                                            <p className="text-sm text-red-500">
+                                                {errors.address.complement.message}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
 
@@ -433,6 +611,10 @@ const Restaurante = () => {
                                             id="city"
                                             {...register('address.city', {
                                                 required: 'Cidade é obrigatória',
+                                                minLength: {
+                                                    value: 2,
+                                                    message: 'Cidade deve ter pelo menos 2 caracteres'
+                                                }
                                             })}
                                         />
                                         {errors.address?.city && (
@@ -446,8 +628,14 @@ const Restaurante = () => {
                                         <Label htmlFor="state">Estado</Label>
                                         <Input
                                             id="state"
+                                            placeholder="SP"
+                                            maxLength={2}
                                             {...register('address.state', {
                                                 required: 'Estado é obrigatório',
+                                                pattern: {
+                                                    value: /^[A-Z]{2}$/,
+                                                    message: 'Estado deve ter 2 letras maiúsculas (ex: SP)'
+                                                }
                                             })}
                                         />
                                         {errors.address?.state && (
@@ -461,6 +649,7 @@ const Restaurante = () => {
                                         <Label htmlFor="zipCode">CEP</Label>
                                         <Input
                                             id="zipCode"
+                                            placeholder="12345-678"
                                             {...register('address.zipCode', {
                                                 required: 'CEP é obrigatório',
                                             })}
