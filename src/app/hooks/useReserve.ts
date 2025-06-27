@@ -29,6 +29,10 @@ export interface Reserva {
     isActive: boolean;
     createdAt: string;
     updatedAt: string;
+    profileImage: {
+      url: string;
+      publicId: string;
+    };
   };
   clientConfirmed: boolean;
   restaurantConfirmed: boolean;
@@ -104,7 +108,7 @@ export const useReserve = (mode?: string) => {
 	};
 
 	const createReserve = async (data: Reserve) => {
-
+		console.log(data)
 		let url = `${API_URL}reserve`;
 
 		if(mode && mode === 'restaurant') {

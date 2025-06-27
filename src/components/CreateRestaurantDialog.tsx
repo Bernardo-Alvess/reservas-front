@@ -30,6 +30,7 @@ import { toast } from "react-toastify";
 import { useRestaurant } from "@/app/hooks/useRestaurant";
 import { CreateRestaurantDto } from "@/types/restaurant";
 import { Checkbox } from "@/components/ui/checkbox";
+import { reverseMapDay } from "@/lib/mapDay";
 
 interface CreateRestaurantDialogProps {
   open: boolean;
@@ -90,17 +91,19 @@ const CreateRestaurantDialog = ({ open, onOpenChange }: CreateRestaurantDialogPr
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
   const handleDayToggle = (day: string, checked: boolean) => {
+    const dayInEnglish = reverseMapDay(day);
+    
     const newSelectedDays = checked
-      ? [...selectedDays, day]
-      : selectedDays.filter((d) => d !== day);
+      ? [...selectedDays, dayInEnglish]
+      : selectedDays.filter((d) => d !== dayInEnglish);
     setSelectedDays(newSelectedDays);
   
     const currentWorkHours = form.getValues("workHours") || [];
   
     if (checked) {
-      form.setValue("workHours", [...currentWorkHours, { day, open: "", close: "" }]);
+      form.setValue("workHours", [...currentWorkHours, { day: dayInEnglish, open: "", close: "" }]);
     } else {
-      form.setValue("workHours", currentWorkHours.filter((wh) => wh.day !== day));
+      form.setValue("workHours", currentWorkHours.filter((wh) => wh.day !== dayInEnglish));
     }
   };
 
@@ -344,7 +347,7 @@ const CreateRestaurantDialog = ({ open, onOpenChange }: CreateRestaurantDialogPr
                   <div key={day} className="flex items-center space-x-2">
                     <Checkbox
                       id={day}
-                      checked={selectedDays.includes(day)}
+                      checked={selectedDays.includes(reverseMapDay(day))}
                       onCheckedChange={(checked) => handleDayToggle(day, checked as boolean)}
                     />
                     <label
@@ -364,9 +367,9 @@ const CreateRestaurantDialog = ({ open, onOpenChange }: CreateRestaurantDialogPr
                     name={`workHours.${index}.day`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{day}</FormLabel>
+                        <FormLabel>{DAYS_OF_WEEK.find(d => reverseMapDay(d) === day) || day}</FormLabel>
                         <FormControl>
-                          <Input {...field} disabled />
+                          <Input {...field} value={day} disabled />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

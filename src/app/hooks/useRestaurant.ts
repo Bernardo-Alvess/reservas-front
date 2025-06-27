@@ -236,7 +236,7 @@ export const useRestaurant = () => {
                 throw new Error('Erro ao deletar imagem da galeria');
             }
 
-            toast.success('Imagem deletada com sucesso');
+            toast.success('Imagem removida da galeria');
             return await response.json();
         } catch (error) {
             console.error('Erro ao deletar imagem da galeria:', error);

@@ -9,7 +9,6 @@ import { useQuery } from "@tanstack/react-query";
 import { ClientReserveCard } from "@/components/ClientReserveCard";
 import { PaginationComponent } from "@/components/Pagination";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { Sidemenu } from "@/components/Sidemenu";
 
 const MyReservations = () => {
   const { getReservesForUser } = useReserve();
@@ -54,7 +53,6 @@ const MyReservations = () => {
   if (isLoading) {
     return (
       <div className="flex min-h-screen">
-        <Sidemenu />
         <main className="flex-1 p-6 overflow-auto">
           <LoadingSpinner 
             text="Carregando suas reservas..." 

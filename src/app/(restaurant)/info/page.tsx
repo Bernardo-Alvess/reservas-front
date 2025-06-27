@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useRestaurant } from '@/app/hooks/useRestaurant';
 import { toast } from 'react-toastify';
 import { Upload, X, FileText, Download } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Sidemenu from '@/components/Sidemenu';
 import { useForm } from 'react-hook-form';
 import { CreateRestaurantDto, WorkHoursDto } from '@/types/restaurant';
@@ -60,6 +60,8 @@ const Restaurante = () => {
       deleteGalleryImage
   } = useRestaurant();
 
+    const queryClient = useQueryClient();
+
     useEffect(() => {
         const id = localStorage.getItem('restauranteSelecionado');
         setId(id as string);
@@ -104,6 +106,10 @@ const Restaurante = () => {
             try {
                 if (id) {
                     await uploadProfileImage(id, file);
+                    
+                    // Invalidar a query para recarregar os dados do restaurante
+                    queryClient.invalidateQueries({ queryKey: ['restaurant', id] });
+                    
                     toast.success('Foto de perfil atualizada com sucesso!');
                 }
             } catch (error) {
@@ -123,6 +129,10 @@ const Restaurante = () => {
                 if (id) {
                     const upload = await uploadMenu(id, file);
                     setMenuUrl(upload.url);
+                    
+                    // Invalidar a query para recarregar os dados do restaurante
+                    queryClient.invalidateQueries({ queryKey: ['restaurant', id] });
+                    
                     toast.success('Cardápio atualizado com sucesso!');
                 }
             } catch (error) {
@@ -134,12 +144,15 @@ const Restaurante = () => {
 
     const removeGalleryImage = async (index: number) => {
         try {
-            const newGallery = restaurant?.gallery.filter((_: any, i: number) => i !== index);
             const publicId = restaurant?.gallery[index].publicId;
             await deleteGalleryImage(publicId);
-            // await updateRestaurant(id as string, { gallery: newGallery });
+            
+            // Invalidar a query para recarregar os dados do restaurante
+            queryClient.invalidateQueries({ queryKey: ['restaurant', id] });
+            
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            toast.error('Erro ao remover imagem da galeria');
         }
     };
 
@@ -165,6 +178,13 @@ const Restaurante = () => {
             try {
                 if (id) {
                     await uploadGalleryImage(id, files);
+                    
+                    // Invalidar a query para recarregar os dados do restaurante
+                    queryClient.invalidateQueries({ queryKey: ['restaurant', id] });
+                    
+                    // Limpar preview após upload bem-sucedido
+                    setPreviewGallery([]);
+                    
                     toast.success('Imagem salva com sucesso.');
                 }
             } catch (error) {
@@ -172,10 +192,6 @@ const Restaurante = () => {
                 toast.error('Erro ao fazer upload da imagem');
             }
         }
-    };
-
-    const removePreviewImage = (index: number) => {
-        setPreviewGallery((prev) => prev.filter((_, i) => i !== index));
     };
 
     const handleDayToggle = (day: string, checked: boolean) => {
@@ -611,15 +627,6 @@ const Restaurante = () => {
                                                         alt={`Preview ${index}`}
                                                         className="w-full h-24 rounded-lg object-cover"
                                                     />
-                                                    <Button
-                                                        type="button"
-                                                        variant="destructive"
-                                                        size="icon"
-                                                        className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6"
-                                                        onClick={() => removePreviewImage(index)}
-                                                    >
-                                                        <X className="w-3 h-3" />
-                                                    </Button>
                                                 </div>
                                             ))}
                                         </div>

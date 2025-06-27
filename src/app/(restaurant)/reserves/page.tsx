@@ -31,15 +31,9 @@ const Reservas = () => {
     const queryClient = useQueryClient();
 
     const { selectedRestaurant } = useRestaurantContext();
-
-    // const {data: restaurant} = useQuery({
-    //   queryKey: ['restaurant'],
-    //   queryFn: () => getRestaurantById(selectedRestaurant || '')
-    // });
-
     const getQueryOptions = () => {
         const baseOptions = {
-            orderDirection: 'DESC' as const,
+            orderDirection: 'ASC' as const,
             orderColumn: 'createdAt',
             page: currentPage,
             limit: pageSize,
