@@ -3,6 +3,7 @@
 import { API_URL } from "@/app/configs/constants"
 import { useForm } from "react-hook-form"
 import { CreateRestaurantDto } from "@/types/restaurant"
+import { toast } from "react-toastify";
 
 interface RestaurantFilters {
     search?: string;
@@ -219,6 +220,31 @@ export const useRestaurant = () => {
         }
     }
 
+    const deleteGalleryImage = async (publicId: string) => {
+        try {
+            const id = localStorage.getItem('restauranteSelecionado');
+            const response = await fetch(`${API_URL}restaurant/upload/${id}/image`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({ publicId })
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao deletar imagem da galeria');
+            }
+
+            toast.success('Imagem removida da galeria');
+            return await response.json();
+        } catch (error) {
+            console.error('Erro ao deletar imagem da galeria:', error);
+            toast.error('Erro ao deletar imagem da galeria');
+            throw error;
+        }
+    }
+
     return {
         methods,
         getRestaurants,
@@ -229,7 +255,8 @@ export const useRestaurant = () => {
         uploadMenu,
         uploadGalleryImage,
         getDashboardData,
-        getCuisineTypes
+        getCuisineTypes,
+        deleteGalleryImage
     }
 }
 

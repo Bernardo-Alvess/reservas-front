@@ -133,7 +133,7 @@ const ReserveCard = ({
       {reservation.canceledBy && (
         <CardContent>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>Cancelado pelo {reservation.canceledBy === "restaurant" ? "restaurante" : "cliente"}</span>
+          <span>Cancelado pelo {reservation.canceledBy === "restaurant" ? "restaurante" : reservation.canceledBy === "user" ? "cliente" : "sistema pois passou da tolerância de 30 minutos"}</span>
         </div>
         </CardContent>
       )}

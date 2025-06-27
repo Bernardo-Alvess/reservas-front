@@ -6,4 +6,5 @@ export interface PageOptionsDto {
   readonly search?: string;
   readonly today?: boolean;
   readonly status?: 'Pendente' | 'Cancelada' | 'Confirmada';
+  readonly startDate?: string;
 }

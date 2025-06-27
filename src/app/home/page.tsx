@@ -11,6 +11,7 @@ import { useRestaurant } from "@/app/hooks/useRestaurant";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { PaginationComponent } from "@/components/Pagination";
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 const RestaurantSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -145,9 +146,11 @@ const RestaurantSearch = () => {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">Carregando restaurantes...</p>
-        </div>
+        <LoadingSpinner 
+          text="Carregando restaurantes..." 
+          size="md"
+          className="py-8"
+        />
       )}
 
       {/* Error State */}
@@ -186,7 +189,7 @@ const RestaurantSearch = () => {
               
               <CardContent className="pt-0">
               <p
-              className="text-gray-600 text-sm mb-2 break-words overflow-hidden"
+              className="text-gray-600 text-sm mb-2 break-words overflow-hidden min-h-16"
               style={{
                 display: '-webkit-box',
                 WebkitBoxOrient: 'vertical',

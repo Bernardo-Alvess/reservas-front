@@ -9,9 +9,10 @@ import { useUser } from "@/app/hooks/useUser";
 import { useQuery } from "@tanstack/react-query";
 import Sidemenu from '@/components/Sidemenu';
 import { StatCard } from "@/components/StatCard";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 const UsersPage = () => {
-  const { getUsers, addUser, getUserStats } = useUser();
+  const { getUsers, getUserStats } = useUser();
 
   const {data: users = [], isLoading, isError} = useQuery({
     queryKey: ['users'],
@@ -35,14 +36,15 @@ const UsersPage = () => {
                 Gerencie os usuários do seu restaurante
               </p>
             </div>
-            <AddUserDialog onAddUser={addUser} />
+            <AddUserDialog/>
           </div>
 
           {/* Loading */}
           {isLoading && (
-            <div className="flex justify-center items-center h-40">
-              <p className="text-lg text-muted-foreground">Carregando usuários...</p>
-            </div>
+            <LoadingSpinner 
+              text="Carregando usuários..." 
+              size="md"
+            />
           )}
 
           {/* Error */}

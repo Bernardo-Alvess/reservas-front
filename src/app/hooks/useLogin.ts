@@ -74,6 +74,7 @@ export const useLogin = () => {
   const logout = async () => {
     try {
       console.log('teste chamando o hook')
+      router.push('/');
       await fetch(`${API_URL}auth-user/logout`, {
         method: 'GET',
         credentials: 'include',
@@ -87,7 +88,6 @@ export const useLogin = () => {
         localStorage.clear(); // Como fallback, limpa tudo se o item específico não foi removido
       }
       
-      router.push('/');
 
       // 4. Resetar contexto do usuário
       setUserContext(null);

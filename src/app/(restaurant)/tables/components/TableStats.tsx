@@ -4,14 +4,21 @@ import { Table } from "lucide-react";
 import { useTables } from "@/app/hooks/useTables";
 import { useQuery } from "@tanstack/react-query";
 import { StatCard } from "@/components/StatCard";
-
+import { useEffect, useState } from "react";
 
 export const TableStats = () => {
   const { getTableStats } = useTables()
+  const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null);
+
+  useEffect(() => {
+    const restaurantId = localStorage.getItem('restauranteSelecionado');
+    setSelectedRestaurant(restaurantId);
+  }, []);
 
   const { data: stats, isLoading, isError } = useQuery({
-    queryKey: ['table-stats'],
-    queryFn: getTableStats
+    queryKey: ['table-stats', selectedRestaurant],
+    queryFn: getTableStats,
+    enabled: !!selectedRestaurant,
   })
 
   return (

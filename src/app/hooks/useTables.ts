@@ -49,16 +49,28 @@ export const useTables = () => {
   const getTables = async () => {
     try {
       const id = localStorage.getItem('restauranteSelecionado')
+      
+      // Se não há restaurante selecionado, retorna array vazio
+      if (!id) {
+        return [];
+      }
+      
       const response = await fetch(`${API_URL}tables/list/${id}`, {
         credentials: 'include'
       })
       const data = await response.json()
-      setTables(data); // Atualiza o estado local
-      return data
+      
+      // Garante que sempre retorna um array
+      const tablesData = Array.isArray(data) ? data : [];
+      
+      setTables(tablesData); // Atualiza o estado local
+      return tablesData
     }catch(err) {
       console.error(err)
       toast.error('Erro ao buscar mesas')
-      throw err; // Re-throw para que o React Query trate o erro
+      
+      // Em caso de erro, retorna array vazio em vez de fazer throw
+      return [];
     }
   }
 
@@ -112,6 +124,17 @@ export const useTables = () => {
   const getTableStats = async () => {
     try {
       const id = localStorage.getItem('restauranteSelecionado')
+      
+      // Se não há restaurante selecionado, retorna stats vazias
+      if (!id) {
+        return {
+          availableTables: 0,
+          blockedTables: 0,
+          tablesWithReservations: 0,
+          totalTables: 0
+        };
+      }
+      
       const url = `${API_URL}tables/restaurant/${id}/stats`
       const response = await fetch(url, {
         method: 'GET',
@@ -127,7 +150,14 @@ export const useTables = () => {
     } catch(err) {
       console.error(err)
       toast.error('Erro ao buscar estatísticas das mesas')
-      throw err;
+      
+      // Em caso de erro, retorna stats vazias em vez de fazer throw
+      return {
+        availableTables: 0,
+        blockedTables: 0,
+        tablesWithReservations: 0,
+        totalTables: 0
+      };
     }
   }
 

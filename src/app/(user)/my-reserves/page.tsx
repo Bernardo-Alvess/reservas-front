@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Loader2 } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { useReserve } from "@/app/hooks/useReserve";
 import { useQuery } from "@tanstack/react-query";
 import { ClientReserveCard } from "@/components/ClientReserveCard";
 import { PaginationComponent } from "@/components/Pagination";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 const MyReservations = () => {
   const { getReservesForUser } = useReserve();
@@ -51,15 +52,14 @@ const MyReservations = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex justify-center items-center h-64">
-            <div className="flex items-center gap-2">
-              <Loader2 className="w-6 h-6 animate-spin" />
-              <span className="text-lg">Carregando suas reservas...</span>
-            </div>
-          </div>
-        </div>
+      <div className="flex min-h-screen">
+        <main className="flex-1 p-6 overflow-auto">
+          <LoadingSpinner 
+            text="Carregando suas reservas..." 
+            size="lg"
+            className="h-64"
+          />
+        </main>
       </div>
     );
   }

@@ -204,7 +204,7 @@ export const ReservationModal = ({ open, onOpenChange, restaurant, mode = 'clien
                     onValueChange={field.onChange}
                     disabled={!date || getAvailableTimeSlots.length === 0}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full max-w-full">
                       <SelectValue placeholder={!date ? "Selecione uma data primeiro" : "Selecionar horário"} />
                     </SelectTrigger>
                     <SelectContent>

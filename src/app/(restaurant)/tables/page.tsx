@@ -7,15 +7,26 @@ import { TableCard } from "./components/TableCard";
 import { TableStats } from "./components/TableStats";
 import { useQuery } from "@tanstack/react-query";
 import Sidemenu from "@/components/Sidemenu";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { useEffect, useState } from "react";
 
 const TablesPage = () => {
   const { getTables } = useTables();
+  const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null);
+
+  useEffect(() => {
+    const restaurantId = localStorage.getItem('restauranteSelecionado');
+    setSelectedRestaurant(restaurantId);
+  }, []);
 
   const { data: tables = [], isLoading, isError } = useQuery({
-    queryKey: ['tables'],
+    queryKey: ['tables', selectedRestaurant],
     queryFn: getTables,
+    enabled: !!selectedRestaurant,
   });
 
+  // Verificação adicional de segurança para garantir que tables é sempre um array
+  const safeTables = Array.isArray(tables) ? tables : [];
 
   return (
     <div className="flex min-h-screen">
@@ -36,9 +47,10 @@ const TablesPage = () => {
 
         {/* Loading */}
         {isLoading && (
-          <div className="flex justify-center items-center h-40">
-            <p className="text-lg text-muted-foreground">Carregando mesas...</p>
-          </div>
+          <LoadingSpinner 
+            text="Carregando mesas..." 
+            size="md"
+          />
         )}
 
         {/* Error */}
@@ -49,7 +61,7 @@ const TablesPage = () => {
         )}
 
         {/* Estatísticas */}
-        {!isLoading && !isError && (
+        {!isLoading && !isError && selectedRestaurant && (
           <>
             <TableStats/>
 
@@ -59,10 +71,10 @@ const TablesPage = () => {
             <section>
               <h2 className="text-xl font-semibold mb-4">Layout das Mesas</h2>
               <div className="flex flex-wrap gap-4">
-                {tables.length === 0 ? (
+                {safeTables.length === 0 ? (
                   <p className="text-muted-foreground">Nenhuma mesa cadastrada.</p>
                 ) : (
-                  tables.map((table: any) => (
+                  safeTables.map((table: any) => (
                     <TableCard
                       key={table._id}
                       table={table}
@@ -72,6 +84,13 @@ const TablesPage = () => {
               </div>
             </section>
           </>
+        )}
+
+        {/* Estado quando não há restaurante selecionado */}
+        {!selectedRestaurant && !isLoading && (
+          <div className="text-muted-foreground text-center mt-8">
+            Nenhum restaurante selecionado.
+          </div>
         )}
       </main>
     </div>

@@ -10,9 +10,8 @@ export enum UserTypeEnum {
 
 export interface CreateUserDto {
     email: string;
-    name?: string;
-    type?: UserTypeEnum;
-    password?: string;
+    name: string;
+    type: UserTypeEnum;
     restaurantId?: string;
 }
 
@@ -110,7 +109,9 @@ export const useUser = () => {
                 },
                 credentials: 'include',
                 body: JSON.stringify({
-                    ...data,
+                    email: data.email,
+                    name: data.name,
+                    type: data.type,
                     restaurantId,
                 }),
             });
@@ -130,6 +131,37 @@ export const useUser = () => {
         } catch (error: any) {
             console.error('Erro ao adicionar usuário:', error);
             toast.error(error.message || 'Erro ao adicionar usuário');
+            return false;
+        }
+    }
+
+    const updateUser = async (userId: string, data: CreateUserDto) => {
+        try {
+            const response = await fetch(`${API_URL}users/${userId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(data),
+            });
+
+            const responseData = await response.json();
+
+            if (!response.ok) { 
+                throw new Error(responseData.message || 'Erro ao atualizar usuário');
+            }
+
+            toast.success('Usuário atualizado com sucesso');
+            
+            // Invalidar o cache para atualizar a lista automaticamente
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: ['user-stats'] });
+            
+            return true;
+        } catch (error: any) {
+            console.error('Erro ao atualizar usuário:', error);
+            toast.error(error.message || 'Erro ao atualizar usuário');
             return false;
         }
     }
@@ -247,6 +279,7 @@ export const useUser = () => {
         createOrUpdateOtp,
         getUsers,
         addUser,
+        updateUser,
         updateUserStatus,
         updateUserRole,
         deleteUser,

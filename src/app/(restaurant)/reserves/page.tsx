@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, Search, Users, Loader2 } from 'lucide-react';
+import { Calendar, Search, Users, FunnelX } from 'lucide-react';
 import Sidemenu from '@/components/Sidemenu';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,6 +15,7 @@ import { StatCard } from '@/components/StatCard';
 import { ReservationModal } from '@/components/ReservationModal';
 import { useRestaurant } from '@/app/hooks/useRestaurant';
 import { useRestaurantContext } from '@/app/context/selectedRestaurant/selectedRestaurantContext';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 const Reservas = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -23,6 +24,7 @@ const Reservas = () => {
     const [activeTab, setActiveTab] = useState('hoje');
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<string>('');
     const pageSize = 10;
 
     const { getReservesForRestaurant, getReserveStatsForRestaurant } = useReserve();
@@ -30,15 +32,9 @@ const Reservas = () => {
     const queryClient = useQueryClient();
 
     const { selectedRestaurant } = useRestaurantContext();
-
-    // const {data: restaurant} = useQuery({
-    //   queryKey: ['restaurant'],
-    //   queryFn: () => getRestaurantById(selectedRestaurant || '')
-    // });
-
     const getQueryOptions = () => {
         const baseOptions = {
-            orderDirection: 'DESC' as const,
+            orderDirection: 'ASC' as const,
             orderColumn: 'createdAt',
             page: currentPage,
             limit: pageSize,
@@ -62,6 +58,7 @@ const Reservas = () => {
                         statusFilter !== 'all'
                             ? (statusFilter as 'Pendente' | 'Cancelada' | 'Confirmada')
                             : undefined,
+                    startDate: selectedDate || undefined,
                 };
             default:
                 return baseOptions;
@@ -78,7 +75,7 @@ const Reservas = () => {
         isLoading,
         error,
     } = useQuery({
-        queryKey: ['reserves', activeTab, statusFilter, searchTerm, currentPage],
+        queryKey: ['reserves', activeTab, statusFilter, searchTerm, currentPage, selectedDate],
         queryFn: () => getReservesForRestaurant(getQueryOptions()),
     });
 
@@ -94,6 +91,9 @@ const Reservas = () => {
     const handleTabChange = (value: string) => {
         setActiveTab(value);
         setCurrentPage(1);
+        if (value === 'hoje') {
+            setSelectedDate('');
+        }
     };
 
     const handlePageChange = (page: number) => {
@@ -110,6 +110,16 @@ const Reservas = () => {
         setCurrentPage(1);
     };
 
+    const handleDateChange = (date: string) => {
+        setSelectedDate(date);
+        setCurrentPage(1);
+    };
+
+    const clearDateFilter = () => {
+        setSelectedDate('');
+        setCurrentPage(1);
+    };
+
     const { data: statsData, isLoading: isLoadingStats } = useQuery({
         queryKey: ['reserves-stats'],
         queryFn: () => getReserveStatsForRestaurant(),
@@ -120,12 +130,11 @@ const Reservas = () => {
             <div className="flex min-h-screen">
                 <Sidemenu />
                 <main className="flex-1 p-6 overflow-auto">
-                    <div className="flex justify-center items-center h-64">
-                        <div className="flex items-center gap-2">
-                            <Loader2 className="w-6 h-6 animate-spin" />
-                            <span className="text-lg">Carregando reservas...</span>
-                        </div>
-                    </div>
+                    <LoadingSpinner 
+                        text="Carregando reservas..." 
+                        size="lg"
+                        className="h-64"
+                    />
                 </main>
             </div>
         );
@@ -192,14 +201,16 @@ const Reservas = () => {
                     </div>
 
                     {isLoadingStats ? (
-                        <div className="flex justify-center items-center h-64">
-                            <p>Carregando estatísticas...</p>
-                        </div>
+                        <LoadingSpinner 
+                            text="Carregando estatísticas..." 
+                            size="md"
+                            className="h-32"
+                        />
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <StatCard
                                 title="Hoje"
-                                value={statsData.stats.total}
+                                value={statsData.stats?.total || 0}
                                 description="reservas hoje"
                                 icon={<Calendar className="w-4 h-4 text-blue-600" />}
                                 isLoading={isLoadingStats}
@@ -208,7 +219,7 @@ const Reservas = () => {
 
                             <StatCard
                                 title="Confirmadas"
-                                value={statsData.stats.confirmed}
+                                value={statsData.stats?.confirmed || 0}
                                 description="reservas confirmadas"
                                 icon={<div className="w-3 h-3 bg-green-500 rounded-full" />}
                                 isLoading={isLoadingStats}
@@ -217,7 +228,7 @@ const Reservas = () => {
 
                             <StatCard
                                 title="Pendentes"
-                                value={statsData.stats.pending}
+                                value={statsData.stats?.pending || 0}
                                 description="reservas pendentes"
                                 icon={<div className="w-3 h-3 bg-yellow-500 rounded-full" />}
                                 isLoading={isLoadingStats}
@@ -226,7 +237,7 @@ const Reservas = () => {
 
                             <StatCard
                                 title="Total Pessoas Hoje"
-                                value={statsData.stats.totalPeople}
+                                value={statsData.stats?.totalPeople || 0}
                                 description="pessoas esperadas"
                                 icon={<Users className="w-4 h-4 text-primary" />}
                                 isLoading={isLoadingStats}
@@ -251,6 +262,31 @@ const Reservas = () => {
                                 className="pl-10"
                             />
                         </div>
+
+                        {/* Filtro de Data - Só aparece na aba "Todas" */}
+                        {activeTab === 'todas' && (
+                            <div className="flex items-center gap-2">
+                                <div className="flex justify-between">
+                                    <Input
+                                        type="date"
+                                        value={selectedDate}
+                                        onChange={(e) => handleDateChange(e.target.value)}
+                                        placeholder="Filtrar por data"
+                                    />
+                                </div>
+                                {selectedDate && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={clearDateFilter}
+                                        className="whitespace-nowrap"
+                                    >
+                                        <FunnelX className="w-4 h-4" />
+                                    </Button>
+                                )}
+                            </div>
+                        )}
+
                         <select
                             value={statusFilter}
                             onChange={(e) => handleStatusFilterChange(e.target.value)}

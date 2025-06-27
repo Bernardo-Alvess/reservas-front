@@ -63,7 +63,7 @@ export const ClientReserveCard = ({ reservation }: ClientReserveCardProps) => {
       <div className="md:flex">
         <div className="md:w-48 md:h-auto h-full">
           <img
-            src={'https://plus.unsplash.com/premium_photo-1679503585289-c02467981894?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}
+            src={reservation.restaurantId.profileImage.url}
             alt={reservation.restaurantId.name}
             className="w-full h-full object-cover"
           />
@@ -183,10 +183,10 @@ export const ClientReserveCard = ({ reservation }: ClientReserveCardProps) => {
             <div className="mt-4 p-3 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span>
-                  Cancelado pelo {reservation.canceledBy === "restaurant" ? "restaurante" : "cliente"}
+                  Cancelado pelo {reservation.canceledBy === "restaurant" ? "restaurante" : reservation.canceledBy === "client" ? "cliente" : "sistema pois passou da tolerância de 30 minutos"}
                   {reservation.canceledAt && (
                     <span className="ml-2">
-                      em {format(new Date(reservation.canceledAt), "dd/MM/yyyy 'às' HH:mm")}
+                    em {format(new Date(reservation.canceledAt), "dd/MM/yyyy 'às' HH:mm")}
                     </span>
                   )}
                 </span>
