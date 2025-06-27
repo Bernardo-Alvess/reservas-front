@@ -188,6 +188,7 @@ export const useReserve = (mode?: string) => {
 				if(options.search) queryParams.append('search', options.search);
 				if(options.today !== undefined) queryParams.append('today', options.today.toString());
 				if(options.status) queryParams.append('status', options.status);
+				if(options.startDate) queryParams.append('startDate', options.startDate);
 				
 				const queryString = queryParams.toString();
 				if (queryString) {

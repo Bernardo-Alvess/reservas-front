@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, Search, Users, Loader2 } from 'lucide-react';
+import { Calendar, Search, Users, Loader2, CalendarIcon, FunnelX } from 'lucide-react';
 import Sidemenu from '@/components/Sidemenu';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -24,6 +24,7 @@ const Reservas = () => {
     const [activeTab, setActiveTab] = useState('hoje');
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<string>('');
     const pageSize = 10;
 
     const { getReservesForRestaurant, getReserveStatsForRestaurant } = useReserve();
@@ -57,6 +58,7 @@ const Reservas = () => {
                         statusFilter !== 'all'
                             ? (statusFilter as 'Pendente' | 'Cancelada' | 'Confirmada')
                             : undefined,
+                    startDate: selectedDate || undefined,
                 };
             default:
                 return baseOptions;
@@ -73,7 +75,7 @@ const Reservas = () => {
         isLoading,
         error,
     } = useQuery({
-        queryKey: ['reserves', activeTab, statusFilter, searchTerm, currentPage],
+        queryKey: ['reserves', activeTab, statusFilter, searchTerm, currentPage, selectedDate],
         queryFn: () => getReservesForRestaurant(getQueryOptions()),
     });
 
@@ -89,6 +91,9 @@ const Reservas = () => {
     const handleTabChange = (value: string) => {
         setActiveTab(value);
         setCurrentPage(1);
+        if (value === 'hoje') {
+            setSelectedDate('');
+        }
     };
 
     const handlePageChange = (page: number) => {
@@ -102,6 +107,16 @@ const Reservas = () => {
 
     const handleStatusFilterChange = (value: string) => {
         setStatusFilter(value);
+        setCurrentPage(1);
+    };
+
+    const handleDateChange = (date: string) => {
+        setSelectedDate(date);
+        setCurrentPage(1);
+    };
+
+    const clearDateFilter = () => {
+        setSelectedDate('');
         setCurrentPage(1);
     };
 
@@ -247,6 +262,31 @@ const Reservas = () => {
                                 className="pl-10"
                             />
                         </div>
+
+                        {/* Filtro de Data - Só aparece na aba "Todas" */}
+                        {activeTab === 'todas' && (
+                            <div className="flex items-center gap-2">
+                                <div className="flex justify-between">
+                                    <Input
+                                        type="date"
+                                        value={selectedDate}
+                                        onChange={(e) => handleDateChange(e.target.value)}
+                                        placeholder="Filtrar por data"
+                                    />
+                                </div>
+                                {selectedDate && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={clearDateFilter}
+                                        className="whitespace-nowrap"
+                                    >
+                                        <FunnelX className="w-4 h-4" />
+                                    </Button>
+                                )}
+                            </div>
+                        )}
+
                         <select
                             value={statusFilter}
                             onChange={(e) => handleStatusFilterChange(e.target.value)}
