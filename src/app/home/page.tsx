@@ -189,7 +189,7 @@ const RestaurantSearch = () => {
               
               <CardContent className="pt-0">
               <p
-              className="text-gray-600 text-sm mb-2 break-words overflow-hidden"
+              className="text-gray-600 text-sm mb-2 break-words overflow-hidden min-h-16"
               style={{
                 display: '-webkit-box',
                 WebkitBoxOrient: 'vertical',
