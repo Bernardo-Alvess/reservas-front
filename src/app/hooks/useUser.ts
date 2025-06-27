@@ -135,6 +135,37 @@ export const useUser = () => {
         }
     }
 
+    const updateUser = async (userId: string, data: CreateUserDto) => {
+        try {
+            const response = await fetch(`${API_URL}users/${userId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(data),
+            });
+
+            const responseData = await response.json();
+
+            if (!response.ok) { 
+                throw new Error(responseData.message || 'Erro ao atualizar usuário');
+            }
+
+            toast.success('Usuário atualizado com sucesso');
+            
+            // Invalidar o cache para atualizar a lista automaticamente
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: ['user-stats'] });
+            
+            return true;
+        } catch (error: any) {
+            console.error('Erro ao atualizar usuário:', error);
+            toast.error(error.message || 'Erro ao atualizar usuário');
+            return false;
+        }
+    }
+
     const updateUserStatus = async (userId: string) => {
         try {
             const response = await fetch(`${API_URL}users/${userId}/status`, {
@@ -248,6 +279,7 @@ export const useUser = () => {
         createOrUpdateOtp,
         getUsers,
         addUser,
+        updateUser,
         updateUserStatus,
         updateUserRole,
         deleteUser,
