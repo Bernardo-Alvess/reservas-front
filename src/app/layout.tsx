@@ -2,10 +2,10 @@ import Header from '../components/Header'
 import './globals.css'
 import { Providers } from './providers'
 export const metadata = {
-  title: 'Sistema de Reservas',
+  title: 'ReservaFacil',
   description: 'Encontre e reserve os melhores restaurantes',
   icons: {
-    icon: '/favicon.ico'
+    icon: './favicon.ico'
   }
 }
 

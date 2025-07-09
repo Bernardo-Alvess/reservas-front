@@ -30,7 +30,9 @@ import { toast } from "react-toastify";
 import { useRestaurant } from "@/app/hooks/useRestaurant";
 import { CreateRestaurantDto, WorkHoursDto } from "@/types/restaurant";
 import { Checkbox } from "@/components/ui/checkbox";
-import { reverseMapDay } from "@/lib/mapDay";
+import { reverseMapDay, mapDay } from "@/lib/mapDay";
+import { useUserContext } from "@/app/context/user/useUserContext";
+import { useRestaurantContext } from "@/app/context/selectedRestaurant/selectedRestaurantContext";
 
 interface CreateRestaurantDialogProps {
   open: boolean;
@@ -74,9 +76,29 @@ const validateWorkHours = (workHours: WorkHoursDto[]) => {
     return true;
 };
 
+// Função para aplicar máscara de telefone
+const applyPhoneMask = (value: string): string => {
+  // Remove tudo que não é dígito
+  const digits = value.replace(/\D/g, '');
+  
+  // Limita a 11 dígitos
+  const limitedDigits = digits.substring(0, 11);
+  
+  // Aplica a máscara baseada na quantidade de dígitos
+  if (limitedDigits.length <= 2) {
+    return limitedDigits;
+  } else if (limitedDigits.length <= 7) {
+    return limitedDigits.replace(/(\d{2})(\d+)/, '($1) $2');
+  } else {
+    return limitedDigits.replace(/(\d{2})(\d{5})(\d+)/, '($1) $2-$3');
+  }
+};
+
 const CreateRestaurantDialog = ({ open, onOpenChange }: CreateRestaurantDialogProps) => {
-  const [isLoading, setIsLoading] = useState(false);
   const { createRestaurant } = useRestaurant();
+  const { fetchUser, invalidateUserCache } = useUserContext();
+  const { setSelectedRestaurant } = useRestaurantContext();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<CreateRestaurantDto>({
     mode: 'onChange',
@@ -112,8 +134,21 @@ const CreateRestaurantDialog = ({ open, onOpenChange }: CreateRestaurantDialogPr
     }
 
     try {
-      await createRestaurant(data);
+      const createdRestaurant = await createRestaurant(data);
       toast.success("Restaurante criado com sucesso!");
+      
+      // Invalidar cache do usuário para buscar dados atualizados
+      invalidateUserCache();
+      
+      // Buscar dados atualizados do usuário
+      await fetchUser();
+      
+      // Auto-selecionar o restaurante criado
+      if (createdRestaurant && createdRestaurant._id) {
+        setSelectedRestaurant(createdRestaurant._id);
+        toast.success(`Restaurante "${createdRestaurant.name}" selecionado automaticamente!`);
+      }
+      
       onOpenChange(false);
       form.reset();
       setSelectedDays([]);
@@ -190,16 +225,31 @@ const CreateRestaurantDialog = ({ open, onOpenChange }: CreateRestaurantDialogPr
                 name="phone"
                 rules={{
                   required: 'Telefone é obrigatório',
-                  pattern: {
-                    value: /^\(\d{2}\)\s\d{4,5}-\d{4}$/,
-                    message: 'Formato inválido. Use: (11) 99999-9999'
+                  validate: (value) => {
+                    const digits = value.replace(/\D/g, '');
+                    if (digits.length < 10) {
+                      return 'Telefone deve ter pelo menos 10 dígitos';
+                    }
+                    if (digits.length > 11) {
+                      return 'Telefone deve ter no máximo 11 dígitos';
+                    }
+                    return true;
                   }
                 }}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Telefone</FormLabel>
                     <FormControl>
-                      <Input placeholder="(11) 99999-9999" {...field} />
+                      <Input 
+                        placeholder="(11) 99999-9999"
+                        value={field.value || ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const maskedValue = applyPhoneMask(value);
+                          field.onChange(maskedValue);
+                        }}
+                        maxLength={15}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -523,9 +573,9 @@ const CreateRestaurantDialog = ({ open, onOpenChange }: CreateRestaurantDialogPr
                     name={`workHours.${index}.day`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{DAYS_OF_WEEK.find(d => reverseMapDay(d) === day) || day}</FormLabel>
+                        <FormLabel>{mapDay(day)}</FormLabel>
                         <FormControl>
-                          <Input {...field} value={day} disabled />
+                          <Input {...field} value={mapDay(day)} disabled />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -536,7 +586,7 @@ const CreateRestaurantDialog = ({ open, onOpenChange }: CreateRestaurantDialogPr
                     control={form.control}
                     name={`workHours.${index}.open`}
                     rules={{
-                      required: 'Horário de abertura é obrigatório',
+                      required: true,
                       validate: validateTimeFormat
                     }}
                     render={({ field }) => (
@@ -558,7 +608,7 @@ const CreateRestaurantDialog = ({ open, onOpenChange }: CreateRestaurantDialogPr
                     control={form.control}
                     name={`workHours.${index}.close`}
                     rules={{
-                      required: 'Horário de fechamento é obrigatório',
+                      required: true,
                       validate: validateTimeFormat
                     }}
                     render={({ field }) => (

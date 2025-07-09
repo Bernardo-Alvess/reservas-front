@@ -5,13 +5,10 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useUserContext } from "../app/context/user/useUserContext";
 import { useEffect } from "react";
-import { useRestaurantContext } from "../app/context/selectedRestaurant/selectedRestaurantContext";
 
 export function Sidemenu() {
   const pathname = usePathname();
   const { user } = useUserContext();
-  const { selectedRestaurant } = useRestaurantContext();
-
 
   const menuItems = {
     company: [
@@ -23,6 +20,7 @@ export function Sidemenu() {
       { label: "Info Restaurante", path: "/info" },
     ],
     admin: [
+      { label: "Selecionar Restaurante", path: "/restaurants" },
       { label: "Dashboard", path: "/dashboard" },
       { label: "Mesas", path: "/tables" },
       { label: "Reservas", path: "/reserves" },
@@ -30,6 +28,7 @@ export function Sidemenu() {
       { label: "Info Restaurante", path: "/info" },
     ],
     worker: [
+      { label: "Selecionar Restaurante", path: "/restaurants" },
       { label: "Dashboard", path: "/dashboard" },
       { label: "Mesas", path: "/tables" },
       { label: "Reservas", path: "/reserves" },
@@ -48,15 +47,7 @@ export function Sidemenu() {
   return (
     <aside className="w-64 bg-zinc-800 text-white px-4 py-6">
       <nav className="space-y-2">
-        {!selectedRestaurant && user.type === 'company' ? (
-          <Link
-            href={`/restaurants`}
-            className="block rounded px-3 py-2 transition-colors hover:bg-zinc-700"
-          >
-            Selecionar Restaurante
-          </Link>
-        ) : (
-           menuItems[user.type as keyof typeof menuItems].map((item) => (
+        {menuItems[user.type as keyof typeof menuItems].map((item) => (
           <Link
             key={item.path}
             href={item.path}
@@ -67,9 +58,7 @@ export function Sidemenu() {
           >
             {item.label}
           </Link>
-        ))
-        )}
-       
+        ))}
       </nav>
     </aside>
   );

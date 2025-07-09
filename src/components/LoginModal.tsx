@@ -146,8 +146,8 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
                     </span>
                   )}
                 </div>
-                <Button type="submit" className="w-full">
-                  Enviar código
+                <Button type="submit" className="w-full" disabled={clientEmailForm.formState.isSubmitting}>
+                  {clientEmailForm.formState.isSubmitting ? "Enviando..." : "Enviar código"}
                 </Button>
                 <div className="text-center">
                   <Link 
@@ -190,8 +190,8 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
                     </span>
                   )}
                 </div>
-                <Button type="submit" className="w-full">
-                  Entrar
+                <Button type="submit" className="w-full" disabled={clientOTPForm.formState.isSubmitting}>
+                  {clientOTPForm.formState.isSubmitting ? "Entrando..." : "Entrar"}
                 </Button>
                 <Button 
                   type="button" 
@@ -249,8 +249,8 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
                   </span>
                 )}
               </div>
-              <Button type="submit" className="w-full">
-                Entrar
+              <Button type="submit" className="w-full" disabled={restaurantForm.formState.isSubmitting}>
+                {restaurantForm.formState.isSubmitting ? "Entrando..." : "Entrar"}
               </Button>
               <div className="text-center">
                 <Link 

@@ -18,13 +18,19 @@ const SelecionarRestaurante = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   useEffect(() => {
+    if(user?.restaurant.length === 1) {
+      setSelectedRestaurant(user.restaurant[0]._id);
+      return;
+    }
     const initialRestaurant = localStorage.getItem('restauranteSelecionado');
     if(initialRestaurant) {
       setSelectedRestaurant(initialRestaurant);
     } else {
       setSelectedRestaurant(null);
     }
-    if(!selectedRestaurant) {
+    
+    // Só mostrar toast se usuário é company e tem múltiplos restaurantes
+    if(!selectedRestaurant && user && user.type === 'company' && user.restaurant.length > 1) {
       toast.info('Selecione um restaurante para continuar');
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
@@ -49,13 +55,18 @@ const SelecionarRestaurante = () => {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Selecionar Restaurante</h1>
           <p className="text-muted-foreground">
-            Escolha o restaurante que você deseja gerenciar.
+            {user && user.type !== 'company' && user.restaurant.length === 1 
+              ? 'Seu restaurante está selecionado automaticamente.' 
+              : 'Escolha o restaurante que você deseja gerenciar.'
+            }
           </p>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)} className="flex items-center gap-2">
+        {user && user.type === 'company' && (
+          <Button onClick={() => setCreateDialogOpen(true)} className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
             Novo Restaurante
           </Button>
+        )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {user.restaurant.map((restaurant) => (
