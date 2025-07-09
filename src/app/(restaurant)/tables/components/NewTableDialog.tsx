@@ -25,7 +25,7 @@ export const NewTableDialog = ({ editingTable, buttonType = 'button' }: NewTable
     handleSubmit, 
     reset, 
     setValue,
-    formState: { errors } 
+    formState: { errors, isSubmitting } 
   } = methods;
 
   const isEditing = !!editingTable;
@@ -114,8 +114,12 @@ export const NewTableDialog = ({ editingTable, buttonType = 'button' }: NewTable
             <Button 
               type="submit" 
               className="w-full" 
+              disabled={isSubmitting}
             >
-              {isEditing ? "Atualizar Mesa" : "Adicionar Mesa"}
+              {isSubmitting 
+                ? (isEditing ? "Atualizando..." : "Adicionando...") 
+                : (isEditing ? "Atualizar Mesa" : "Adicionar Mesa")
+              }
             </Button>
           </form>
         </FormProvider>

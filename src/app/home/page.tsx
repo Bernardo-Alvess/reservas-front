@@ -167,7 +167,7 @@ const RestaurantSearch = () => {
             <Link href={`/restaurant/${restaurant._id}`}>
               <div className="relative h-48 overflow-hidden">
                 <img
-                  src={restaurant.profileImage?.url || "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
+                  src={restaurant.profileImage?.url || "/images/image-placeholder.jpg"}
                   alt={restaurant.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 pb-2"
                 />

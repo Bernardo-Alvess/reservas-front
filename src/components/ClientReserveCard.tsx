@@ -183,10 +183,10 @@ export const ClientReserveCard = ({ reservation }: ClientReserveCardProps) => {
             <div className="mt-4 p-3 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span>
-                  Cancelado pelo {reservation.canceledBy === "restaurant" ? "restaurante" : reservation.canceledBy === "client" ? "cliente" : "sistema pois passou da tolerância de 30 minutos"}
+                  Cancelado pelo {reservation.canceledBy === "restaurant" ? "restaurante" : reservation.canceledBy === "user" ? "cliente" : "sistema pois passou da tolerância de 30 minutos"}
                   {reservation.canceledAt && (
                     <span className="ml-2">
-                    em {format(new Date(reservation.canceledAt), "dd/MM/yyyy 'às' HH:mm")}
+                      em {format(new Date(reservation.canceledAt), "dd/MM/yyyy 'às' HH:mm")}
                     </span>
                   )}
                 </span>

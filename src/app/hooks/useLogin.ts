@@ -60,6 +60,14 @@ export const useLogin = () => {
       const user = await getUserLogged();
       setUserContext(user);
 
+      // Disparar evento para auto-seleção de restaurante
+      if (user && user.restaurant && user.restaurant.length > 0) {
+        // Pequeno delay para garantir que o contexto seja atualizado
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('userDataLoaded', { detail: user }));
+        }, 100);
+      }
+
       toast.success(data.message);
 
       await queryClient.invalidateQueries({ queryKey: ['user'] });
