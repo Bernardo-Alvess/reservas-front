@@ -13,6 +13,7 @@ import { useLogin } from "@/app/hooks/useLogin";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Eye, EyeOff } from "lucide-react";
 
 interface LoginModalProps {
   open: boolean;
@@ -40,6 +41,7 @@ type RestaurantLoginForm = z.infer<typeof restaurantLoginSchema>;
 export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
   const [clientLoginStep, setClientLoginStep] = useState<"email" | "otp">("email");
   const [clientEmail, setClientEmail] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   
   const { createOrUpdateOtp } = useUser();
   const { login } = useLogin();
@@ -98,6 +100,7 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
 
   const resetRestaurantLogin = () => {
     restaurantForm.reset();
+    setShowPassword(false);
   };
 
   return (
@@ -230,19 +233,35 @@ export const LoginModal = ({ open, onOpenChange }: LoginModalProps) => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="restaurant-password">Senha</Label>
-                <Controller
-                  name="password"
-                  control={restaurantForm.control}
-                  render={({ field }) => (
-                    <Input
-                      id="restaurant-password"
-                      type="password"
-                      placeholder="Sua senha"
-                      {...field}
-                      required
-                    />
-                  )}
-                />
+                <div className="relative">
+                  <Controller
+                    name="password"
+                    control={restaurantForm.control}
+                    render={({ field }) => (
+                      <Input
+                        id="restaurant-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Sua senha"
+                        {...field}
+                        required
+                        className="pr-10"
+                      />
+                    )}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
                 {restaurantForm.formState.errors.password && (
                   <span className="text-sm text-red-500">
                     {restaurantForm.formState.errors.password.message}
