@@ -303,7 +303,7 @@ const Restaurante = () => {
     if (isLoadingRestaurant) return (
         <div className="flex min-h-screen w-full">
             <Sidemenu />
-            <main className="flex p-6 bg-zinc-100 w-full justify-start">
+            <main className="flex p-6 bg-zinc-100 w-full items-center justify-center">
                 <LoadingSpinner 
                     text="Carregando informações do restaurante..." 
                     size="lg"
@@ -316,7 +316,7 @@ const Restaurante = () => {
     if (!id) return (
         <div className="flex min-h-screen w-full">
             <Sidemenu />
-            <main className="flex p-6 bg-zinc-100 w-full justify-start">
+            <main className="flex p-6 bg-zinc-100 w-full items-center justify-center">
                 <LoadingSpinner 
                     text="Inicializando..." 
                     size="lg"

@@ -40,13 +40,15 @@ export function AddUserDialog({
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setOpen = controlledOnOpenChange || setInternalOpen;
   
-  const { register, handleSubmit, reset, control, formState: { errors } } = useForm<CreateUserDto>({
+  const { register, handleSubmit, reset, control, formState } = useForm<CreateUserDto>({
     defaultValues: {
       email: '',
       name: '',
       type: UserTypeEnum.WORKER,
     }
   });
+
+  const { errors, isSubmitting } = formState;
 
   // Preencher formulário quando estiver em modo de edição
   useEffect(() => {
@@ -152,8 +154,11 @@ export function AddUserDialog({
               Cancelar
             </Button>
           )}
-          <Button type="submit">
-            {mode === 'edit' ? 'Atualizar Usuário' : 'Adicionar Usuário'}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting 
+              ? (mode === 'edit' ? 'Atualizando...' : 'Adicionando...') 
+              : (mode === 'edit' ? 'Atualizar Usuário' : 'Adicionar Usuário')
+            }
           </Button>
         </DialogFooter>
       </form>

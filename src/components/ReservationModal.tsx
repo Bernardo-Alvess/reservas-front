@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ import { Calendar } from "./ui/calendar";
 import { Controller } from "react-hook-form";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { useRestaurantContext } from "@/app/context/selectedRestaurant/selectedRestaurantContext";
+import { useUserContext } from "@/app/context/user/useUserContext";
 
 interface WorkHour {
   day: string;
@@ -35,9 +36,16 @@ interface ReservationModalProps {
 
 export const ReservationModal = ({ open, onOpenChange, restaurant, mode = 'client' }: ReservationModalProps) => {
   const { methods, createReserve } = useReserve(mode);
-  const { handleSubmit, control, formState: { errors }, reset } = methods;
+  const { handleSubmit, control, formState: { errors, isSubmitting }, reset } = methods;
   const [date, setDate] = useState<Date>();
   const {selectedRestaurant} = useRestaurantContext();
+  const { user } = useUserContext();
+
+  useEffect(() => {
+    if (open && user?.email) {
+      methods.setValue('email', user.email);
+    }
+  }, [open, user?.email, methods]);
 
   // Mapeamento de dias da semana (0 = Domingo, 1 = Segunda, etc.)
   const dayMap = {
@@ -128,7 +136,7 @@ export const ReservationModal = ({ open, onOpenChange, restaurant, mode = 'clien
         restaurantId: restaurant.id || selectedRestaurant || '',
         startTime: startDateTime.toISOString(),
         amountOfPeople: data.amountOfPeople,
-        email: data.email,
+        email: data.email || user?.email, // Preenche o email com o usuário logado ou o email fornecido
         name: data.name,
         notes: data.notes || undefined,
       };
@@ -315,8 +323,8 @@ export const ReservationModal = ({ open, onOpenChange, restaurant, mode = 'clien
             )}
           </div>
 
-          <Button type="submit" className="w-full">
-            Confirmar Reserva
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Criando reserva..." : "Confirmar Reserva"}
           </Button>
         </form>
       </DialogContent>

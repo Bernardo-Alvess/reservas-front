@@ -196,7 +196,7 @@ const Reservas = () => {
                             disabled={!!isLoadingRestaurant}
                         >
                             <Calendar className="w-4 h-4" />
-                            Nova Reserva (implementar)
+                            Nova Reserva
                         </Button>
                     </div>
 
@@ -251,7 +251,7 @@ const Reservas = () => {
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                             <Input
-                                placeholder="Buscar por nome do cliente..."
+                                placeholder="Buscar por nome do cliente ou nº da mesa..."
                                 value={searchTermDraft}
                                 onChange={(e) => setSearchTermDraft(e.target.value)}
                                 onKeyDown={(e) => {
