@@ -43,7 +43,6 @@ export const ClientReserveCard = ({ reservation }: ClientReserveCardProps) => {
     try {
       await confirmOrCancelReserve(id, 'client', mode);
       queryClient.invalidateQueries({ queryKey: ['reservations'] });
-      toast.success(`Reserva no ${restaurantName} ${mode === 'cancel' ? 'cancelada' : 'confirmada'} com sucesso`);
     } catch (error) {
       console.log(error)
       toast.error(`Erro ao ${mode === 'cancel' ? 'cancelar' : 'confirmar'} reserva`);
@@ -179,7 +178,7 @@ export const ClientReserveCard = ({ reservation }: ClientReserveCardProps) => {
           </div>
 
           {/* Additional Info */}
-          {reservation.canceledBy && (
+          {reservation.canceledBy && reservation.status.toLowerCase() === "cancelada" && (
             <div className="mt-4 p-3 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span>
