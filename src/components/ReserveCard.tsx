@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { Reserva, useReserve } from "@/app/hooks/useReserve";
 import { Badge } from "./ui/badge";
 import { formatDate, formatTime } from "@/lib/formatDate";
+import { useState } from "react";
 
 interface ReserveCardProps {
   reservation: Reserva;
@@ -17,14 +18,17 @@ const ReserveCard = ({
 
   const clientName = reservation.name;
   const clientEmail = reservation.email || reservation.clientId?.email || '';
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { confirmOrCancelReserve } = useReserve();
 
   const handleStatusChange = async (reserveId: string, mode: 'confirm' | 'cancel') => {
     try {
+      setIsSubmitting(true);
       await confirmOrCancelReserve(reserveId, 'restaurant', mode);
+      setIsSubmitting(false);
     } catch (error) {
       console.error('Erro ao atualizar status da reserva:', error);
+      setIsSubmitting(false);
     }
   };
 
@@ -113,8 +117,9 @@ const ReserveCard = ({
                   size="sm" 
                   variant="destructive"
                   onClick={() => handleStatusChange(reservation._id, 'cancel')}
+                  disabled={isSubmitting}
                 >
-                  Recusar
+                  {isSubmitting ? "Recusando..." : "Recusar"}
                 </Button>
               </>
             )}
@@ -123,13 +128,23 @@ const ReserveCard = ({
                 size="sm" 
                 variant="outline"
                 onClick={() => handleStatusChange(reservation._id, 'confirm')}
+                disabled={isSubmitting}
               >
-                Confirmar
+                {isSubmitting ? "Confirmando..." : "Confirmar"}
               </Button>
             )}
           </div>
         </div>
       </CardContent>
+      {
+        reservation.notes && (
+          <CardContent>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>Observação: {reservation.notes}</span>
+            </div>
+          </CardContent>
+        )
+      }
       {reservation.canceledBy && (
         <CardContent>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
