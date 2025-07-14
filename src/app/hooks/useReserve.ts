@@ -54,6 +54,7 @@ export interface Reserva {
     restaurantId: string;
   };
   tableNumber: number;
+  notes?: string;
 }
 
 export const useReserve = (mode?: string) => {
